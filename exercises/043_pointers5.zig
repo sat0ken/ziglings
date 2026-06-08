@@ -1,22 +1,20 @@
 //
-// As with integers, you can pass a pointer to a struct when you
-// will wish to modify that struct. Pointers are also useful when
-// you need to store a reference to a struct (a "link" to it).
+// 整数と同様に、構造体を変更したい場合は構造体へのポインタを渡すことができます。
+// ポインタは構造体への参照（「リンク」）を保持する必要があるときにも役立ちます。
 //
 //     const Vertex = struct{ x: u32, y: u32, z: u32 };
 //
 //     var v1 = Vertex{ .x=3, .y=2, .z=5 };
 //
-//     var pv: *Vertex = &v1;   // <-- a pointer to our struct
+//     var pv: *Vertex = &v1;   // <-- 構造体へのポインタ
 //
-// Note that you don't need to dereference the "pv" pointer to access
-// the struct's fields:
+// "pv" ポインタを逆参照しなくても構造体のフィールドにアクセスできることに注意してください：
 //
-//     YES: pv.x
-//     NO:  pv.*.x
+//     OK:  pv.x
+//     NG:  pv.*.x
 //
-// We can write functions that take pointers to structs as
-// arguments. This foo() function modifies struct v:
+// 構造体へのポインタを引数として受け取る関数を書くことができます。
+// この foo() 関数は構造体 v を変更します：
 //
 //     fn foo(v: *Vertex) void {
 //         v.x += 2;
@@ -24,13 +22,12 @@
 //         v.z += 7;
 //     }
 //
-// And call them like so:
+// そして次のように呼び出します：
 //
 //     foo(&v1);
 //
-// Let's revisit our RPG example and make a printCharacter() function
-// that takes a Character by reference and prints it...*and*
-// prints a linked "mentor" Character, if there is one.
+// RPG の例に戻って、Character を参照で受け取り表示する printCharacter() 関数を
+// 作りましょう。さらに、リンクされた "mentor" の Character がある場合はそれも表示します。
 //
 const std = @import("std");
 
@@ -44,11 +41,11 @@ const Class = enum {
 const Character = struct {
     class: Class,
     gold: u32,
-    health: u8 = 100, // You can provide default values
+    health: u8 = 100, // デフォルト値を指定できます
     experience: u32,
 
-    // I need to use the '?' here to allow for a null value. But
-    // I don't explain it until later. Please don't tell anyone.
+    // null 値を許可するために '?' を使用する必要があります。
+    // ただし、これについては後で説明します。誰にも言わないでください。
     mentor: ?*Character = null,
 };
 
@@ -59,23 +56,23 @@ pub fn main() void {
         .experience = 2340,
     };
 
-    var glorp = Character{ // Glorp!
+    var glorp = Character{ // Glorp！
         .class = Class.wizard,
         .gold = 10,
         .experience = 20,
-        .mentor = &mighty_krodor, // Glorp's mentor is the Mighty Krodor
+        .mentor = &mighty_krodor, // Glorp のメンターは Mighty Krodor
     };
 
-    // FIX ME!
-    // Please pass Glorp to printCharacter():
+    // 修正してください！
+    // Glorp を printCharacter() に渡してください：
     printCharacter(???);
 }
 
-// Note how this function's "c" parameter is a pointer to a Character struct.
+// この関数のパラメータ "c" は Character 構造体へのポインタです。
 fn printCharacter(c: *Character) void {
-    // Here's something you haven't seen before: when switching an enum, you
-    // don't have to write the full enum name. Zig understands that ".wizard"
-    // means "Class.wizard" when we switch on a Class enum value:
+    // 以前に見たことのない書き方です：enum で switch するとき、
+    // 完全な enum 名を書く必要はありません。Zig は Class の enum 値で
+    // switch するときに ".wizard" が "Class.wizard" を意味すると理解しています：
     const class_name = switch (c.class) {
         .wizard => "Wizard",
         .thief => "Thief",
@@ -90,8 +87,8 @@ fn printCharacter(c: *Character) void {
         c.experience,
     });
 
-    // Checking an "optional" value and capturing it will be
-    // explained later (this pairs with the '?' mentioned above.)
+    // "optional" 値を確認してキャプチャする方法については
+    // 後で説明します（上記の '?' と対になります）。
     if (c.mentor) |mentor| {
         std.debug.print("  Mentor: ", .{});
         printCharacter(mentor);

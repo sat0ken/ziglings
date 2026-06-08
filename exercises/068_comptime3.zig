@@ -1,25 +1,25 @@
 //
-// You can also put 'comptime' before a function parameter to
-// enforce that the argument passed to the function must be known
-// at compile time. We've actually been using a function like
-// this the entire time, std.debug.print():
+// 関数パラメータの前に 'comptime' を置くことで、
+// その関数に渡される引数がコンパイル時に既知でなければ
+// ならないことを強制できます。実はずっとこのような関数を
+// 使っていました。std.debug.print() がそうです：
 //
 //     fn print(comptime fmt: []const u8, args: anytype) void
 //
-// Notice that the format string parameter 'fmt' is marked as
-// 'comptime'.  One of the neat benefits of this is that the
-// format string can be checked for errors at compile time rather
-// than crashing at runtime.
+// フォーマット文字列パラメータ 'fmt' が 'comptime' と
+// マークされていることに注意してください。これの便利な点の
+// 1つは、フォーマット文字列のエラーを実行時クラッシュではなく
+// コンパイル時に確認できることです。
 //
-// (The actual formatting is done by std.Io.Writer.print() and it
-// contains a complete format string parser that runs entirely at
-// compile time!)
+// （実際のフォーマット処理は std.Io.Writer.print() によって行われ、
+// 完全なフォーマット文字列パーサーを含みます。これはすべて
+// コンパイル時に実行されます！）
 //
 const print = @import("std").debug.print;
 
-// This struct is the model of a model boat. We can transform it
-// to any scale we would like: 1:2 is half-size, 1:32 is
-// thirty-two times smaller than the real thing, and so forth.
+// この構造体はモデルボートのモデルです。好きなスケールに
+// 変換できます：1:2 は半分のサイズ、1:32 は実物の32分の1、
+// などです。
 const Schooner = struct {
     name: []const u8,
     scale: u32 = 1,
@@ -30,19 +30,17 @@ const Schooner = struct {
     fn scaleMe(self: *Schooner, comptime scale: u32) void {
         comptime var my_scale = scale;
 
-        // We did something neat here: we've anticipated the
-        // possibility of accidentally attempting to create a
-        // scale of 1:0. Rather than having this result in a
-        // divide-by-zero error at runtime, we've turned this
-        // into a compile error.
+        // ここでは気の利いたことをしています：誤って
+        // 1:0 のスケールを作ろうとする可能性を予測しています。
+        // 実行時にゼロ除算エラーになる代わりに、
+        // コンパイルエラーにしています。
         //
-        // This is probably the correct solution most of the
-        // time. But our model boat model program is very casual
-        // and we just want it to "do what I mean" and keep
-        // working.
+        // これはほとんどの場合において正しい解決策でしょう。
+        // しかし、私たちのモデルボートモデルプログラムは
+        // とてもカジュアルで、「意図した通りに動く」ことを
+        // 望んでいます。
         //
-        // Please change this so that it sets a 0 scale to 1
-        // instead.
+        // スケール0を1に設定するように変更してください。
         if (my_scale == 0) @compileError("Scale 1:0 is not valid!");
 
         self.scale = my_scale;
@@ -66,43 +64,40 @@ pub fn main() void {
     var shark = Schooner{ .name = "Shark" };
     var minnow = Schooner{ .name = "Minnow" };
 
-    // Hey, we can't just pass this runtime variable as an
-    // argument to the scaleMe() method. What would let us do
-    // that?
+    // ちょっと待ってください。このランタイム変数を
+    // scaleMe() メソッドの引数として渡すことはできません。
+    // それを可能にするには何が必要でしょうか？
     var scale: u32 = undefined;
 
-    scale = 32; // 1:32 scale
+    scale = 32; // 1:32 スケール
 
     minnow.scaleMe(scale);
     minnow.printMe();
 
-    scale -= 16; // 1:16 scale
+    scale -= 16; // 1:16 スケール
 
     shark.scaleMe(scale);
     shark.printMe();
 
-    scale -= 16; // 1:0 scale (oops, but DON'T FIX THIS!)
+    scale -= 16; // 1:0 スケール（おっと、でもこれは修正しないでください！）
 
     whale.scaleMe(scale);
     whale.printMe();
 }
 //
-// Going deeper:
+// 深掘り：
 //
-// What would happen if you DID attempt to build a model in the
-// scale of 1:0?
+// 1:0 のスケールでモデルを作ろうとするとどうなるでしょうか？
 //
-//    A) You're already done!
-//    B) You would suffer a mental divide-by-zero error.
-//    C) You would construct a singularity and destroy the
-//       planet.
+//    A) すでに完成しています！
+//    B) 精神的なゼロ除算エラーに苦しみます。
+//    C) 特異点を構築して地球を破壊します。
 //
-// And how about a model in the scale of 0:1?
+// 0:1 のスケールのモデルはどうでしょう？
 //
-//    A) You're already done!
-//    B) You'd arrange nothing carefully into the form of the
-//       original nothing but infinitely larger.
-//    C) You would construct a singularity and destroy the
-//       planet.
+//    A) すでに完成しています！
+//    B) 何もないものを元の何もないものの無限大の形に
+//       丁寧に配置します。
+//    C) 特異点を構築して地球を破壊します。
 //
-// Answers can be found on the back of the Ziglings packaging.
+// 答えはZiglingsパッケージの裏面にあります。

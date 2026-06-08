@@ -1,31 +1,29 @@
 //
-// Often, C functions are used where no equivalent Zig function exists
-// yet. Okay, that's getting less and less. ;-)
+// C 関数は、まだ同等の Zig 関数が存在しない場合によく使われます。
+// まあ、それはどんどん少なくなっています。;-)
 //
-// Since the integration of a C function is very simple, as already
-// seen in the last exercise, it naturally offers itself to use the
-// very large variety of C functions for our own programs.
-// As an example:
+// C 関数の統合は非常に簡単なため、前の演習で見たように、
+// 自分のプログラムに非常に多くの C 関数を活用するのは自然なことです。
+// 例として：
 //
-// Let's say we have a given angle of 765.2 degrees. If we want to
-// normalize that, it means that we have to subtract X * 360 degrees
-// to get the correct angle.
-// How could we do that? A good method is to use the modulo function.
-// But if we write "765.2 % 360", it only works with float values
-// that are known at compile time.
-// In Zig, we would use @mod(a, b) instead.
+// 765.2 度という角度が与えられているとします。それを正規化したい場合、
+// 正しい角度を得るために X * 360 度を引く必要があります。
+// どうすればよいでしょうか？良い方法はモジュロ関数を使うことです。
+// しかし「765.2 % 360」と書いても、コンパイル時に知られている
+// 浮動小数点値にしか機能しません。
+// Zig では代わりに @mod(a, b) を使います。
 //
-// Let us now assume that we cannot do this in Zig, but only with
-// a C function from the standard library. In the library "math",
-// there is a function called "fmod"; the "f" stands for floating
-// and means that we can solve modulo for real numbers. With this
-// function, it should be possible to normalize our angle.
-// Let's go.
+// ここでは Zig ではできず、標準ライブラリの C 関数のみで
+// できると仮定してみましょう。ライブラリ "math" には
+// "fmod" という関数があります。"f" は浮動小数点を意味し、
+// 実数のモジュロを解けることを意味します。この関数で
+// 角度を正規化できるはずです。
+// やってみましょう。
 
 const std = @import("std");
 
 const c = @cImport({
-    // What do we need here?
+    // ここに何が必要ですか？
     ???
 });
 
@@ -33,9 +31,9 @@ pub fn main() !void {
     const angle = 765.2;
     const circle = 360;
 
-    // Here we call the C function 'fmod' to get our normalized angle.
+    // 正規化された角度を得るために C 関数 'fmod' を呼び出します。
     const result = c.fmod(angle, circle);
 
-    // We use formatters for the desired precision and to truncate the decimal places
+    // 望む精度と小数点以下の桁数を切り捨てるためにフォーマッターを使います
     std.debug.print("The normalized angle of {d: >3.1} degrees is {d: >3.1} degrees.\n", .{ angle, result });
 }

@@ -1,84 +1,77 @@
 //
-// Terminals have come a long way over the years. Starting with
-// monochrome lines on flickering CRT monitors and continuously
-// improving to today's modern terminal emulators with sharp
-// images, true color, fonts, ligatures, and characters in every
-// known language.
+// ターミナルは長年にわたって大きく進化してきました。点滅するCRTモニターの
+// モノクロ表示から始まり、今日のモダンなターミナルエミュレーターへと
+// 継続的に改善され、鮮明な画像、トゥルーカラー、フォント、合字、そして
+// あらゆる言語の文字が使えるようになっています。
 //
-// Formatting our results to be appealing and allow quick visual
-// comprehension of the information is what users desire. <3
+// 結果を見やすく整形し、情報をすばやく視覚的に理解できるようにすることが
+// ユーザーの望みです。 <3
 //
-// C set string formatting standards over the years, and Zig is
-// following suit and growing daily. Due to this growth, there is
-// no official documentation for standard library features such
-// as string formatting.
+// Cは長年にわたって文字列フォーマットの標準を設定してきており、Zigも
+// その流れに沿って日々成長しています。この成長のため、文字列フォーマットなどの
+// 標準ライブラリの機能について公式ドキュメントはまだありません。
 //
-// Therefore, the comments for the print() function are the only
-// way to definitively learn how to format strings in Zig:
+// したがって、Zigで文字列をフォーマットする方法を確実に学ぶには、
+// print()関数のコメントが唯一の手段です：
 //
 //     https://ziglang.org/documentation/master/std/#std.Io.Writer.print
 //
-// Zig already has a very nice selection of formatting options.
-// These can be used in different ways, but generally to convert
-// numerical values into various text representations. The results
-// can be used for direct output to a terminal or stored for
-// later use or written to a file. The latter is useful when
-// large amounts of data are to be processed by other programs.
+// Zigにはすでに非常に充実したフォーマットオプションがあります。
+// これらはさまざまな方法で使用できますが、一般的には数値を
+// さまざまなテキスト表現に変換するためのものです。結果は
+// ターミナルへの直接出力に使ったり、後で使用するために保存したり、
+// ファイルに書き込んだりすることができます。後者は大量のデータを
+// 他のプログラムで処理する場合に便利です。
 //
-// In Ziglings, we are concerned with the output to the console.
-// But since the formatting instructions for files are the same,
-// what you learn applies universally.
+// Ziglingsではコンソールへの出力を扱います。
+// しかし、ファイルのフォーマット指示は同じなので、
+// ここで学んだことは普遍的に適用できます。
 //
-// Since we write to "debug" output in Ziglings, our answers
-// usually look something like this:
+// Ziglingsでは"debug"出力に書き込むので、私たちの答えは
+// 通常次のようになります：
 //
 //      print("Text {placeholder} another text \n", .{foo});
 //
-// In addition to being replaced with foo in this example, the
-// {placeholder} in the string can also have formatting applied.
-// How does that work?
+// この例でfooに置き換えられることに加えて、
+// 文字列内の{placeholder}にはフォーマットを適用することもできます。
+// それはどのように機能するのでしょうか？
 //
-// This actually happens in several stages. In one stage, escape
-// sequences are evaluated. The one we've seen the most
-// (including the example above) is "\n" which means "line feed".
-// Whenever this statement is found, a new line is started in the
-// output. Escape sequences can also be written one after the
-// other, e.g. "\n\n" will cause two line feeds.
+// これは実際にはいくつかの段階で行われます。ある段階では、
+// エスケープシーケンスが評価されます。最もよく見かけるもの
+//（上の例を含む）は"\n"で、「改行」を意味します。
+// このステートメントが見つかるたびに、出力に新しい行が開始されます。
+// エスケープシーケンスを連続して書くこともでき、例えば"\n\n"は
+// 2つの改行を引き起こします。
 //
-// By the way, the result of these escape sequences is passed
-// directly to the terminal program. Other than translating them
-// into control codes, escape sequences have nothing to do with
-// Zig. Zig knows nothing about "line feeds" or "tabs" or
-// "bells".
+// ちなみに、これらのエスケープシーケンスの結果は
+// ターミナルプログラムに直接渡されます。それらを制御コードに
+// 変換する以外に、エスケープシーケンスはZigとは無関係です。
+// Zigは「改行」や「タブ」や「ベル」については何も知りません。
 //
-// The formatting that Zig *does* perform itself is found in the
-// curly brackets: "{placeholder}". Formatting instructions in
-// the placeholder will determine how the corresponding value,
-// e.g. foo, is displayed.
+// Zig自体が*実際に*行うフォーマットは、波括弧の中に
+// あります："{placeholder}"。プレースホルダー内のフォーマット指示が、
+// 対応する値（例：foo）の表示方法を決定します。
 //
-// And this is where it gets exciting, because print() accepts a
-// variety of formatting instructions. It's basically a tiny
-// language of its own. Here's a numeric example:
+// これが面白いところで、print()はさまざまなフォーマット指示を受け入れます。
+// 基本的にはそれ自体が小さな言語のようなものです。数値の例を示します：
 //
 //     print("Catch-0x{x:0>4}.", .{twenty_two});
 //
-// This formatting instruction outputs a hexadecimal number with
-// leading zeros:
+// このフォーマット指示は先行ゼロ付きの16進数を出力します：
 //
 //     Catch-0x0016.
 //
-// Or you can center-align a string like so:
+// または、次のように文字列を中央揃えにすることもできます：
 //
 //     print("{s:*^20}\n", .{"Hello!"});
 //
-// Output:
+// 出力：
 //
 //     *******Hello!*******
 //
-// Let's try making use of some formatting. We've decided that
-// the one thing missing from our lives is a multiplication table
-// for all numbers from 1-15. We want the table to be nice and
-// neat, with numbers in straight columns like so:
+// フォーマットを活用してみましょう。私たちの生活に欠けているものは
+// 1〜15のすべての数字の掛け算表だと判断しました。表を美しく
+// 整えて、次のように数字をまっすぐな列に並べたいと思います：
 //
 //      X |  1   2   3   4   5  ...
 //     ---+---+---+---+---+---+
@@ -94,47 +87,45 @@
 //
 //      ...
 //
-// Without string formatting, this would be a more challenging
-// assignment because the number of digits in the numbers varies
-// from 1 to 3. But formatting can help us with that.
+// 文字列フォーマットがなければ、数字の桁数が1〜3と異なるため、
+// これはより難しい課題になります。しかし、フォーマットがそれを助けてくれます。
 //
 const std = @import("std");
 const print = std.debug.print;
 
 pub fn main() !void {
-    // Max number to multiply
+    // 掛け算する最大の数
     const size = 15;
 
-    // Print the header:
+    // ヘッダーを出力します：
     //
-    // We start with a single 'X' for the diagonal.
+    // 対角線のために最初に'X'を1つ出力します。
     print("\n X |", .{});
 
-    // Header row with all numbers from 1 to size.
+    // 1からsizeまでのすべての数字のヘッダー行。
     for (0..size) |n| {
         print("{d:>3} ", .{n + 1});
     }
     print("\n", .{});
 
-    // Header column rule line.
+    // ヘッダー列のルール線。
     var n: u8 = 0;
     while (n <= size) : (n += 1) {
         print("---+", .{});
     }
     print("\n", .{});
 
-    // Now the actual table. (Is there anything more beautiful
-    // than a well-formatted table?)
+    // そして実際の表です。（きれいにフォーマットされた表ほど
+    // 美しいものはありませんか？）
     for (0..size) |a| {
         print("{d:>2} |", .{a + 1});
 
         for (0..size) |b| {
-            // What formatting is needed here to make our columns
-            // nice and straight?
+            // 列をまっすぐにするにはどのフォーマットが必要でしょうか？
             print("{???} ", .{(a + 1) * (b + 1)});
         }
 
-        // After each row we use double line feed:
+        // 各行の後に2つの改行を使います：
         print("\n\n", .{});
     }
 }

@@ -1,64 +1,62 @@
 //
-// Another useful application for bit manipulation is setting bits as flags.
-// This is especially useful when processing lists of something and storing
-// the states of the entries, e.g. a list of numbers and for each prime
-// number a flag is set.
+// ビット操作のもう一つの便利な応用は、ビットをフラグとして設定することです。
+// これは特に、何かのリストを処理して各エントリの状態を保存する場合に便利です。
+// 例えば、数値のリストで各素数にフラグを設定するような場合です。
 //
-// As an example, let's take the Pangram exercise from Exercism:
+// 例として、ExercismのPangramエクササイズを取り上げましょう：
 // https://exercism.org/tracks/zig/exercises/pangram
 //
-// A pangram is a sentence using every letter of the alphabet at least once.
-// It is case insensitive, so it doesn't matter if a letter is lower-case
-// or upper-case. The best known English pangram is:
+// パングラムとは、アルファベットのすべての文字を少なくとも1回使用した文章のことです。
+// 大文字小文字を区別しないので、文字が小文字か大文字かは関係ありません。
+// 最もよく知られている英語のパングラムは：
 //
 //           "The quick brown fox jumps over the lazy dog."
 //
-// There are several ways to select the letters that appear in the pangram
-// (and it doesn't matter if they appear once or several times).
+// パングラムに含まれる文字を選択するにはいくつかの方法があります
+//（文字が1回または複数回出現しても関係ありません）。
 //
-// For example, you could take an array of bool and set the value to 'true'
-// for each letter in the order of the alphabet (a=0; b=1; etc.) found in
-// the sentence. However, this is neither memory efficient nor particularly
-// fast. Instead we choose a simpler approach that is very similar in principle:
-// We define a variable with at least 26 bits (e.g. u32) and set the bit for
-// each letter that is found in the corresponding position.
+// 例えば、bool型の配列を使って、文の中に見つかった各文字に対して
+// アルファベット順（a=0; b=1; など）に'true'を設定することができます。
+// しかし、これはメモリ効率も良くなく、特に速くもありません。
+// 代わりに、原理的には非常に似たよりシンプルなアプローチを選びます：
+// 少なくとも26ビットを持つ変数（例：u32）を定義し、
+// 見つかった各文字に対して対応する位置のビットを設定します。
 //
-// Zig provides functions for this in the standard library, but we prefer to
-// solve it without these extras, after all we want to learn something.
+// Zigは標準ライブラリにこのための関数を提供していますが、
+// これらの追加機能なしで解くことにします。結局、何かを学びたいのですから。
 //
 const std = @import("std");
 const ascii = std.ascii;
 const print = std.debug.print;
 
 pub fn main() !void {
-    // let's check the pangram
+    // パングラムかどうかを確認しましょう
     print("Is this a pangram? {}!\n", .{isPangram("The quick brown fox jumps over the lazy dog.")});
 }
 
 fn isPangram(str: []const u8) bool {
-    // first we check if the string has at least 26 characters
+    // まず文字列が少なくとも26文字あるか確認します
     if (str.len < 26) return false;
 
-    // we use a 32 bit variable of which we need 26 bits
+    // 26ビットが必要な32ビット変数を使います
     var bits: u32 = 0;
 
-    // loop about all characters in the string
+    // 文字列のすべての文字についてループします
     for (str) |c| {
-        // if the character is an alphabetical character
+        // アルファベット文字であれば
         if (ascii.isAscii(c) and ascii.isAlphabetic(c)) {
-            // then we set the bit at the position
+            // その位置のビットを設定します
             //
-            // to do this, we use a little trick:
-            // since the letters in the ASCII table start at 65
-            // and are numbered sequentially, we simply subtract the
-            // first letter (in this case the 'a') from the character
-            // found, and thus get the position of the desired bit
+            // これには小さなトリックを使います：
+            // ASCIIテーブルの文字は65から始まり順番に番号付けられているため、
+            // 見つかった文字から最初の文字（この場合'a'）を引くだけで
+            // 目的のビットの位置が得られます
             bits |= @as(u32, 1) << @truncate(ascii.toLower(c) - 'a');
         }
     }
-    // last we return the comparison if all 26 bits are set,
-    // and if so, we know the given string is a pangram
+    // 最後に26ビットすべてが設定されているか比較した結果を返します。
+    // そうであれば、与えられた文字列がパングラムであることがわかります
     //
-    // but what do we have to compare?
+    // しかし、何と比較すればよいのでしょうか？
     return bits == 0x..???;
 }

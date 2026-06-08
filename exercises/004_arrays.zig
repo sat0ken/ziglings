@@ -1,49 +1,49 @@
 //
-// Let's learn some array basics. Arrays are declared with:
+// 配列の基本を学びましょう。配列はこのように宣言します：
 //
 //   var foo: [3]u32 = [3]u32{ 42, 108, 5423 };
 //
-// When Zig can infer the size of the array, you can use '_' for the
-// size. You can also let Zig infer the type of the value so the
-// declaration is much less verbose.
+// Zigが配列のサイズを推論できる場合、サイズに '_' を使えます。
+// また、値の型もZigに推論させることができるので、
+// 宣言がずっとシンプルになります。
 //
 //   var foo = [_]u32{ 42, 108, 5423 };
 //
-// Get values of an array using array[index] notation:
+// 配列の値を取得するには array[index] 記法を使います：
 //
 //     const bar = foo[2]; // 5423
 //
-// Set values of an array using array[index] notation:
+// 配列の値を設定するには array[index] 記法を使います：
 //
 //     foo[2] = 16;
 //
-// Get the length of an array using the len property:
+// 配列の長さを取得するには len プロパティを使います：
 //
 //     const length = foo.len;
 //
 const std = @import("std");
 
 pub fn main() void {
-    // (Problem 1)
-    // This "const" is going to cause a problem later - can you see what it is?
-    // How do we fix it?
+    // （問題1）
+    // この "const" は後で問題を引き起こします - 何が問題か分かりますか？
+    // どう修正すればよいでしょうか？
     const some_primes = [_]u8{ 1, 3, 5, 7, 11, 13, 17, 19 };
 
-    // Individual values can be set with '[]' notation.
-    // Example: This line changes the first prime to 2 (which is correct):
+    // 値は '[]' 記法で設定できます。
+    // 例：この行は最初の素数を2に変更します（正しい値です）：
     some_primes[0] = 2;
 
-    // Individual values can also be accessed with '[]' notation.
-    // Example: This line stores the first prime in "first":
+    // 値は '[]' 記法でアクセスすることもできます。
+    // 例：この行は最初の素数を "first" に格納します：
     const first = some_primes[0];
 
-    // (Problem 2)
-    // Looks like we need to complete this expression. Use the example
-    // above to set "fourth" to the fourth element of the some_primes array:
+    // （問題2）
+    // この式を完成させる必要があります。上の例を参考にして、
+    // "fourth" に some_primes 配列の4番目の要素を設定してください：
     const fourth = some_primes[???];
 
-    // (Problem 3)
-    // Use the len property to get the length of the array:
+    // （問題3）
+    // len プロパティを使って配列の長さを取得してください：
     const length = some_primes.???;
 
     std.debug.print("First: {}, Fourth: {}, Length: {}\n", .{

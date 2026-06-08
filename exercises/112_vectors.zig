@@ -1,107 +1,102 @@
-// So far in Ziglings, we've seen how for loops can be used to
-// repeat calculations across an array in several ways.
+// Ziglingsでは、forループを使って配列に対して計算を繰り返す
+// いくつかの方法を見てきました。
 //
-// For loops are generally great for this kind of task, but
-// sometimes they don't fully utilize the capabilities of the
-// CPU.
+// forループはこの種のタスクには一般的に優れていますが、
+// CPUの能力を十分に活用できない場合があります。
 //
-// Most modern CPUs can execute instructions in which SEVERAL
-// calculations are performed WITHIN registers at the SAME TIME.
-// These are known as "single instruction, multiple data" (SIMD)
-// instructions. SIMD instructions can make code significantly
-// more performant.
+// 最近のCPUのほとんどは、レジスタ内で複数の計算を
+// 同時に実行できる命令を持っています。
+// これらは「単一命令、複数データ」（SIMD）命令として知られています。
+// SIMD命令はコードのパフォーマンスを大幅に向上させることができます。
 //
-// To see why, imagine we have a program in which we take the
-// square root of four (changing) f32 floats.
+// その理由を理解するために、4つの（変化する）f32浮動小数点数の
+// 平方根を求めるプログラムを考えてみましょう。
 //
-// A simple compiler would take the program and produce machine code
-// which calculates each square root sequentially. Most registers on
-// modern CPUs have 64 bits, so we could imagine that each float moves
-// into a 64-bit register, and the following happens four times:
+// 単純なコンパイラはプログラムを受け取り、各平方根を順番に計算する
+// 機械語を生成します。現代のCPUのほとんどのレジスタは64ビットなので、
+// 各浮動小数点数が64ビットレジスタに移動し、以下が4回起こると想像できます：
 //
-//            32 bits   32 bits
+//            32ビット   32ビット
 //          +-------------------+
-// register |    0    |    x    |
+// レジスタ  |    0    |    x    |
 //          +-------------------+
 //
 //                    |
-//           [SQRT instruction]
+//           [SQRT命令]
 //                    V
 //
 //          +-------------------+
 //          |    0    | sqrt(x) |
 //          +-------------------+
 //
-// Notice that half of the register contains blank data to which
-// nothing happened. What a waste! What if we were able to use
-// that space instead? This is the idea at the core of SIMD.
+// レジスタの半分には何も起きていない空白データが含まれていることに
+// 注目してください。なんと無駄なことでしょう！
+// その空間を代わりに使えたらどうでしょうか？これがSIMDの核心にある考えです。
 //
-// Most modern CPUs contain specialized registers with at least 128 bits
-// for performing SIMD instructions. On a machine with 128-bit SIMD
-// registers, a smart compiler would probably NOT issue four sqrt
-// instructions as above, but instead pack the floats into a single
-// 128-bit register, then execute a single "packed" sqrt
-// instruction to do ALL the square root calculations at once.
+// 最新のCPUのほとんどはSIMD命令実行のための少なくとも128ビットの
+// 専用レジスタを持っています。128ビットSIMDレジスタを持つマシンでは、
+// スマートなコンパイラは上記のように4つのsqrt命令を発行せず、
+// 浮動小数点数を単一の128ビットレジスタにパックし、
+// 単一の「パックされた」sqrt命令を実行して
+// すべての平方根計算を一度に行う可能性が高いです。
 //
-// For example:
+// 例えば：
 //
 //
-//             32 bits   32 bits   32 bits   32 bits
+//             32ビット  32ビット  32ビット  32ビット
 //           +---------------------------------------+
-// register  |   4.0   |   9.0   |  25.0   |  49.0   |
+// レジスタ   |   4.0   |   9.0   |  25.0   |  49.0   |
 //           +---------------------------------------+
 //
 //                              |
-//                  [SIMD SQRT instruction]
+//                  [SIMD SQRT命令]
 //                              V
 //
 //           +---------------------------------------+
-// register  |   2.0   |   3.0   |   5.0   |   7.0   |
+// レジスタ   |   2.0   |   3.0   |   5.0   |   7.0   |
 //           +---------------------------------------+
 //
-// Pretty cool, right?
+// かっこいいですよね？
 //
-// Code with SIMD instructions is usually more performant than code
-// without SIMD instructions. Zig cares a lot about performance,
-// so it has built-in support for SIMD! It has a data structure that
-// directly supports SIMD instructions:
+// SIMD命令を使用するコードは、使用しないコードよりも通常高性能です。
+// Zigはパフォーマンスを非常に重視しているため、SIMDのビルトインサポートがあります。
+// SIMD命令を直接サポートするデータ構造があります：
 //
 //                        +-----------+
-//                        |  Vectors  |
+//                        |  ベクタ   |
 //                        +-----------+
 //
-// Operations performed on vectors in Zig will be done in parallel using
-// SIMD instructions, whenever possible.
+// Zigでベクタに対して行われる操作は、可能な限りSIMD命令を使用して並列で実行されます。
 //
-// Defining vectors in Zig is straightforward. No library import is needed.
+// Zigでベクタを定義するのは簡単です。ライブラリのインポートは不要です。
 const v1 = @Vector(3, i32){ 1, 10, 100 };
 const v2 = @Vector(3, f32){ 2.0, 3.0, 5.0 };
 
-// Vectors support the same builtin operators as their underlying base types.
+// ベクタは基底型と同じビルトイン演算子をサポートします。
 const v3 = v1 + v1; // {   2,  20,  200};
 const v4 = v2 * v2; // { 4.0, 9.0, 25.0};
 
-// Intrinsics that apply to base types usually extend to vectors.
+// 基底型に適用される組み込み関数は通常ベクタにも拡張されます。
 const v5: @Vector(3, f32) = @floatFromInt(v3); // { 2.0,  20.0,  200.0}
 const v6 = v4 - v5; // { 2.0, -11.0, -175.0}
 const v7 = @abs(v6); // { 2.0,  11.0,  175.0}
 
-// We can make constant vectors, and reduce vectors.
+// 定数ベクタを作成してベクタを縮約することができます。
 const v8: @Vector(4, u8) = @splat(2); // { 2, 2, 2, 2}
 const v8_sum = @reduce(.Add, v8); // 8
 const v8_min = @reduce(.Min, v8); // 2
 
-// Fixed-length arrays can be automatically assigned to vectors (and vice-versa).
+// 固定長配列はベクタに自動的に割り当てられます（その逆も同様）。
 const single_digit_primes = [4]i8{ 2, 3, 5, 7 };
 const prime_vector: @Vector(4, i8) = single_digit_primes;
 
-// Now let's use vectors to simplify and optimize some code!
+// ではベクタを使ってコードを簡略化・最適化してみましょう！
 //
-// Ewa is writing a program in which they frequently want to compare
-// two lists of four f32s. Ewa expects the lists to be similar, and
-// wants to determine the largest pairwise difference between the lists.
+// Ewaは4つのf32のリストを頻繁に比較するプログラムを書いています。
+// Ewaはリストが似ていると予想していて、リスト間の最大のペアワイズ差を
+// 求めたいと思っています。
 //
-// Ewa wrote the following function to figure this out.
+// Ewaはこれを把握するために以下の関数を書きました。
 
 fn calcMaxPairwiseDiffOld(list1: [4]f32, list2: [4]f32) f32 {
     var max_diff: f32 = 0;
@@ -114,10 +109,10 @@ fn calcMaxPairwiseDiffOld(list1: [4]f32, list2: [4]f32) f32 {
     return max_diff;
 }
 
-// Ewa heard about vectors in Zig, and started writing a new vector
-// version of the function, but has got stuck!
+// EwaはZigのベクタについて聞き、新しいベクタ版の関数を書き始めましたが、
+// 行き詰まっています！
 //
-// Help Ewa finish the vector version! The examples above should help.
+// Ewaがベクタ版を完成させるのを手伝ってください！上記の例が役立つはずです。
 
 const Vec4 = @Vector(4, f32);
 fn calcMaxPairwiseDiffNew(a: Vec4, b: Vec4) f32 {
@@ -126,13 +121,11 @@ fn calcMaxPairwiseDiffNew(a: Vec4, b: Vec4) f32 {
     return max_diff;
 }
 
-// Quite the simplification! We could even write the function in one line
-// and it would still be readable.
+// かなりシンプルになりました！関数を1行で書いても読みやすいままです。
 //
-// Since the entire function is now expressed in terms of vector operations,
-// the Zig compiler will easily be able to compile it down to machine code
-// which utilizes the all-powerful SIMD instructions and does a lot of the
-// computation in parallel.
+// 関数全体がベクタ演算で表現されるようになったので、
+// Zigコンパイラはこれを強力なSIMD命令を活用して多くの計算を
+// 並列で実行する機械語に簡単にコンパイルできます。
 
 const std = @import("std");
 const print = std.debug.print;

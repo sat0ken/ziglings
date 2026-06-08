@@ -1,13 +1,13 @@
 //
-// We've already learned about switch statements in exercises 030, 031 and 108.
-// They also work with packed containers:
+// エクササイズ030、031、108でswitch文を学びました。
+// packed コンテナでも使えます：
 
 const S = packed struct(u2) {
     a: bool,
     b: i1,
 };
 
-// Try to make it compile without adding an `else` prong!
+// `else`プロングを追加せずにコンパイルできるようにしてみましょう！
 
 comptime {
     const s: S = .{ .a = true, .b = -1 };
@@ -20,18 +20,17 @@ comptime {
     }
 }
 
-// As we can see, switching on packed structs is pretty straightforward.
-// When switching on packed unions however, we'll realize that a packed
-// union never keeps track of its active tag, not even in debug mode! This
-// means that packed unions compare solely by their bit pattern (again, just
-// like integers).
+// 見てわかるように、packed structへのswitchはかなり簡単です。
+// しかしpacked unionにswitchする場合、packed unionはデバッグモードでも
+// アクティブなタグを追跡しないことに気づきます！
+// つまり、packed unionはビットパターンだけで比較されます（再び、整数と同様に）。
 
 const U = packed union(u2) {
     a: u2,
     b: i2,
 };
 
-// Find and remove the duplicate case!
+// 重複するケースを見つけて削除してください！
 
 comptime {
     const u: U = .{ .a = 3 };
@@ -45,13 +44,13 @@ comptime {
     }
 }
 
-// Since packed unions don't have the concept of an active tag, it's always legal
-// to access any of their fields. This can be useful to view the same data from
-// different perspectives seamlessly.
+// packed unionにはアクティブなタグの概念がないため、
+// そのフィールドにいつでもアクセスすることが合法です。
+// これにより同じデータをシームレスに異なる視点から見るのに便利です。
 //
-// Try to make the float below negative:
+// 以下のfloatを負にしてみましょう：
 
-/// IEEE 754 half precision float
+/// IEEE 754 半精度浮動小数点数
 const Float = packed union(u16) {
     value: f16,
     bits: packed struct(u16) {
@@ -62,7 +61,7 @@ const Float = packed union(u16) {
 };
 
 pub fn main() void {
-    // Reminder: if the sign bit of a float is set, the number is negative!
+    // リマインダー：floatの符号ビットがセットされている場合、その数は負です！
 
     var number: Float = .{ .value = 2.34 };
     number.bits.??? = ???;
@@ -71,8 +70,8 @@ pub fn main() void {
     }
 }
 
-// This concludes our introduction to packed containers. The next time you need
-// control over individual bits, keep them in mind as a potent alternative!
+// これでpacked コンテナの入門は完了です。次に個々のビットを
+// 制御する必要があるときは、強力な代替手段として覚えておいてください！
 //
 
 const std = @import("std");

@@ -1,90 +1,91 @@
 //
-// Until now, we've only been printing our output in the console,
-// which is good enough for fighting aliens and hermit bookkeeping.
+// これまでは、エイリアンとの戦いや隠者の帳簿管理には十分な
+// コンソール出力だけを行ってきました。
 //
-// However, many other tasks require some interaction with the file system,
-// which is the underlying structure for organizing files on your computer.
+// しかし、他の多くのタスクではファイルシステムとのやり取りが必要です。
+// ファイルシステムはコンピュータ上のファイルを整理するための
+// 基盤となる構造です。
 //
-// The file system provides a hierarchical structure for storing files
-// by organizing them into directories, which hold files and other directories,
-// thus creating a tree structure that can be navigated.
+// ファイルシステムはファイルをディレクトリに整理することで
+// 階層的な構造を提供します。ディレクトリはファイルと他のディレクトリを保持し、
+// ナビゲート可能なツリー構造を作成します。
 //
-// Fortunately, the Zig Standard Library provides a simple API for interacting
-// with the file system, see the detail documentation here:
+// 幸いなことに、Zig標準ライブラリはファイルシステムと
+// やり取りするためのシンプルなAPIを提供しています。
+// 詳細なドキュメントはこちら：
 //
 // https://ziglang.org/documentation/master/std/#std.Io
 //
-// In this exercise, we'll try to:
-//   - create a new directory,
-//   - open a file in the directory,
-//   - write to the file.
+// このエクササイズでは以下を試みます：
+//   - 新しいディレクトリを作成する、
+//   - そのディレクトリにファイルを開く、
+//   - ファイルに書き込む。
 //
-// Note: For simplicity, we write byte-by-byte without buffering.
-// In real applications, you'd typically use a buffer for better
-// performance. We'll learn about buffered I/O in a later exercise.
+// 注意：簡単のため、バッファリングなしでバイト単位で書き込みます。
+// 実際のアプリケーションでは、パフォーマンス向上のために
+// 通常バッファを使用します。バッファリングI/Oについては後のエクササイズで学びます。
 //
 const std = @import("std");
 
 pub fn main(init: std.process.Init) !void {
-    // default I/O implementation
+    // デフォルトのI/O実装
     const io = init.io;
 
-    // first we get the current working directory
+    // まず現在の作業ディレクトリを取得します
     const cwd: std.Io.Dir = std.Io.Dir.cwd();
 
-    // then we'll try to make a new directory /output/
-    // to store our output files.
+    // 次に出力ファイルを保存するための新しいディレクトリ /output/ の
+    // 作成を試みます。
     cwd.createDir(io, "output", .default_dir) catch |e| switch (e) {
-        // there is a chance you might want to run this
-        // program more than once and the path might already
-        // have been created, so we'll have to handle this error
-        // by doing nothing
+        // このプログラムを複数回実行したい場合があり、
+        // パスがすでに作成されている可能性があります。
+        // そのため何もしないでこのエラーを処理する必要があります。
         //
-        // we want to catch error.PathAlreadyExists and do nothing
+        // error.PathAlreadyExists をキャッチして何もしないようにしたいです
         ??? => {},
-        // if there's any other unexpected error we just propagate it through
+        // 予期しない他のエラーはそのまま伝播します
         else => return e,
     };
 
-    // then we'll try to open our freshly created directory
-    // wait a minute...
-    // opening a directory might fail!
-    // what should we do here?
+    // 次に新しく作成したディレクトリを開こうとします
+    // ちょっと待ってください...
+    // ディレクトリを開くのは失敗するかもしれません！
+    // どうすればよいでしょうか？
     var output_dir: std.Io.Dir = try cwd.openDir(io, "output", .{});
     defer output_dir.close(io);
 
-    // we try to open the file `zigling.txt`,
-    // and propagate any error up
+    // ファイル `zigling.txt` を開こうとします。
+    // エラーは上に伝播します
     const file: std.Io.File = try output_dir.createFile(io, "zigling.txt", .{});
-    // it is a good habit to close a file after you are done with it
-    // so that other programs can read it and prevent data corruption
-    // but here we are not yet done writing to the file
-    // if only there were a keyword in Zig that
-    // allowed you to "defer" code execution to the end of the scope...
+    // ファイルの使用が終わったらクローズするのは良い習慣です。
+    // 他のプログラムが読めるようになり、データの破損を防ぎます。
+    // しかし、ここではまだファイルへの書き込みが終わっていません。
+    // もしZigにスコープの終わりまでコードの実行を「遅延」させる
+    // キーワードがあればいいのですが...
     file.close(io);
 
-    // you are not allowed to move these lines above the file closing line!
+    // これらの行をファイルクローズ行より上に移動させてはいけません！
     var file_writer = file.writer(io, &.{});
     const writer = &file_writer.interface;
 
     const byte_written = try writer.write("It's zigling time!");
     std.debug.print("Successfully wrote {d} bytes.\n", .{byte_written});
 }
-// to check if you actually write to the file, you can either,
-// 1. open the file in your text editor, or
-// 2. print the content of the file in the console with one of these commands
+// ファイルに実際に書き込まれているか確認するには、以下のいずれかを行います：
+// 1. テキストエディタでファイルを開く、または
+// 2. 次のコマンドのいずれかでコンソールにファイルの内容を出力する
 //    Linux/macOS:   >> cat ./output/zigling.txt
 //    Windows (CMD): >> type .\output\zigling.txt
 //
 //
-// More on Creating files
+// ファイル作成についての詳細
 //
-// notice in:
+// 注目：
 // ... try output_dir.createFile(io, "zigling.txt", .{});
 //                                                  ^^^
-//                 we passed this anonymous struct to the function call
+//                 この匿名structを関数呼び出しに渡しています
 //
-// this is the struct `CreateFlag` with default fields
+// これはデフォルトフィールドを持つstruct `CreateFlag` です：
 // {
 //      read: bool = false,
 //      truncate: bool = true,
@@ -94,9 +95,9 @@ pub fn main(init: std.process.Init) !void {
 //      mode: Mode = default_mode
 // }
 //
-// Question:
-//   - what should you do if you want to also read the file after opening it?
-//   - go to the documentation of the struct `std.Io.Dir` here:
+// 質問：
+//   - ファイルを開いた後に読み取りもしたい場合はどうすればよいでしょうか？
+//   - こちらのstruct `std.Io.Dir` のドキュメントを参照してください：
 //     https://ziglang.org/documentation/master/std/#std.Io.Dir
-//       - can you find a function for opening a file? how about deleting a file?
-//       - what kind of options can you use with those functions?
+//       - ファイルを開く関数はありますか？ファイルを削除する関数は？
+//       - それらの関数にはどのようなオプションが使えますか？

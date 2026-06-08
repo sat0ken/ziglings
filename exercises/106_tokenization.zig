@@ -1,121 +1,108 @@
 //
-// The functionality of the standard library is becoming increasingly
-// important in Zig. First of all, it is helpful to take a look at how
-// the individual functions are implemented. Because this is wonderfully
-// suitable as a template for your own functions. In addition, these
-// standard functions are part of the basic configuration of Zig.
+// Zigにおける標準ライブラリの機能はますます重要になっています。
+// まず、個々の関数がどのように実装されているかを見てみることが役立ちます。
+// なぜなら、これは独自の関数のテンプレートとして素晴らしく適しているからです。
+// さらに、これらの標準関数はZigの基本設定の一部です。
 //
-// This means that they are always available on every system.
-// Therefore it is worthwhile to deal with them also in Ziglings.
-// It's a great way to learn important skills. For example, it is
-// often necessary to process large amounts of data from files.
-// And for this sequential reading and processing, Zig provides some
-// useful functions, which we will take a closer look at in the coming
-// exercises.
+// つまり、すべてのシステムで常に利用可能です。
+// したがって、Ziglingsでもこれらを扱う価値があります。
+// 重要なスキルを学ぶ素晴らしい方法です。例えば、ファイルから
+// 大量のデータを処理することが必要なことは多いです。
+// そして、この逐次的な読み取りと処理のために、Zigはいくつかの
+// 便利な関数を提供しており、後続のエクササイズで詳しく見ていきます。
 //
-// A nice example of this has been published on the Zig homepage,
-// replacing the somewhat dusty 'Hello world!'
+// これの良い例がZigのホームページに公開されており、
+// やや古びた「Hello world!」の代替となっています。
 //
-// Nothing against 'Hello world!', but it just doesn't do justice
-// to the elegance of Zig and that's a pity, if someone takes a short,
-// first look at the homepage and doesn't get 'enchanted'. And for that
-// the present example is simply better suited and we will therefore
-// use it as an introduction to tokenizing, because it is wonderfully
-// suited to understand the basic principles.
+// 「Hello world!」に反対するわけではありませんが、
+// Zigのエレガンスを公平に示しておらず、誰かがホームページを
+// 短く最初に見てみて「魅了」されなかったとしたら残念です。
+// そのために現在の例はより適しており、トークン化への入門として
+// 使用することにします。基本原則を理解するのに素晴らしく適しているからです。
 //
-// In the following exercises we will also read and process data from
-// large files, it will then be clearer to you how useful all this is.
+// 後続のエクササイズでは大きなファイルからデータを読み取り処理します。
+// そうすると、これがいかに便利かがより明確になるでしょう。
 //
-// Let's start with the analysis of the example from the Zig homepage
-// and explain the most important things.
+// Zigのホームページの例の分析から始めて、最も重要なことを説明します。
 //
 //    const std = @import("std");
 //
-//    // Here a function from the Standard library is defined,
-//    // which transfers numbers from a string into the respective
-//    // integer values.
+//    // ここで標準ライブラリの関数が定義されており、
+//    // 文字列から数値を対応する整数値に変換します。
 //    const parseInt = std.fmt.parseInt;
 //
-//    // Defining a test case
+//    // テストケースを定義します
 //    test "parse integers" {
 //
-//        // Four numbers are passed in a string.
-//        // Please note that the individual values are separated
-//        // either by a space or a comma.
+//        // 4つの数値が文字列で渡されます。
+//        // 個々の値はスペースまたはカンマで区切られていることに注意してください。
 //        const input = "123 67 89,99";
 //
-//        // In order to be able to process the input values,
-//        // memory is required. An allocator is defined here for
-//        // this purpose.
+//        // 入力値を処理できるようにするために、メモリが必要です。
+//        // そのためにここでアロケータを定義します。
 //        const gpa = std.testing.allocator;
 //
-//        // An array into which the numbers are stored is initialized.
+//        // 数値が格納される配列が初期化されます。
 //        var list: std.ArrayList(u32) = .empty;
 //
-//        // This way you can never forget what is urgently needed
-//        // and the compiler doesn't grumble either.
+//        // こうすることで何が緊急に必要かを決して忘れることなく、
+//        // コンパイラも文句を言いません。
 //        defer list.deinit(gpa);
 //
-//        // Now it gets exciting:
-//        // A standard tokenizer is called (Zig has several) and
-//        // used to locate the positions of the respective separators
-//        // (we remember, space and comma) and pass them to an iterator.
+//        // ここが面白いところです：
+//        // 標準トークナイザーが呼び出され（Zigにはいくつかあります）、
+//        // 各区切り文字（スペースとカンマを覚えていますか）の位置を
+//        // 見つけてイテレータに渡すために使用されます。
 //        var it = std.mem.tokenizeAny(u8, input, " ,");
 //
-//        // The iterator can now be processed in a loop and the
-//        // individual numbers can be transferred.
+//        // イテレータはループで処理され、
+//        // 個々の数値を転送できます。
 //        while (it.next()) |num| {
-//            // But be careful: The numbers are still only available
-//            // as strings. This is where the integer parser comes
-//            // into play, converting them into real integer values.
+//            // ただし注意：数値はまだ文字列としてのみ利用可能です。
+//            // ここで整数パーサーが登場し、実際の整数値に変換します。
 //            const n = try parseInt(u32, num, 10);
 //
-//            // Finally the individual values are stored in the array.
+//            // 最後に個々の値が配列に格納されます。
 //            try list.append(gpa, n);
 //        }
 //
-//        // For the subsequent test, a second static array is created,
-//        // which is directly filled with the expected values.
+//        // 後続のテストのために、期待値で直接埋められた
+//        // 2番目の静的配列が作成されます。
 //        const expected = [_]u32{ 123, 67, 89, 99 };
 //
-//        // Now the numbers converted from the string can be compared
-//        // with the expected ones, so that the test is completed
-//        // successfully.
+//        // 文字列から変換された数値を期待値と比較して、
+//        // テストが正常に完了するようにします。
 //        for (expected, list.items) |exp, actual| {
 //            try std.testing.expectEqual(exp, actual);
 //        }
 //    }
 //
-// So much for the example from the homepage.
-// Let's summarize the basic steps again:
+// ホームページの例はここまでです。
+// 基本的なステップをもう一度まとめましょう：
 //
-// - We have a set of data in sequential order, separated from each other
-//   by means of various characters.
+// - さまざまな文字で互いに区切られた、順番に並んだデータセットがあります。
 //
-// - For further processing, for example in an array, this data must be
-//   read in, separated and, if necessary, converted into the target format.
+// - 例えば配列のようなさらなる処理のために、このデータを
+//   読み込み、分離し、必要に応じてターゲット形式に変換する必要があります。
 //
-// - We need a buffer that is large enough to hold the data.
+// - データを保持するのに十分なバッファが必要です。
 //
-// - This buffer can be created either statically at compile time, if the
-//   amount of data is already known, or dynamically at runtime by using
-//   a memory allocator.
+// - このバッファは、データ量がすでにわかっている場合はコンパイル時に
+//   静的に作成するか、メモリアロケータを使用して実行時に動的に作成できます。
 //
-// - The data are divided by means of Tokenizer at the respective
-//   separators and stored in the reserved memory. This usually also
-//   includes conversion to the target format.
+// - データはトークナイザーによって各区切り文字で分割され、
+//   確保されたメモリに格納されます。通常、ターゲット形式への変換も含みます。
 //
-// - Now the data can be conveniently processed further in the correct format.
+// - これでデータを正しい形式で便利に処理できるようになります。
 //
-// These steps are basically always the same.
-// Whether the data is read from a file or entered by the user via the
-// keyboard, for example, is irrelevant. Only subtleties are distinguished
-// and that's why Zig has different tokenizers. But more about this in
-// later exercises.
+// これらのステップは基本的に常に同じです。
+// データがファイルから読み取られるか、例えばキーボードからユーザーが
+// 入力するかは関係ありません。違いは細部だけであり、
+// そのためZigには異なるトークナイザーがあります。しかしこれについては
+// 後のエクササイズで詳しく説明します。
 //
-// Now we also want to write a small program to tokenize some data,
-// after all we need some practice. Suppose we want to count the words
-// of this little poem:
+// 今度はいくつかのデータをトークン化する小さなプログラムを書いてみましょう。
+// 結局、練習が必要です。次の短い詩の単語数を数えたいとします：
 //
 //      My name is Ozymandias, King of Kings;
 //      Look on my Works, ye Mighty, and despair!
@@ -127,22 +114,22 @@ const print = std.debug.print;
 
 pub fn main() !void {
 
-    // our input
+    // 入力
     const poem =
         \\My name is Ozymandias, King of Kings;
         \\Look on my Works, ye Mighty, and despair!
     ;
 
-    // now the tokenizer, but what do we need here?
+    // トークナイザーですが、ここで何が必要でしょうか？
     var it = std.mem.tokenizeAny(u8, poem, ???);
 
-    // print all words and count them
+    // すべての単語を出力してカウントします
     var cnt: usize = 0;
     while (it.next()) |word| {
         cnt += 1;
         print("{s}\n", .{word});
     }
 
-    // print the result
+    // 結果を出力します
     print("This little poem has {d} words!\n", .{cnt});
 }

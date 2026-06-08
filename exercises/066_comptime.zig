@@ -1,80 +1,80 @@
 //
-// "Compile time" is a program's environment while it is being
-// compiled. In contrast, "run time" is the environment while the
-// compiled program is executing (traditionally as machine code
-// on a hardware CPU).
+// 「コンパイル時」とはプログラムがコンパイルされている最中の環境です。
+// 対照的に、「実行時」はコンパイルされたプログラムが実行されている
+// 環境です（伝統的にハードウェアCPU上でのマシンコードとして）。
 //
-// Errors make an easy example:
+// エラーは分かりやすい例です：
 //
-// 1. Compile-time error: caught by the compiler, usually
-//    resulting in a message to the programmer.
+// 1. コンパイル時エラー：コンパイラによって検出され、通常は
+//    プログラマーへのメッセージとして表示されます。
 //
-// 2. Runtime error: either caught by the running program itself
-//    or by the host hardware or operating system. Could be
-//    gracefully caught and handled or could cause the computer
-//    to crash (or halt and catch fire)!
+// 2. 実行時エラー：実行中のプログラム自体、またはホストハードウェアや
+//    オペレーティングシステムによって捕捉されます。
+//    適切に捕捉・処理されることもありますが、コンピュータが
+//    クラッシュする（または停止・炎上する！）こともあります。
 //
-// All compiled languages must perform a certain amount of logic
-// at compile time in order to analyze the code, maintain a table
-// of symbols (such as variable and function names), etc.
+// すべてのコンパイル言語は、コードを解析したりシンボルの表（変数名や
+// 関数名など）を維持するために、コンパイル時に一定量のロジックを
+// 実行する必要があります。
 //
-// Optimizing compilers can also figure out how much of a program
-// can be pre-computed or "inlined" at compile time to make the
-// resulting program more efficient. Smart compilers can even
-// "unroll" loops, turning their logic into a fast linear
-// sequence of statements (at the usually very slight expense of
-// the increased size of the repeated code).
+// 最適化コンパイラは、プログラムのどれだけの部分が
+// コンパイル時に事前計算または「インライン化」できるかを
+// 把握することもでき、結果のプログラムをより効率的にします。
+// スマートなコンパイラはループを「展開」することもできます。
+// ループのロジックを高速な直線的な文のシーケンスに変換します
+// （繰り返されるコードのサイズが増加するというわずかなコストで）。
 //
-// Zig takes these concepts further by making these optimizations
-// an integral part of the language itself!
+// Zigはこれらの概念をさらに発展させ、これらの最適化を
+// 言語自体の不可欠な部分にしています！
 //
 const print = @import("std").debug.print;
 
 pub fn main() void {
-    // ALL numeric literals in Zig are of type comptime_int or
-    // comptime_float. They are of arbitrary size (as big or
-    // little as you need).
+    // Zigのすべての数値リテラルは comptime_int または
+    // comptime_float 型です。任意のサイズ（必要に応じて
+    // どれだけ大きくても小さくてもよい）です。
     //
-    // Notice how we don't have to specify a size like "u8",
-    // "i32", or "f64" when we assign identifiers immutably with
-    // "const".
+    // "const"でイミュータブルに識別子を割り当てる場合、
+    // "u8"、"i32"、"f64"などのサイズを指定する必要が
+    // ないことに注意してください。
     //
-    // When we use these identifiers in our program, the VALUES
-    // are inserted at compile time into the executable code. The
-    // IDENTIFIERS "const_int" and "const_float" don't exist in
-    // our compiled application!
+    // これらの識別子をプログラムで使用すると、VALUES（値）が
+    // コンパイル時に実行可能コードに挿入されます。
+    // IDENTIFIERS（識別子）の "const_int" と "const_float" は
+    // コンパイルされたアプリケーションには存在しません！
     const const_int = 12345;
     const const_float = 987.654;
 
     print("Immutable: {}, {d:.3}; ", .{ const_int, const_float });
 
-    // But something changes when we assign the exact same values
-    // to identifiers mutably with "var".
+    // しかし、まったく同じ値を"var"でミュータブルに
+    // 識別子に割り当てると何かが変わります。
     //
-    // The literals are STILL comptime_int and comptime_float,
-    // but we wish to assign them to identifiers which are
-    // mutable at runtime.
+    // リテラルはまだ comptime_int と comptime_float ですが、
+    // 実行時にミュータブルな識別子に割り当てたいのです。
     //
-    // To be mutable at runtime, these identifiers must refer to
-    // areas of memory. In order to refer to areas of memory, Zig
-    // must know exactly how much memory to reserve for these
-    // values. Therefore, it follows that we just specify numeric
-    // types with specific sizes. The comptime numbers will be
-    // coerced (if they'll fit!) into your chosen runtime types.
-    // For this it is necessary to specify a size, e.g. 32 bit.
+    // 実行時にミュータブルにするには、これらの識別子が
+    // メモリ領域を参照する必要があります。メモリ領域を
+    // 参照するには、Zigがこれらの値にどれだけのメモリを
+    // 確保するかを正確に知る必要があります。そのため、
+    // 特定のサイズの数値型を指定する必要があります。
+    // comptime数値は選択した実行時型に強制変換されます
+    // （収まる場合！）。このため、例えば32ビットなどの
+    // サイズを指定する必要があります。
     var var_int = 12345;
     var var_float = 987.654;
 
-    // We can change what is stored at the areas set aside for
-    // "var_int" and "var_float" in the running compiled program.
+    // 実行中のコンパイルされたプログラムで "var_int" と
+    // "var_float" のために確保された領域に保存されている
+    // ものを変更できます。
     var_int = 54321;
     var_float = 456.789;
 
     print("Mutable: {}, {d:.3}; ", .{ var_int, var_float });
 
-    // Bonus: Now that we're familiar with Zig's builtins, we can
-    // also inspect the types to see what they are, no guessing
-    // needed!
+    // ボーナス：Zigの組み込み関数に慣れた今、型を
+    // 調べてそれが何であるかを確認することもできます。
+    // 推測は不要です！
     print("Types: {}, {}, {}, {}\n", .{
         @TypeOf(const_int),
         @TypeOf(const_float),

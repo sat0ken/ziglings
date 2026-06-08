@@ -1,26 +1,24 @@
 //
-// If you thought the last exercise was a deep dive, hold onto your
-// hat because we are about to descend into the computer's molten
-// core.
+// 前の演習が深い内容だと思ったなら、しっかりつかまってください。
+// これからコンピュータの溶岩のコアへと降りていきます。
 //
-// (Shouting) DOWN HERE, THE BITS AND BYTES FLOW FROM RAM TO THE CPU
-// LIKE A HOT, DENSE FLUID. THE FORCES ARE INCREDIBLE. BUT HOW DOES
-// ALL OF THIS RELATE TO THE DATA IN OUR ZIG PROGRAMS? LET'S HEAD
-// BACK UP TO THE TEXT EDITOR AND FIND OUT.
+//（叫び声）ここでは、ビットとバイトが RAM から CPU へと
+// 熱く密度の高い流体のように流れています。力は信じられないほどです。
+// でもこれは Zig プログラムのデータとどう関係するのでしょうか？
+// テキストエディタに戻って確認しましょう。
 //
-// Ah, that's better. Now we can look at some familiar Zig code.
+// ああ、これで落ち着きました。では、おなじみの Zig コードを見てみましょう。
 //
-// @import() adds the imported code to your own. In this case, code
-// from the standard library is added to your program and compiled
-// with it. All of this will be loaded into RAM when it runs. Oh, and
-// that thing we name "const std"? That's a struct!
+// @import() はインポートしたコードを自分のものに追加します。この場合、
+// 標準ライブラリのコードがプログラムに追加され、一緒にコンパイルされます。
+// これらはすべて実行時に RAM にロードされます。そして、"const std" と名付けた
+// あれは？構造体です！
 //
 const std = @import("std");
 
-// Remember our old RPG Character struct? A struct is really just a
-// very convenient way to deal with memory. These fields (gold,
-// health, experience) are all values of a particular size. Add them
-// together and you have the size of the struct as a whole.
+// 昔の RPG の Character 構造体を覚えていますか？構造体はメモリを扱う
+// 非常に便利な方法です。これらのフィールド（gold、health、experience）は
+// 特定のサイズの値です。合計するとその構造体全体のサイズになります。
 
 const Character = struct {
     gold: u32 = 0,
@@ -28,11 +26,10 @@ const Character = struct {
     experience: u32 = 0,
 };
 
-// Here we create a character called "the_narrator" that is a constant
-// (immutable) instance of a Character struct. It is stored in your
-// program as data, and like the instruction code, it is loaded into
-// RAM when your program runs. The relative location of this data in
-// memory is hard-coded and neither the address nor the value changes.
+// ここで "the_narrator" という Character 構造体の定数（不変）インスタンスを
+// 作成します。プログラムのデータとして保存され、命令コードと同様に
+// プログラム実行時に RAM にロードされます。メモリ内でのこのデータの
+// 相対的な位置はハードコードされており、アドレスも値も変わりません。
 
 const the_narrator = Character{
     .gold = 12,
@@ -40,114 +37,107 @@ const the_narrator = Character{
     .experience = 9000,
 };
 
-// This "global_wizard" character is very similar. The address for
-// this data won't change, but the data itself can since this is a var
-// and not a const.
+// この "global_wizard" キャラクターも非常に似ています。このデータの
+// アドレスは変わりませんが、var であって const ではないため、
+// データ自体は変更できます。
 
 var global_wizard = Character{};
 
-// A function is instruction code at a particular address. Function
-// parameters in Zig are always immutable. They are stored in "the
-// stack". A stack is a type of data structure and "the stack" is a
-// specific bit of RAM reserved for your program. The CPU has special
-// support for adding and removing things from "the stack", so it is
-// an extremely efficient place for memory storage.
+// 関数は特定のアドレスの命令コードです。Zig の関数パラメータは常に
+// 不変です。それらは「スタック」に保存されます。スタックはデータ構造の
+// 一種であり、「スタック」はプログラム用に予約された特定の RAM の
+// 一部です。CPU はスタックに対してアイテムを追加・削除するための
+// 特別なサポートを持っているため、非常に効率的なメモリ保存場所です。
 //
-// Also, when a function executes, the input arguments are often
-// loaded into the beating heart of the CPU itself, in registers.
+// また、関数が実行されると、入力引数はしばしば CPU 自体の核心部分、
+// レジスタにロードされます。
 //
-// Our main() function here has no input parameters, but it will have
-// a stack entry (called a "frame").
+// ここの main() 関数には入力パラメータはありませんが、
+// スタックエントリ（「フレーム」と呼ばれる）を持ちます。
 
 pub fn main() void {
 
-    // Here, the "glorp" character will be allocated on the stack
-    // because each instance of glorp is mutable and therefore unique
-    // to the invocation of this function.
+    // ここで "glorp" キャラクターはスタックに割り当てられます。
+    // なぜなら、glorp の各インスタンスはミュータブルで、そのため
+    // この関数の呼び出しに固有だからです。
 
     var glorp = Character{
         .gold = 30,
     };
 
-    // The "reward_xp" value is interesting. It's an immutable
-    // value, so even though it is local, it can be put in global
-    // data and shared between all invocations. But being such a
-    // small value, it may also simply be inlined as a literal
-    // value in your instruction code where it is used.  It's up
-    // to the compiler.
+    // "reward_xp" 値は興味深いです。不変値なので、ローカルであっても
+    // グローバルデータに置かれてすべての呼び出し間で共有される可能性があります。
+    // でも非常に小さな値なので、使用される命令コードにリテラル値として
+    // インライン化される場合もあります。コンパイラ次第です。
 
     const reward_xp: u32 = 200;
 
-    // Now let's circle back around to that "std" struct we imported
-    // at the top. Since it's just a regular Zig value once it's
-    // imported, we can also assign new names for its fields and
-    // declarations. "debug" refers to another struct and "print" is a
-    // public function namespaced within THAT struct.
+    // では、最初にインポートした "std" 構造体に戻りましょう。
+    // インポートすると通常の Zig 値になるので、フィールドや宣言に
+    // 新しい名前を割り当てることもできます。"debug" は別の構造体を
+    // 参照し、"print" はその構造体内で名前空間化されたパブリック関数です。
     //
-    // Let's assign the std.debug.print function to a const named
-    // "print" so that we can use this new name later!
+    // std.debug.print 関数を "print" という const に割り当てて、
+    // この新しい名前を後で使えるようにしましょう！
 
     const print = ???;
 
-    // Now let's look at assigning and pointing to values in Zig.
+    // では、Zig での値の代入とポインタについて見てみましょう。
     //
-    // We'll try three different ways of making a new name to access
-    // our glorp Character and change one of its values.
+    // glorp Character にアクセスして値を変更するための新しい名前を
+    // 3 つの異なる方法で試してみます。
     //
-    // "glorp_access1" is incorrectly named! We asked Zig to set aside
-    // memory for another Character struct. So when we assign glorp to
-    // glorp_access1 here, we're actually assigning all of the fields
-    // to make a copy! Now we have two separate characters.
+    // "glorp_access1" の名前が間違っています！Zig に別の Character 構造体の
+    // メモリを確保するよう頼みました。そのため glorp を glorp_access1 に
+    // 代入すると、実際にはすべてのフィールドをコピーして作成することになります！
+    // これで 2 つの別々のキャラクターができます。
     //
-    // You don't need to fix this. But notice what gets printed in
-    // your program's output for this one compared to the other two
-    // assignments below!
+    // これを修正する必要はありません。ただし、下の他の 2 つの代入と比べて
+    // プログラムの出力でどう表示されるか確認してください！
 
     var glorp_access1: Character = glorp;
     glorp_access1.gold = 111;
     print("1:{}!. ", .{glorp.gold == glorp_access1.gold});
 
-    // NOTE:
+    // 注意：
     //
-    //     If we tried to do this with a const Character instead of a
-    //     var, changing the gold field would give us a compiler error
-    //     because const values are immutable!
+    //     var の代わりに const Character でこれをやろうとすると、
+    //     const 値は不変なので gold フィールドを変更しようとすると
+    //     コンパイルエラーになります！
     //
-    // "glorp_access2" will do what we want. It points to the original
-    // glorp's address. Also remember that we get one implicit
-    // dereference with struct fields, so accessing the "gold" field
-    // from glorp_access2 looks just like accessing it from glorp
-    // itself.
+    // "glorp_access2" は望み通りの動作をします。元の glorp のアドレスを
+    // 指します。また、構造体フィールドには暗黙の逆参照が 1 回あるので、
+    // glorp_access2 から "gold" フィールドにアクセスするのは
+    // glorp 自体からアクセスするのと同じように見えます。
 
     var glorp_access2: *Character = &glorp;
     glorp_access2.gold = 222;
     print("2:{}!. ", .{glorp.gold == glorp_access2.gold});
 
-    // "glorp_access3" is interesting. It's also a pointer, but it's a
-    // const. Won't that disallow changing the gold value? No! As you
-    // may recall from our earlier pointer experiments, a constant
-    // pointer can't change what it's POINTING AT, but the value at
-    // the address it points to is still mutable! So we CAN change it.
+    // "glorp_access3" は興味深いです。これもポインタですが、const です。
+    // それでは gold 値の変更が禁止されるのではないでしょうか？いいえ！
+    // 先ほどのポインタの実験で学んだように、定数ポインタは「指している先」を
+    // 変更できませんが、指しているアドレスの値はまだミュータブルです！
+    // だから変更「できます」。
 
     const glorp_access3: *Character = &glorp;
     glorp_access3.gold = 333;
     print("3:{}!. ", .{glorp.gold == glorp_access3.gold});
 
-    // NOTE:
+    // 注意：
     //
-    //     If we tried to do this with a *const Character pointer,
-    //     that would NOT work and we would get a compiler error
-    //     because the VALUE becomes immutable!
+    //     *const Character ポインタでこれをやろうとすると、
+    //     それは「できません」。値が不変になるため
+    //     コンパイルエラーになります！
     //
-    // Moving along...
+    // 続けましょう...
     //
-    // When arguments are passed to a function,
-    // they are ALWAYS passed as constants within the function,
-    // regardless of how they were declared in the calling function.
+    // 引数が関数に渡されるとき、呼び出し元の関数でどのように宣言されていたかに
+    // 関わらず、関数内では「常に」定数として渡されます。
     //
-    // Example:
+    // 例：
     // fn foo(arg: u8) void {
-    //    arg = 42; // Error, 'arg' is const!
+    //    arg = 42; // エラー、'arg' は const です！
     // }
     //
     // fn bar() void {
@@ -156,40 +146,37 @@ pub fn main() void {
     //    ...
     // }
     //
-    // Knowing this, see if you can make levelUp() work as expected -
-    // it should add the specified amount to the supplied character's
-    // experience points.
+    // これを踏まえて、levelUp() が期待通りに動作するようにできますか？
+    // 指定された量だけ、指定されたキャラクターの経験値を加算するべきです。
     //
     print("XP before:{}, ", .{glorp.experience});
 
-    // Fix 1 of 2 goes here:
+    // 修正箇所 1/2 はここ：
     levelUp(glorp, reward_xp);
 
     print("after:{}.\n", .{glorp.experience});
 }
 
-// Fix 2 of 2 goes here:
+// 修正箇所 2/2 はここ：
 fn levelUp(character_access: Character, xp: u32) void {
     character_access.experience += xp;
 }
 
-// And there's more!
+// さらに補足！
 //
-// Data segments (allocated at compile time) and "the stack"
-// (allocated at run time) aren't the only places where program data
-// can be stored in memory. They're just the most efficient. Sometimes
-// we don't know how much memory our program will need until the
-// program is running. Also, there is a limit to the size of stack
-// memory allotted to programs (often set by your operating system).
-// For these occasions, we have "the heap".
+// データセグメント（コンパイル時に割り当て）と「スタック」（実行時に割り当て）は
+// プログラムデータを保存できる唯一の場所ではありません。
+// 最も効率的な場所に過ぎません。プログラムが実行されるまで必要なメモリ量が
+// わからない場合もあります。また、プログラムに割り当てられるスタックメモリの
+// サイズには制限があります（多くの場合、OS によって設定されます）。
+// そのような場合のために「ヒープ」があります。
 //
-// You can use as much heap memory as you like (within physical
-// limitations, of course), but it's much less efficient to manage
-// because there is no built-in CPU support for adding and removing
-// items as we have with the stack. Also, depending on the type of
-// allocation, your program MAY have to do expensive work to manage
-// the use of heap memory. We'll learn about heap allocators later.
+// ヒープメモリは好きなだけ使用できますが（もちろん物理的な制限内で）、
+// スタックのように CPU 組み込みのアイテム追加・削除サポートがないため、
+// 管理がはるかに非効率的です。また、アロケーションの種類によっては、
+// プログラムがヒープメモリの使用管理のために高コストな作業を
+// しなければならない場合があります。ヒープアロケータについては後で学びます。
 //
-// Whew! This has been a lot of information. You'll be pleased to know
-// that the next exercise gets us back to learning Zig language
-// features we can use right away to do more things!
+// ふう！これはたくさんの情報でした。次の演習では、すぐに使えて
+// もっと多くのことができる Zig の言語機能の学習に戻ることを
+// 喜んでいただけることでしょう！

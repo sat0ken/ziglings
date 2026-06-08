@@ -1,41 +1,39 @@
 //
-// The 'for' loop is not just limited to looping over one or two
-// items. Let's try an example with a whole bunch!
+// 'for'ループは1つまたは2つのアイテムのループに限定されません。
+// たくさんのアイテムで試してみましょう！
 //
-// But first, there's one last thing we've avoided mentioning
-// until now: The special range that leaves off the last value:
+// しかしまず、今まで触れずにいた最後のことがあります：
+// 最後の値を省略する特別な範囲です：
 //
 //     for ( things, 0.. ) |t, i| { ... }
 //
-// That's how we tell Zig that we want to get a numeric value for
-// every item in "things", starting with 0.
+// これで"things"の各アイテムに対して数値を取得したいことをZigに伝えます。
+// 0から始まります。
 //
-// A nice feature of these index ranges is that you can have them
-// start with any number you choose. The first value of "i" in
-// this example will be 500, then 501, 502, etc.:
+// これらのインデックス範囲の優れた機能は、任意の数から始めることができることです。
+// この例での"i"の最初の値は500、次に501、502と続きます：
 //
 //     for ( things, 500.. ) |t, i| { ... }
 //
-// Remember our RPG characters? They had the following
-// properties, which we stored in a struct type:
+// RPGキャラクターを覚えていますか？彼らには以下の
+// プロパティがあり、struct型に保存されていました：
 //
 //     class
 //     gold
 //     experience
 //
-// What we're going to do now is store the same RPG character
-// data, but in a separate array for each property.
+// これから行うのは同じRPGキャラクターデータを保存することですが、
+// 各プロパティを別々の配列に保存します。
 //
-// It might look a little awkward, but let's bear with it.
+// 少し不格好に見えるかもしれませんが、付き合ってください。
 //
-// We've started writing a program to print a numbered list of
-// characters with each of their properties, but it needs a
-// little help:
+// 各キャラクターのプロパティを持つ番号付きキャラクターリストを
+// 出力するプログラムを書き始めましたが、少し手助けが必要です：
 //
 const std = @import("std");
 const print = std.debug.print;
 
-// This is the same character role enum we've seen before.
+// これは以前見たキャラクターロールのenumです。
 const Role = enum {
     wizard,
     thief,
@@ -44,13 +42,13 @@ const Role = enum {
 };
 
 pub fn main() void {
-    // Here are the three "property" arrays:
+    // 以下が3つの「プロパティ」配列です：
     const roles = [4]Role{ .wizard, .bard, .bard, .warrior };
     const gold = [4]u16{ 25, 11, 5, 7392 };
     const experience = [4]u8{ 40, 17, 55, 21 };
 
-    // We would like to number our list starting with 1, not 0.
-    // How do we do that?
+    // リストの番号を0ではなく1から始めたいです。
+    // どうすればよいでしょうか？
     for (roles, gold, experience, ???) |c, g, e, i| {
         const role_name = switch (c) {
             .wizard => "Wizard",
@@ -68,59 +66,49 @@ pub fn main() void {
     }
 }
 //
-// By the way, storing our character data in arrays like this
-// isn't *just* a silly way to demonstrate multi-object 'for'
-// loops.
+// ちなみに、このようにキャラクターデータを配列に保存することは、
+// マルチオブジェクト'for'ループを示す*だけの*馬鹿げた方法ではありません。
 //
-// It's *also* a silly way to introduce a concept called
-// "data-oriented design".
+// *また*「データ指向設計」と呼ばれる概念を紹介する馬鹿げた方法でもあります。
 //
-// Let's use a metaphor to build up an intuition for what this is
-// all about:
+// これが何についてのものかの直感を築くためにメタファーを使いましょう：
 //
-// Let's say you've been tasked with grabbing three glass
-// marbles, three spoons, and three feathers from a magic bag.
-// But you can't use your hands to grab them. Instead, you must
-// use a marble scoop, spoon magnet, and feather tongs to grab
-// each type of object.
+// ガラス玉3個、スプーン3本、羽根3枚を魔法の袋から取り出す
+// タスクを与えられたとします。ただし、手で取ることはできません。
+// 代わりに、玉用スクープ、スプーン磁石、羽根ばさみを使って
+// 各種類のオブジェクトを取り出す必要があります。
 //
-// Now, would you rather use the magic bag:
+// さて、魔法の袋を使うとしたら：
 //
-// A. Grouped the items in clusters so you have to pick up one
-//    marble, then one spoon, then one feather?
+// A. アイテムをクラスタでグループ化して、玉1個、スプーン1本、
+//    羽根1枚の順に取り出す必要がある。
 //
-//    OR
+//    または
 //
-// B. Grouped the items by type so you can pick up all of the
-//    marbles at once, then all the spoons, then all of the
-//    feathers?
+// B. アイテムを種類ごとにグループ化して、玉をすべて一度に取り出し、
+//    次にスプーンをすべて、そして羽根をすべて取り出せる。
 //
-// If this metaphor is working, hopefully, it's clear that the 'B'
-// option would be much more efficient.
+// このメタファーが機能しているなら、'B'のオプションの方が
+// はるかに効率的であることが明らかなはずです。
 //
-// Well, it probably comes as little surprise that storing and
-// using data in a sequential and uniform fashion is also more
-// efficient for modern CPUs.
+// 当然のことながら、データをシーケンシャルかつ均一な方法で
+// 保存・使用することは、現代のCPUにとっても効率的です。
 //
-// Decades of OOP practices have steered people towards grouping
-// different data types together into mixed-type "objects" with
-// the intent that these are easier on the human mind.
-// Data-oriented design groups data by type in a way that is
-// easier on the computer.
+// 数十年のOOPの慣行により、異なるデータ型を混合型の「オブジェクト」に
+// まとめることが人間の思考に合っているとして広まりました。
+// データ指向設計はコンピュータにとって効率的な方法でデータを型ごとにグループ化します。
 //
-// With clever language design, maybe we can have both.
+// 巧みな言語設計によって、両方を手に入れられるかもしれません。
 //
-// In the Zig community, you may see the difference in groupings
-// presented with the terms "Array of Structs" (AoS) versus
-// "Struct of Arrays" (SoA).
+// Zigコミュニティでは、このグループ化の違いを
+// "Array of Structs"（AoS）対"Struct of Arrays"（SoA）という用語で表現することがあります。
 //
-// To envision these two designs in action, imagine an array of
-// RPG character structs, each containing three different data
-// types (AoS) versus a single RPG character struct containing
-// three arrays of one data type each, like those in the exercise
-// above (SoA).
+// これらの2つの設計を実際に想像するには、3種類の異なるデータ型を含む
+// RPGキャラクターstructの配列（AoS）と、上のエクササイズのように
+// 各データ型の配列を3つ含む単一のRPGキャラクターstruct（SoA）を
+// 比較してみてください。
 //
-// For a more practical application of "data-oriented design"
-// watch the following talk from Andrew Kelley, the creator of Zig:
+// 「データ指向設計」のより実践的な応用については、
+// Zigの作者Andrew Kelleyの次の講演をご覧ください：
 // https://vimeo.com/649009599
 //

@@ -1,33 +1,30 @@
 //
-// Enums are really just a set of numbers. You can leave the
-// numbering up to the compiler, or you can assign them
-// explicitly. You can even specify the numeric type used.
+// enumは実質的に数値のセットです。番号付けをコンパイラに任せることも、
+// 明示的に割り当てることもできます。使用する数値型を指定することもできます。
 //
 //     const Stuff = enum(u8){ foo = 16 };
 //
-// You can get the integer out with a builtin function,
-// @intFromEnum(). We'll learn about builtins properly in a later
-// exercise.
+// 組み込み関数@intFromEnum()で整数を取り出せます。
+// 組み込み関数については後の演習で詳しく学びます。
 //
 //     const my_stuff: u8 = @intFromEnum(Stuff.foo);
 //
-// Note how that built-in function starts with "@" just like the
-// @import() function we've been using.
+// この組み込み関数が私たちが使っている@import()関数と同様に
+// "@"で始まることに注目してください。
 //
 const std = @import("std");
 
-// Zig lets us write integers in hexadecimal format:
+// Zigでは整数を16進数形式で書けます：
 //
-//     0xf (is the value 15 in hex)
+//     0xf (16進数で値15)
 //
-// Web browsers let us specify colors using a hexadecimal
-// number where each byte represents the brightness of the
-// Red, Green, or Blue component (RGB) where two hex digits
-// are one byte with a value range of 0-255:
+// ウェブブラウザでは、16進数を使って色を指定できます。
+// 各バイトがRed、Green、Blueコンポーネントの明るさを表し
+// （RGB）、2桁の16進数が0〜255の範囲の値を持つ1バイトです：
 //
 //     #RRGGBB
 //
-// Please define and use a pure blue value Color:
+// 純粋な青のColor値を定義して使用してください：
 const Color = enum(u32) {
     red = 0xff0000,
     green = 0x00ff00,
@@ -35,20 +32,20 @@ const Color = enum(u32) {
 };
 
 pub fn main() void {
-    // Remember Zig's multi-line strings? Here they are again.
-    // Also, check out this cool format string:
+    // Zigの複数行文字列を覚えていますか？また登場しました。
+    // このクールなフォーマット文字列も確認してください：
     //
     //     {x:0>6}
     //      ^
-    //      x       type ('x' is lower-case hexadecimal)
-    //       :      separator (needed for format syntax)
-    //        0     padding character (default is ' ')
-    //         >    alignment ('>' aligns right)
-    //          6   width (use padding to force width)
+    //      x       型（'x'は小文字16進数）
+    //       :      区切り文字（フォーマット構文に必要）
+    //        0     パディング文字（デフォルトは' '）
+    //         >    揃え方向（'>'は右揃え）
+    //          6   幅（パディングを使って幅を強制）
     //
-    // Please add this formatting to the blue value.
-    // (Even better, experiment without it, or try parts of it
-    // to see what prints!)
+    // blue値にこのフォーマットを追加してください。
+    //（なくても試してみてください。または一部だけ試して
+    // 何が出力されるか見てみてください！）
     std.debug.print(
         \\<p>
         \\  <span style="color: #{x:0>6}">Red</span>
@@ -59,6 +56,6 @@ pub fn main() void {
     , .{
         @intFromEnum(Color.red),
         @intFromEnum(Color.green),
-        @intFromEnum(???), // Oops! We're missing something!
+        @intFromEnum(???), // おっと！何かが足りません！
     });
 }

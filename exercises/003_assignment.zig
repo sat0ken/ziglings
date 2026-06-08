@@ -1,35 +1,35 @@
 //
-// It seems we got a little carried away making everything "const u8"!
+// すべてを "const u8" にしすぎてしまったようです！
 //
-//     "const" values cannot change.
-//     "u"     types are "unsigned" and cannot store negative values.
-//     "8"     means the type is 8 bits in size.
+//     "const" の値は変更できません。
+//     "u"     型は「符号なし（unsigned）」で、負の値を格納できません。
+//     "8"     はその型が8ビットサイズであることを意味します。
 //
-// Example: foo cannot change (it is CONSTant)
-//          bar can change (it is VARiable):
+// 例：foo は変更できません（CONSTant＝定数です）
+//     bar は変更できます（VARiable＝変数です）：
 //
 //     const foo: u8 = 20;
 //     var bar: u8 = 20;
 //
-// Example: foo cannot be negative and can hold 0 to 255
-//          bar CAN be negative and can hold -128 to 127
+// 例：foo は負にならず、0から255を格納できます
+//     bar は負の値も格納でき、-128から127を格納できます
 //
 //     const foo: u8 = 20;
 //     const bar: i8 = -20;
 //
-// Example: foo can hold 8 bits (0 to 255)
-//          bar can hold 16 bits (0 to 65,535)
+// 例：foo は8ビット（0から255）を格納できます
+//     bar は16ビット（0から65,535）を格納できます
 //
 //     const foo: u8 = 20;
 //     const bar: u16 = 2000;
 //
-// You can do just about any combination of these that you can think of:
+// 思いつく組み合わせはほぼ何でも使えます：
 //
-//     u32 can hold 0 to 4,294,967,295
-//     i64 can hold -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
+//     u32 は0から4,294,967,295を格納できます
+//     i64 は-9,223,372,036,854,775,808から9,223,372,036,854,775,807を格納できます
 //
-// Please fix this program so that the types can hold the desired values
-// and the errors go away!
+// 型が必要な値を保持できるようにプログラムを修正して、
+// エラーを解消してください！
 //
 const std = @import("std");
 
@@ -41,11 +41,11 @@ pub fn main() void {
 
     const negative_eleven: i64 = -11;
 
-    // There are no errors in the next line, just explanation:
-    // Perhaps you noticed before that the print function takes two
-    // parameters. Now it will make more sense: the first parameter
-    // is a string. The string may contain placeholders '{}', and the
-    // second parameter is an "anonymous list literal" (don't worry
-    // about this for now!) with the values to be printed.
+    // 次の行にエラーはありません。説明だけです：
+    // 以前、print関数が2つのパラメータを取ることに気づいたかもしれません。
+    // これで意味が分かるでしょう：最初のパラメータは文字列です。
+    // 文字列にはプレースホルダー '{}'を含めることができ、
+    // 2番目のパラメータは出力する値を持つ「無名リストリテラル」
+    // （今は気にしなくて大丈夫！）です。
     std.debug.print("{} {} {}\n", .{ n, pi, negative_eleven });
 }

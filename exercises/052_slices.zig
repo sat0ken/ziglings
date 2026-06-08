@@ -1,37 +1,35 @@
 //
-// We've seen that passing arrays around can be awkward. Perhaps you
-// remember a particularly horrendous function definition from quiz3?
-// This function can only take arrays that are exactly 4 items long!
+// 配列の受け渡しが面倒なことがあるのは見てきました。quiz3 の
+// 特に恐ろしい関数定義を覚えているかもしれません。
+// この関数はちょうど 4 つのアイテムを持つ配列しか受け取れません！
 //
 //     fn printPowersOfTwo(numbers: [4]u16) void { ... }
 //
-// That's the trouble with arrays - their size is part of the data
-// type and must be hard-coded into every usage of that type. This
-// digits array is a [10]u8 forever and ever:
+// これが配列の問題点です。サイズはデータ型の一部であり、
+// その型のすべての使用箇所にハードコードする必要があります。
+// この digits 配列は永遠に [10]u8 です：
 //
 //     var digits = [10]u8{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 //
-// Thankfully, Zig has slices, which let you dynamically point to a
-// start item and provide a length. Here are slices of our digit
-// array:
+// ありがたいことに、Zig にはスライスがあります。スライスを使うと
+// 開始アイテムと長さを動的に指定できます。digits 配列のスライスの例：
 //
 //     const foo = digits[0..1];  // 0
 //     const bar = digits[3..9];  // 3 4 5 6 7 8
 //     const baz = digits[5..9];  // 5 6 7 8
 //     const all = digits[0..];   // 0 1 2 3 4 5 6 7 8 9
 //
-// As you can see, a slice [x..y] starts with the index of the
-// first item at x and the last item at y-1. You can leave the y
-// off to get "the rest of the items".
+// ご覧の通り、スライス [x..y] は x のインデックスの最初のアイテムから始まり、
+// 最後のアイテムは y-1 です。y を省略すると「残りすべてのアイテム」になります。
 //
-// The type of a slice on an array of u8 items is []u8.
+// u8 アイテムの配列に対するスライスの型は []u8 です。
 //
 const std = @import("std");
 
 pub fn main() void {
     var cards = [8]u8{ 'A', '4', 'K', '8', '5', '2', 'Q', 'J' };
 
-    // Please put the first 4 cards in hand1 and the rest in hand2.
+    // 最初の 4 枚のカードを hand1 に、残りを hand2 に入れてください。
     const hand1: []u8 = cards[???];
     const hand2: []u8 = cards[???];
 
@@ -42,7 +40,7 @@ pub fn main() void {
     printHand(hand2);
 }
 
-// Please lend this function a hand. A u8 slice hand, that is.
+// この関数に手を貸してください。u8 スライスの手、です。
 fn printHand(hand: ???) void {
     for (hand) |h| {
         std.debug.print("{u} ", .{h});
@@ -50,5 +48,4 @@ fn printHand(hand: ???) void {
     std.debug.print("\n", .{});
 }
 //
-// Fun fact: Under the hood, slices are stored as a pointer to
-// the first item and a length.
+// 豆知識：内部的に、スライスは最初のアイテムへのポインタと長さとして保存されます。

@@ -1,63 +1,63 @@
 //
-//    "We live on a placid island of ignorance in the midst
-//     of black seas of infinity, and it was not meant that
-//     we should voyage far."
+//    「私たちは無限の暗黒の海の中に
+//      浮かぶ穏やかな無知の島に住んでいる。
+//      遠くへ航海することは
+//      私たちには許されていなかった。」
 //
-//     from The Call of Cthulhu
-//       by H. P. Lovecraft
+//     クトゥルフの呼び声 より
+//       作者：H. P. ラヴクラフト
 //
-// Zig has at least four ways of expressing "no value":
+// Zig には「値なし」を表す方法が少なくとも 4 つあります：
 //
 // * undefined
 //
 //       var foo: u8 = undefined;
 //
-//       "undefined" should not be thought of as a value, but as a way
-//       of telling the compiler that you are not assigning a value
-//       _yet_. Any variable may be set to undefined, but attempting to
-//       read its value before assigning one is _always_ a mistake.
+//       "undefined" は値として考えるべきではなく、コンパイラに対して
+//       「まだ」値を割り当てていないことを伝える方法です。
+//       任意の変数を undefined に設定できますが、値を割り当てる前に
+//       読み取ろうとするのは「常に」間違いです。
 //
 // * null
 //
 //       var foo: ?u8 = null;
 //
-//       The "null" primitive value _is_ a value that means "no value".
-//       This is typically used with optional types as with the ?u8
-//       shown above. When foo equals null, that's not a value of type
-//       u8. It means you have assigned foo to have _no value_!
+//       "null" プリミティブ値は「値なし」を意味する値「そのもの」です。
+//       これは通常、上記の ?u8 のような optional 型と一緒に使用されます。
+//       foo が null の場合、それは u8 型の値ではありません。
+//       foo に「値がない」ことを割り当てたことを意味します！
 //
 // * error
 //
 //       var foo: MyError!u8 = BadError;
 //
-//       Errors are _very_ similar to nulls. They _are_ a value, but
-//       they usually indicate that the "real value" you were looking
-//       for does not exist. Instead of "no value", you have an error.
-//       The example error union type of MyError!u8 means that foo
-//       either holds a u8 value OR a MyError error.
+//       エラーは null に非常によく似ています。エラーは値「ですが」、
+//       通常は探していた「本当の値」が存在しないことを示します。
+//       「値なし」の代わりに、エラーがあります。
+//       MyError!u8 というエラーユニオン型の例は、foo が u8 値か
+//       MyError エラーのどちらかを保持することを意味します。
 //
 // * void
 //
 //       var foo: void = {};
 //
-//       "void" is a _type_, not a value. It is the most popular of the
-//       Zero Bit Types (those types which take up absolutely no space
-//       and have only a semantic value). When compiled to executable
-//       code, zero bit types generate no code at all. The above example
-//       shows a variable foo of type void which is assigned the value
-//       of an empty expression. It's much more common to see void as
-//       the return type of a function that returns nothing.
+//       "void" は値ではなく「型」です。ゼロビット型（まったく容量を取らず
+//       意味的な値のみを持つ型）の中で最もよく使われます。実行可能コードに
+//       コンパイルされると、ゼロビット型はまったくコードを生成しません。
+//       上の例では void 型の変数 foo が空の式の値を代入されています。
+//       void は何も返さない関数の戻り値の型として見ることの方が
+//       はるかに一般的です。
 //
-// Zig has all of these ways of expressing different types of "no value"
-// because they each serve a purpose. Briefly:
+// Zig に「値なし」を表すこれほど多くの方法があるのは、
+// それぞれが目的を持っているためです。簡単にまとめると：
 //
-//   * undefined - there is no value YET, this cannot be read YET
-//   * null      - there is an explicit value of "no value"
-//   * errors    - there is no value because something went wrong
-//   * void      - there will NEVER be a value here
+//   * undefined - まだ値がない、まだ読めない
+//   * null      - 「値なし」という明示的な値がある
+//   * errors    - 何かがうまくいかなかったため値がない
+//   * void      - ここには永遠に値が来ない
 //
-// Please use the correct "no value" for each ??? to make this program
-// print out a cursed quote from the Necronomicon. ...If you dare.
+// ネクロノミコンの呪われた引用を表示するために、
+// 各 ??? に正しい「値なし」を使ってください。...もし勇気があれば。
 //
 const std = @import("std");
 
@@ -70,7 +70,7 @@ pub fn main() void {
     var first_line2: Err!*const [21]u8 = ???;
     first_line2 = "which can eternal lie";
 
-    // Note we need the "{!s}" format for the error union string.
+    // エラーユニオン文字列には "{!s}" フォーマットが必要です。
     std.debug.print("{s} {!s} / ", .{ first_line1, first_line2 });
 
     printSecondLine();

@@ -1,14 +1,15 @@
 const std = @import("std");
 const print = std.debug.print;
 
-// We're going to (ab)use the power of Zig to make animal hybrid creatures!
-// What do you think a GatorMouse would look like?  Eek.
+// Zigのパワーを（悪）用して動物のハイブリッド生物を作ります！
+// GatorMouseはどんな見た目でしょうか？キャー。
 //
-// Let's try a MouseLlama instead.
+// 代わりに MouseLlama を試してみましょう。
 //
-// We'll make a function that runs at comptime and takes a short code describing
-// the desired creature. A Mouse is represented by "m" and a Llama is "lm".
-// A MouseLlama hybrid, then, would be represented by "mlm".
+// コンパイル時に実行される関数を作って、希望する生物を
+// 説明する短いコードを受け取ります。Mouseは"m"で表され、
+// Llamaは"lm"です。MouseLlamaのハイブリッドなら"mlm"で
+// 表されます。
 
 const Animal = enum {
     Mouse,
@@ -16,59 +17,59 @@ const Animal = enum {
     Gator,
 };
 
-// makeCreature takes the count of animals making up the hybrid creature (so we
-// know how big a pen we'll need) and a format string, like the "mlm" for
-// MouseLlama.
+// makeCreature はハイブリッド生物を構成する動物の数（ペンの
+// 大きさを知るため）と "mlm" のようなフォーマット文字列を受け取ります。
 fn makeCreature(comptime count: usize, comptime fmt: []const u8) [count]Animal {
 
-    // Since not every animal is represented by a single character, we need to
-    // track the state of things as we move along. For example, if we see an
-    // "m", is that a new Mouse or the end of a Llama?
+    // すべての動物が1文字で表されるわけではないため、
+    // 進むにつれて状態を追跡する必要があります。例えば、
+    // "m"を見たとき、それは新しいMouseなのか、Llamaの末尾なのか？
     const State = enum {
-        start, // Ready to start a new animal.
-        l, // This means we've seen an "l", so if we see an "m", we know it's a Llama.
+        start, // 新しい動物を始める準備ができています。
+        l, // "l"を見たことを意味します。"m"を見たらLlamaだと分かります。
     };
     var state = State.start;
 
-    // We return an array of animals representing the creature. (This is why we
-    // really needed the 'count' parameter. Arrays need a size.)
+    // 生物を表す動物の配列を返します。（これが
+    // 'count' パラメータが本当に必要な理由です。配列にはサイズが必要です。）
     var animals: [count]Animal = undefined;
     var next_animal: usize = 0;
 
     inline for (fmt) |char| {
 
-        // This is a good spot to add a @compileLog() call if you need to debug
-        // any variables... (Come back here after you see main().)
+        // makeCreature で変数をデバッグする必要がある場合は、
+        // ここに @compileLog() 呼び出しを追加するのが良い場所です...
+        // （main() を見た後でここに戻ってきてください。）
 
         switch (state) {
             .start => switch (char) {
-                // We've seen the start of a Llama.
+                // Llamaの始まりを見ました。
                 'l' => state = .l,
 
-                // Mice are smaller.  An "m" is a full Mouse.
+                // Mouseは小さいです。"m"は完全なMouseです。
                 'm' => {
                     animals[next_animal] = .Mouse;
                     next_animal += 1;
                 },
 
-                // @compileError lets us stop the build immediately if something
-                // is wrong. It's like @compileLog but it prints a message
-                // instead of inspecting values.
+                // @compileError は何かがおかしい場合に
+                // ビルドを即座に停止させます。@compileLog に似ていますが、
+                // 値を調べる代わりにメッセージを出力します。
                 //
-                // What do you think happens with Gators? Do they join with
-                // other animals or is this an error?
+                // Gatorはどうなると思いますか？他の動物と
+                // 結合するのか、それともエラーになるのか？
                 'g' => ???,
 
                 else => @compileError(std.fmt.comptimePrint("No animal starts with '{c}'!", .{char})),
             },
 
             .l => switch (char) {
-                // We've seen the end of a Llama.
+                // Llamaの末尾を見ました。
                 'm' => {
                     animals[next_animal] = .Llama;
                     next_animal += 1;
-                    // Something is missing here. After we finish a Llama, we
-                    // need to be ready to _start_ over with a new animal...
+                    // ここに何かが足りません。Llamaを完成させた後、
+                    // 新しい動物を_始める_準備をする必要があります...
                     ???
                 },
 
@@ -88,24 +89,25 @@ fn makeCreature(comptime count: usize, comptime fmt: []const u8) [count]Animal {
 }
 
 pub fn main() void {
-    // Once you've fixed the ??? marks above, this makeCreature call will still
-    // only succeed if you move it outside of main, so it will run at comptime.
+    // 上の ??? マークを修正したら、この makeCreature 呼び出しは
+    // main の外に移動しないと成功しません。コンパイル時に実行されるためです。
     //
-    // With the call here, Zig will try to make the creature at runtime, and
-    // you'll get an interesting error.
+    // ここでの呼び出しでは、Zig は実行時に生物を作ろうとし、
+    // 興味深いエラーが発生します。
     //
-    // You may think the state got mixed up, but if you use @compileLog to check
-    // some variables in makeCreature, you'll see that Zig is trying to compare
-    // comptime values with "[runtime value]", which will never match.
+    // 状態が混乱したと思うかもしれませんが、makeCreature で
+    // @compileLog を使っていくつかの変数を確認すると、
+    // Zig が comptime 値を "[runtime value]" と比較しようとしており、
+    // それは決して一致しないことが分かります。
     //
-    // You can solve this by adding "comptime" to two of the variables in
-    // makeCreature...
+    // makeCreature 内の2つの変数に "comptime" を追加することで
+    // これを解決できます...
     const creature = makeCreature(2, "mlm");
 
     for (creature) |animal| {
-        // @tagName gives us a string representing which variant of an enum we
-        // have. This lets us print the names of animals without repeating them
-        // here.
+        // @tagName は enum のどのバリアントを持っているかを表す
+        // 文字列を返します。これにより、ここで繰り返すことなく
+        // 動物の名前を出力できます。
         print("{s}", .{@tagName(animal)});
     }
     print(" joins the crew!", .{});

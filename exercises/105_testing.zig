@@ -1,84 +1,75 @@
 //
-// A big advantage of Zig is the integration of its own test system.
-// This allows the philosophy of Test Driven Development (TDD) to be
-// implemented perfectly. Zig even goes one step further than other
-// languages, the tests can be included directly in the source file.
+// Zigの大きな利点の一つは、独自のテストシステムの統合です。
+// これにより、テスト駆動開発（TDD）の哲学を完璧に実装できます。
+// Zigは他の言語よりも一歩進んでおり、テストをソースファイルに直接含めることができます。
 //
-// This has several advantages. On the one hand it is much clearer to
-// have everything in one file, both the source code and the associated
-// test code. On the other hand, it is much easier for third parties
-// to understand what exactly a function is supposed to do if they can
-// simply look at the test inside the source and compare both.
+// これにはいくつかの利点があります。一方では、ソースコードと関連する
+// テストコードの両方を一つのファイルに持つことで、はるかに明確になります。
+// 他方では、関数が何をするべきかを正確に理解したい第三者にとって、
+// ソース内のテストを確認して両方を比較できるため、ずっと簡単になります。
 //
-// Especially if you want to understand how e.g. the standard library
-// of Zig works, this approach is very helpful. Furthermore it is very
-// practical, if you want to report a bug to the Zig community, to
-// illustrate it with a small example including a test.
+// 特にZigの標準ライブラリがどのように機能するかを理解したい場合、
+// このアプローチは非常に役立ちます。さらに、Zigコミュニティにバグを
+// 報告したい場合、テストを含む小さな例でそれを説明するのに非常に実用的です。
 //
-// Therefore, in this exercise we will deal with the basics of testing
-// in Zig. Basically, tests work as follows: you pass certain parameters
-// to a function, for which you get a return - the result. This is then
-// compared with the EXPECTED value. If both values match, the test is
-// passed, otherwise an error message is displayed.
+// したがって、このエクササイズではZigのテストの基本を扱います。
+// 基本的に、テストは次のように機能します：特定のパラメータを関数に渡すと、
+// 戻り値（結果）が得られます。これは期待値と比較されます。
+// 両方の値が一致すれば、テストは合格します。そうでなければエラーメッセージが表示されます。
 //
 //          testing.expect(foo(param1, param2) == expected);
 //
-// Also other comparisons are possible, deviations or also errors can
-// be provoked, which must lead to an appropriate behavior of the
-// function, so that the test is passed.
+// 他の比較も可能で、偏差やエラーを引き起こすこともできます。
+// 関数の適切な動作をテストが確認するために使用されます。
 //
-// Tests can be run via Zig build system or applied directly to
-// individual modules using "zig test xyz.zig".
+// テストはZigのビルドシステムで実行するか、"zig test xyz.zig"を使って
+// 個々のモジュールに直接適用することができます。
 //
-// Both can be used script-driven to execute tests automatically, e.g.
-// after checking into a Git repository. Something we also make extensive
-// use of here at Ziglings.
+// どちらもスクリプト駆動で自動的にテストを実行するために使用できます。
+// 例えば、Gitリポジトリにチェックインした後などです。
+// これはZiglingsでも広く活用されています。
 //
 const std = @import("std");
 const testing = std.testing;
 
-// This is a simple function that builds a sum from the passed parameters and
-// returns.
+// これは渡されたパラメータから合計を計算して返すシンプルな関数です。
 fn add(a: f16, b: f16) f16 {
     return a + b;
 }
 
-// The associated test. It always starts with the keyword "test", followed by a
-// description of the tasks of the test. This is followed by the test cases in
-// curly brackets.
+// 関連するテストです。常に"test"キーワードで始まり、続いてテストのタスクの
+// 説明が来ます。その後に波括弧でテストケースが続きます。
 test "add" {
 
-    // The first test checks if the sum of '41' and '1' gives '42', which is
-    // correct.
+    // 最初のテストは'41'と'1'の合計が'42'になるか確認します。これは正しいです。
     try testing.expect(add(41, 1) == 42);
 
-    // Another way to perform this test is as follows:
+    // このテストを行う別の方法は次のとおりです：
     try testing.expectEqual(42, add(41, 1));
 
-    // This time a test with the addition of a negative number:
+    // 今度は負の数の加算のテストです：
     try testing.expect(add(5, -4) == 1);
 
-    // And a floating point operation:
+    // そして浮動小数点の演算：
     try testing.expect(add(1.5, 1.5) == 3);
 }
 
-// Another simple function that returns the result of subtracting the two
-// parameters.
+// 2つのパラメータの減算結果を返す別のシンプルな関数です。
 fn sub(a: f16, b: f16) f16 {
     return a - b;
 }
 
-// The corresponding test is not much different from the previous one. Except
-// that it contains an error that you need to correct.
+// 対応するテストは前のものとあまり変わりません。ただし、
+// 修正が必要なエラーが含まれています。
 test "sub" {
     try testing.expect(sub(10, 5) == 6);
 
     try testing.expect(sub(3, 1.5) == 1.5);
 }
 
-// This function divides the numerator by the denominator. Here it is important
-// that the denominator must not be zero. This is checked and if it occurs an
-// error is returned.
+// この関数は分子を分母で割ります。ここで重要なのは
+// 分母がゼロであってはならないことです。これがチェックされ、
+// 発生した場合はエラーが返されます。
 fn divide(a: f16, b: f16) !f16 {
     if (b == 0) return error.DivisionByZero;
     return a / b;
@@ -90,7 +81,7 @@ test "divide" {
     try testing.expect(divide(10, 2) catch unreachable == 5);
     try testing.expect(divide(1, 3) catch unreachable == 0.3333333333333333);
 
-    // Now we test if the function returns an error if we pass a zero as
-    // denominator. But which error needs to be tested?
+    // 分母としてゼロを渡した場合に関数がエラーを返すかテストします。
+    // しかし、どのエラーをテストすればよいでしょうか？
     try testing.expectError(error.???, divide(15, 0));
 }

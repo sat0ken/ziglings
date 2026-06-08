@@ -1,6 +1,5 @@
 //
-// What's really nice is that you can use a switch statement as an
-// expression to return a value.
+// switch文を式として使って値を返せるのは非常に便利です。
 //
 //     const a = switch (x) {
 //         1 => 9,
@@ -29,13 +28,13 @@ pub fn main() void {
             // ...
             25 => 'Y',
             26 => 'Z',
-            // As in the last exercise, please add the 'else' clause
-            // and this time, have it return an exclamation mark '!'.
+            // 前の演習と同様に'else'節を追加してください。
+            // 今回は、感嘆符'!'を返すようにしてください。
         };
 
         std.debug.print("{c}", .{real_char});
-        // Note: "{c}" forces print() to display the value as a character.
-        // Can you guess what happens if you remove the "c"? Try it!
+        // 注意："{c}"はprint()に値を文字として表示させます。
+        // "c"を削除するとどうなるか予想できますか？試してみてください！
     }
 
     std.debug.print("\n", .{});

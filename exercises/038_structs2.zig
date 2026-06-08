@@ -1,10 +1,10 @@
 //
-// Grouping values in structs is not merely convenient. It also allows
-// us to treat the values as a single item when storing them, passing
-// them to functions, etc.
+// structに値をグループ化することは単に便利なだけではありません。
+// 格納したり、関数に渡したりする際に値を単一のアイテムとして
+// 扱えるようにもなります。
 //
-// This exercise demonstrates how we can store structs in an array and
-// how doing so lets us print them using a loop.
+// この演習では、structを配列に格納する方法と、
+// ループを使ってそれらを出力する方法を示します。
 //
 const std = @import("std");
 
@@ -33,17 +33,17 @@ pub fn main() void {
         .experience = 10,
     };
 
-    // Please add "Zump the Loud" with the following properties:
+    // "Zump the Loud"を次のプロパティで追加してください：
     //
     //     role       bard
     //     gold       10
     //     health     100
     //     experience 20
     //
-    // Feel free to run this program without adding Zump. What does
-    // it do and why?
+    // Zumpを追加せずにこのプログラムを実行してみてください。
+    // どうなりますか？なぜですか？
 
-    // Printing all RPG characters in a loop:
+    // RPGキャラクターを全てループで出力：
     for (chars, 0..) |c, num| {
         std.debug.print("Character {} - G:{} H:{} XP:{}\n", .{
             num + 1, c.gold, c.health, c.experience,
@@ -51,8 +51,8 @@ pub fn main() void {
     }
 }
 
-// If you tried running the program without adding Zump as mentioned
-// above, you get what appear to be "garbage" values. In debug mode
-// (which is the default), Zig writes the repeating pattern "10101010"
-// in binary (or 0xAA in hex) to all undefined locations to make them
-// easier to spot when debugging.
+// 上記のようにZumpを追加せずにプログラムを実行してみると、
+// 「ゴミ」のような値が表示されます。デバッグモード
+//（デフォルト）では、Zigは全ての未定義の場所に2進数の繰り返しパターン
+// "10101010"（16進数で0xAA）を書き込んで、デバッグ時に
+// 見つけやすくします。

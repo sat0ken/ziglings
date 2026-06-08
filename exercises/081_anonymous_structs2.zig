@@ -1,6 +1,6 @@
 //
-// An anonymous struct value LITERAL (not to be confused with a
-// struct TYPE) uses '.{}' syntax:
+// 匿名構造体の値リテラル（構造体の型と混同しないでください）
+// は '.{}' 構文を使用します：
 //
 //     .{
 //          .center_x = 15,
@@ -8,12 +8,11 @@
 //          .radius = 6,
 //     }
 //
-// These literals are always evaluated entirely at compile-time.
-// The example above could be coerced into the i32 variant of the
-// "circle struct" from the last exercise.
+// これらのリテラルは常にコンパイル時に完全に評価されます。
+// 上記の例は、前の演習の "circle struct" の i32 バリアントに
+// 強制変換できます。
 //
-// Or you can let them remain entirely anonymous as in this
-// example:
+// または、次の例のように完全に匿名のままにすることもできます：
 //
 //     fn bar(foo: anytype) void {
 //         print("a:{} b:{}\n", .{foo.a, foo.b});
@@ -24,7 +23,7 @@
 //         .b = false,
 //     });
 //
-// The example above prints "a:true b:false".
+// 上記の例は "a:true b:false" と出力します。
 //
 const print = @import("std").debug.print;
 
@@ -36,8 +35,7 @@ pub fn main() void {
     });
 }
 
-// Please complete this function which prints an anonymous struct
-// representing a circle.
+// 円を表す匿名構造体を出力するこの関数を完成させてください。
 fn printCircle(???) void {
     print("x:{} y:{} radius:{}\n", .{
         circle.center_x,

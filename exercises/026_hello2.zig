@@ -1,32 +1,31 @@
 //
-// Great news! Now we know enough to understand a "real" Hello World
-// program in Zig - one that uses the system Standard Out resource...which
-// can fail!
+// 素晴らしいニュースです！これでZigの「本物の」Hello Worldプログラムを
+// 理解できるだけの知識が身につきました。このプログラムはシステムの
+// 標準出力リソースを使用します…失敗する可能性があります！
 //
 const std = @import("std");
 
-// Take note that this main() definition now returns "!void" rather
-// than just "void". Since there's no specific error type, this means
-// that Zig will infer the error type. This is appropriate in the case
-// of main(), but can make a function harder (function pointers) or
-// even impossible to work with (recursion) in some situations.
+// このmain()の定義が"void"だけでなく"!void"を返すようになっていることに注目してください。
+// 特定のエラー型がないため、Zigがエラー型を推論します。
+// main()の場合はこれで適切ですが、状況によっては関数の扱いが
+// 難しくなったり（関数ポインタ）、不可能になったりする（再帰）場合があります。
 //
-// You can find more information at:
+// 詳細はこちらで確認できます：
 // https://ziglang.org/documentation/master/#Inferred-Error-Sets
 //
 pub fn main(init: std.process.Init) !void {
-    // Instance for input/output operations; we will learn more about this later.
+    // 入出力操作のインスタンス。詳細は後で学びます。
     const io = init.io;
 
-    // We get a Writer for Standard Out...
+    // 標準出力のWriterを取得します...
     var stdout_writer = std.Io.File.stdout().writer(io, &.{});
-    // ...and extract its interface so we can print() to it.
+    // ...そしてprint()できるようにインターフェイスを取り出します。
     const stdout = &stdout_writer.interface;
 
-    // Unlike std.debug.print(), the Standard Out writer can fail
-    // with an error. We don't care _what_ the error is, we want
-    // to be able to pass it up as a return value of main().
+    // std.debug.print()と異なり、標準出力のwriterはエラーで失敗する
+    // 可能性があります。_どんな_エラーかは気にせず、
+    // それをmain()の戻り値として渡せるようにしたいです。
     //
-    // We just learned of a single statement which can accomplish this.
+    // これを一つの文で実現できる方法を先ほど学びました。
     stdout.print("Hello world!\n", .{});
 }

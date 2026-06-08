@@ -1,23 +1,23 @@
 //
-// As a matter of fact, you can put 'comptime' in front of any
-// expression to force it to be run at compile time.
+// 実は、任意の式の前に 'comptime' を置くことで、
+// コンパイル時に強制的に実行させることができます。
 //
-// Execute a function:
+// 関数を実行する：
 //
 //     comptime llama();
 //
-// Get a value:
+// 値を取得する：
 //
 //     bar = comptime baz();
 //
-// Execute a whole block:
+// ブロック全体を実行する：
 //
 //     comptime {
 //         bar = baz + biff();
 //         llama(bar);
 //     }
 //
-// Get a value from a block:
+// ブロックから値を取得する：
 //
 //     var llama = comptime bar: {
 //         const baz = biff() + bonk();
@@ -30,36 +30,34 @@ const llama_count = 5;
 const llamas = [llama_count]u32{ 5, 10, 15, 20, 25 };
 
 pub fn main() void {
-    // We meant to fetch the last llama. Please fix this simple
-    // mistake so the assertion no longer fails.
+    // 最後のラマを取得しようとしました。アサーションが
+    // 失敗しなくなるようにこの単純なミスを修正してください。
     const my_llama = getLlama(5);
 
     print("My llama value is {}.\n", .{my_llama});
 }
 
 fn getLlama(i: usize) u32 {
-    // We've put a guard assert() at the top of this function to
-    // prevent mistakes. The 'comptime' keyword here means that
-    // the mistake will be caught when we compile!
+    // この関数の先頭にガードの assert() を置いて
+    // ミスを防いでいます。ここでの 'comptime' キーワードは、
+    // コンパイル時にミスが検出されることを意味します！
     //
-    // Without 'comptime', this would still work, but the
-    // assertion would fail at runtime with a PANIC, and that's
-    // not as nice.
+    // 'comptime' がなくても機能しますが、アサーションは
+    // PANICで実行時に失敗します。それほど良くありません。
     //
-    // Unfortunately, we're going to get an error right now
-    // because the 'i' parameter needs to be guaranteed to be
-    // known at compile time. What can you do with the 'i'
-    // parameter above to make this so?
+    // 残念ながら、'i' パラメータがコンパイル時に既知であることを
+    // 保証する必要があるため、今すぐエラーが発生します。
+    // これを実現するために上の 'i' パラメータに何ができますか？
     comptime assert(i < llama_count);
 
     return llamas[i];
 }
 
-// Fun fact: this assert() function is identical to
-// std.debug.assert() from the Zig Standard Library.
+// 余談：この assert() 関数は Zig 標準ライブラリの
+// std.debug.assert() と同一です。
 fn assert(ok: bool) void {
     if (!ok) unreachable;
 }
 //
-// Bonus fun fact: I accidentally replaced all instances of 'foo'
-// with 'llama' in this exercise and I have no regrets!
+// ボーナス余談：この演習で 'foo' のすべてのインスタンスを
+// 誤って 'llama' に置き換えてしまいましたが、後悔はしていません！

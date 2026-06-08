@@ -1,36 +1,34 @@
 //
-// We've seen that the 'for' loop can let us perform some action
-// for every item in an array or slice.
+// `for`ループは配列やスライスのすべての要素に対して
+// アクションを実行できることを学びました。
 //
-// More recently, we discovered that it supports ranges to
-// iterate over number sequences.
+// より最近では、数値シーケンスを繰り返すための
+// 範囲指定もサポートしていることを発見しました。
 //
-// This is part of a more general capability of the `for` loop:
-// looping over one or more "objects" where an object is an
-// array, slice, or range.
+// これは`for`ループのより一般的な機能の一部です：
+// 1つ以上の「オブジェクト」（配列、スライス、または範囲）を
+// ループします。
 //
-// In fact, we *did* use multiple objects way back in Exercise
-// 016 where we iterated over an array and also a numeric index.
-// It didn't always work exactly this way, so the exercise had to
-// be retroactively modified a little bit.
+// 実際、エクササイズ016でも複数のオブジェクトを使用しており、
+// 配列と数値インデックスの両方を繰り返しました。
+// 当時は動作が少し異なっていたため、エクササイズは
+// 事後に少し修正が必要でした。
 //
 //     for (bits, 0..) |bit, i| { ... }
 //
-// The general form of a 'for' loop with two lists is:
+// 2つのリストを持つ'for'ループの一般的な形式は：
 //
 //     for (list_a, list_b) |a, b| {
-//         // Here we have the first item from list_a and list_b,
-//         // then the second item from each, then the third and
-//         // so forth...
+//         // ここではlist_aとlist_bの最初のアイテム、
+//         // 次にそれぞれの2番目のアイテム、3番目のアイテムと続きます...
 //     }
 //
-// What's really beautiful about this is that we don't have to
-// keep track of an index or advancing a memory pointer for
-// *either* of these lists. That error-prone stuff is all taken
-// care of for us by the compiler.
+// これの本当に素晴らしいところは、これらのリストの*いずれか*に対しても
+// インデックスを追跡したりメモリポインタを進めたりする必要がないことです。
+// そのエラーが起きやすい部分はすべてコンパイラが処理してくれます。
 //
-// Below, we have a program that is supposed to compare two
-// arrays. Please make it work!
+// 下に2つの配列を比較するプログラムがあります。
+// 動作するようにしてください！
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -49,5 +47,5 @@ pub fn main() void {
     print("Arrays match!\n", .{});
 }
 //
-// You are perhaps wondering what happens if one of the two lists
-// is longer than the other? Try it!
+// 2つのリストの一方が他方より長い場合はどうなるでしょうか？
+// 試してみてください！

@@ -1,10 +1,10 @@
 //
-// It is really quite inconvenient having to manually keep track
-// of the active field in our union, isn't it?
+// ユニオンのアクティブフィールドを手動で管理するのは
+// 本当に不便ですよね？
 //
-// Thankfully, Zig also has "tagged unions", which allow us to
-// store an enum value within our union representing which field
-// is active.
+// ありがたいことに、Zig には「タグ付きユニオン」もあります。
+// タグ付きユニオンを使うと、どのフィールドがアクティブかを表す
+// enum 値をユニオン内に保存できます。
 //
 //     const FooTag = enum{ small, medium, large };
 //
@@ -14,8 +14,7 @@
 //         large: u64,
 //     };
 //
-// Now we can use a switch directly on the union to act on the
-// active field:
+// これでアクティブなフィールドに対して直接 switch を使えます：
 //
 //     var f = Foo{ .small = 10 };
 //
@@ -25,8 +24,8 @@
 //         .large => |my_large| do_something(my_large),
 //     }
 //
-// Let's make our Insects use a tagged union (Doctor Zoraptera
-// approves).
+// Insect にタグ付きユニオンを使いましょう
+//（Zoraptera 博士も賛成しています）。
 //
 const std = @import("std");
 
@@ -43,7 +42,7 @@ pub fn main() void {
 
     std.debug.print("Insect report! ", .{});
 
-    // Could it really be as simple as just passing the union?
+    // ユニオンをそのまま渡すだけで本当に大丈夫なのでしょうか？
     printInsect(???);
     printInsect(???);
 
@@ -57,8 +56,8 @@ fn printInsect(insect: Insect) void {
     }
 }
 
-// By the way, did unions remind you of optional values and errors?
-// Optional values are basically "null unions" and errors use "error
-// union types". Now we can add our own unions to the mix to handle
-// whatever situations we might encounter:
+// ところで、ユニオンは optional 値やエラーを思い出させましたか？
+// Optional 値は基本的に「null ユニオン」であり、エラーは「エラーユニオン型」を
+// 使用します。これで私たちのユニオンも追加して、遭遇する可能性のある
+// あらゆる状況に対処できます：
 //          union(Tag) { value: u32, toxic_ooze: void }

@@ -1,17 +1,16 @@
 //
-// You are perhaps tempted to try slices on strings? They're arrays of
-// u8 characters after all, right? Slices on strings work great.
-// There's just one catch: don't forget that Zig string literals are
-// immutable (const) values. So we need to change the type of slice
-// from:
+// 文字列にスライスを使いたいと思うかもしれません。結局のところ
+// u8 文字の配列ですよね？文字列へのスライスはうまく動作します。
+// ただ一つ注意点があります：Zig の文字列リテラルは不変（const）値なので、
+// スライスの型を次から：
 //
 //     var foo: []u8 = "foobar"[0..3];
 //
-// to:
+// 次に変更する必要があります：
 //
 //     var foo: []const u8 = "foobar"[0..3];
 //
-// See if you can fix this Zero Wing-inspired phrase descrambler:
+// この Zero Wing に着想を得たフレーズデスクランブラを修正してみてください：
 const std = @import("std");
 
 pub fn main() void {

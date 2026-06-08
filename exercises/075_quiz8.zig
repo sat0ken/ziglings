@@ -1,11 +1,11 @@
 //
-// Quiz Time!
+// クイズの時間！
 //
-// Let's revisit the Hermit's Map from Quiz 7.
+// クイズ7の隠者の地図を再訪しましょう。
 //
-// Oh, don't worry, it's not nearly as big without all the
-// explanatory comments. And we're only going to change one part
-// of it.
+// 心配しないでください。説明のコメントがなければ
+// それほど大きくありません。そして変更するのは
+// 1箇所だけです。
 //
 const print = @import("std").debug.print;
 
@@ -23,9 +23,9 @@ var d = Place{ .name = "Dogwood Grove" };
 var e = Place{ .name = "East Pond" };
 var f = Place{ .name = "Fox Pond" };
 
-// Remember how we didn't have to declare the numeric type of the
-// place_count because it is only used at compile time? That
-// probably makes a lot more sense now. :-)
+// place_count の数値型を宣言する必要がなかった理由を
+// 覚えていますか？コンパイル時にのみ使われるからです。
+// 今ではよく分かりますよね。:-)
 const place_count = 6;
 
 const Path = struct {
@@ -34,8 +34,8 @@ const Path = struct {
     dist: u8,
 };
 
-// Okay, so as you may recall, we had to create each Path struct
-// by hand and each one took 5 lines of code to define:
+// さて、思い出すかもしれませんが、各 Path 構造体を
+// 手動で作成しなければならず、定義に5行のコードが必要でした：
 //
 //    Path{
 //        .from = &a, // from: Archer's Point
@@ -43,15 +43,14 @@ const Path = struct {
 //        .dist = 2,
 //    },
 //
-// Well, armed with the knowledge that we can run code at compile
-// time, we can perhaps shorten this a bit with a simple function
-// instead.
+// コンパイル時にコードを実行できるという知識を武器に、
+// シンプルな関数でこれを少し短縮できるかもしれません。
 //
-// Please fill in the body of this function!
+// この関数の本体を記入してください！
 fn makePath(from: *Place, to: *Place, dist: u8) Path {}
 
-// Using our new function, these path definitions take up considerably less
-// space in our program now!
+// 新しい関数を使うと、パスの定義がプログラム内で
+// かなり少ないスペースで済むようになりました！
 const a_paths = [_]Path{makePath(&a, &b, 2)};
 const b_paths = [_]Path{ makePath(&b, &a, 2), makePath(&b, &d, 1) };
 const c_paths = [_]Path{ makePath(&c, &d, 3), makePath(&c, &e, 2) };
@@ -59,21 +58,21 @@ const d_paths = [_]Path{ makePath(&d, &b, 1), makePath(&d, &c, 3), makePath(&d, 
 const e_paths = [_]Path{ makePath(&e, &c, 2), makePath(&e, &f, 1) };
 const f_paths = [_]Path{makePath(&f, &d, 7)};
 //
-// But is it more readable? That could be argued either way.
+// でも読みやすいでしょうか？それはどちらともいえます。
 //
-// We've seen that it is possible to parse strings at compile
-// time, so the sky's really the limit on how fancy we could get
-// with this.
+// コンパイル時に文字列を解析できることが分かったので、
+// どれだけ凝ったことができるかはまさに無限です。
 //
-// For example, we could create our own "path language" and
-// create Paths from that. Something like this, perhaps:
+// 例えば、独自の「パス言語」を作って
+// そこからPathを作成することもできます。例えば：
 //
 //    a -> (b[2])
 //    b -> (a[2] d[1])
 //    c -> (d[3] e[2])
 //    ...
 //
-// Feel free to implement something like that as a SUPER BONUS EXERCISE!
+// スーパーボーナス演習としてそのようなものを
+// 実装してみてください！
 
 const TripItem = union(enum) {
     place: *const Place,
@@ -152,7 +151,7 @@ pub fn main() void {
     const start = &a; // Archer's Point
     const destination = &f; // Fox Pond
 
-    // We could either have this:
+    // 以下のどちらかにできます：
     //
     //   a.paths = a_paths[0..];
     //   b.paths = b_paths[0..];
@@ -161,7 +160,7 @@ pub fn main() void {
     //   e.paths = e_paths[0..];
     //   f.paths = f_paths[0..];
     //
-    // or this comptime wizardry:
+    // またはこのコンパイル時の魔法：
     //
     const letters = [_][]const u8{ "a", "b", "c", "d", "e", "f" };
     inline for (letters) |letter| {

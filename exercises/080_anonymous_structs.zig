@@ -1,36 +1,35 @@
 //
-// Struct types are always "anonymous" until we give them a name:
+// 構造体型は名前を付けるまで常に「匿名」です：
 //
 //     struct {};
 //
-// So far, we've been giving struct types a name like so:
+// これまで、このように構造体型に名前を付けてきました：
 //
 //     const Foo = struct {};
 //
-// * The value of @typeName(Foo) is "<filename>.Foo".
+// * @typeName(Foo) の値は "<filename>.Foo" です。
 //
-// A struct is also given a name when you return it from a
-// function:
+// 構造体は関数から返す際にも名前が付きます：
 //
 //     fn Bar() type {
 //         return struct {};
 //     }
 //
-//     const MyBar = Bar();  // store the struct type
-//     const bar = Bar() {}; // create instance of the struct
+//     const MyBar = Bar();  // 構造体型を格納する
+//     const bar = Bar() {}; // 構造体のインスタンスを作成する
 //
-// * The value of @typeName(Bar()) is "<filename>.Bar()".
-// * The value of @typeName(MyBar) is "<filename>.Bar()".
-// * The value of @typeName(@TypeOf(bar)) is "<filename>.Bar()".
+// * @typeName(Bar()) の値は "<filename>.Bar()" です。
+// * @typeName(MyBar) の値は "<filename>.Bar()" です。
+// * @typeName(@TypeOf(bar)) の値は "<filename>.Bar()" です。
 //
-// You can also have completely anonymous structs. The value
-// of @typeName(struct {}) is "<filename>.<function>__struct_<nnn>".
+// 完全に匿名の構造体を持つこともできます。
+// @typeName(struct {}) の値は "<filename>.<function>__struct_<nnn>" です。
 //
 const print = @import("std").debug.print;
 
-// This function creates a generic data structure by returning an
-// anonymous struct type (which will no longer be anonymous AFTER
-// it's returned from the function).
+// この関数は匿名の構造体型を返すことでジェネリックな
+// データ構造を作成します（関数から返された後は
+// もはや匿名ではなくなります）。
 fn Circle(comptime T: type) type {
     return struct {
         center_x: T,
@@ -41,12 +40,12 @@ fn Circle(comptime T: type) type {
 
 pub fn main() void {
     //
-    // See if you can complete these two variable initialization
-    // expressions to create instances of circle struct types
-    // which can hold these values:
+    // これらの2つの変数初期化式を完成させて、
+    // 以下の値を保持できる circle 構造体型の
+    // インスタンスを作成してみましょう：
     //
-    // * circle1 should hold i32 integers
-    // * circle2 should hold f32 floats
+    // * circle1 は i32 整数を保持する
+    // * circle2 は f32 浮動小数点数を保持する
     //
     const circle1 = ??? {
         .center_x = 25,
@@ -75,11 +74,11 @@ pub fn main() void {
     });
 }
 
-// Perhaps you remember the "narcissistic fix" for the type name
-// in Ex. 065? We're going to do the same thing here: use a hard-
-// coded slice to return the type name. That's just so our output
-// looks prettier. Indulge your vanity. Programmers are beautiful.
+// 演習065での「自己陶酔的な修正」を覚えていますか？
+// ここでも同じことをします：ハードコードされたスライスを使って
+// 型名を返します。出力を見やすくするためだけです。
+// 自分の虚栄心を満たしてください。プログラマーは美しい。
 fn stripFname(mytype: []const u8) []const u8 {
     return mytype[22..];
 }
-// The above would be an instant red flag in a "real" program.
+// 上記は「本物の」プログラムではすぐに赤信号になるでしょう。

@@ -1,34 +1,34 @@
 //
-// Now that we know how to get an Io value, let's use it for
-// asynchronous execution!
+// Io 値の取得方法がわかったので、非同期実行に使ってみましょう！
 //
-// io.async() launches a function and returns a Future. The result
-// won't necessarily be available until you call .await() on it:
+// io.async() は関数を起動して Future を返します。.await() を
+// 呼び出すまで結果は必ずしも利用可能ではありません：
 //
 //     var future = io.async(someFunction, .{ arg1, arg2 });
 //     const result = future.await(io);
 //
-// The function *may* run immediately or on another thread -
-// your code doesn't need to care! That's the beauty of the
-// Io abstraction.
+// 関数はすぐに実行されるかもしれないし、別のスレッドで実行されるかも
+// しれません - コードはそれを気にする必要はありません！それが
+// Io 抽象化の美しさです。
 //
-// IMPORTANT: Every Future MUST be either .await()ed or .cancel()ed.
-// Failing to do so leaks resources! A safe pattern is:
+// 重要：すべての Future は .await() か .cancel() のいずれかを
+// 呼び出す必要があります。そうしないとリソースがリークします！
+// 安全なパターンは：
 //
 //     var future = io.async(myFn, .{});
-//     defer _ = future.cancel(io);  // safety net
-//     // ... later, if we want the result:
+//     defer _ = future.cancel(io);  // 安全網
+//     // ... 後で結果が欲しい場合：
 //     const result = future.await(io);
-//     // (await after cancel is fine — it just returns the result)
+//     // （cancel の後に await しても問題ありません - 結果を返すだけです）
 //
-// Both .await() and .cancel() block until the task finishes and
-// return the result. The difference is that .cancel() also
-// requests the task to stop at its next cancellation point.
-// Calling either one more than once is safe — subsequent calls
-// just return a copy of the result.
+// .await() と .cancel() はどちらもタスクが終わるまでブロックして
+// 結果を返します。違いは .cancel() がタスクに次のキャンセルポイントで
+// 停止するよう要求することです。
+// どちらかを複数回呼び出しても安全です - 後続の呼び出しは
+// 結果のコピーを返すだけです。
 //
-// Fix this program so that computeAnswer runs asynchronously
-// and its result is properly awaited.
+// computeAnswer が非同期で実行され、その結果が適切に
+// await されるようにこのプログラムを修正してください。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -36,14 +36,14 @@ const print = std.debug.print;
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
 
-    // Launch computeAnswer asynchronously.
+    // computeAnswer を非同期で起動します。
     var future = io.async(computeAnswer, .{ 6, 7 });
-    defer _ = future.cancel(io); // always clean up!
+    defer _ = future.cancel(io); // 常にクリーンアップする！
 
     print("Computing... ", .{});
 
-    // Now collect the result. What method on Future gives us
-    // the value, blocking until it's ready?
+    // 結果を収集します。Future のどのメソッドが
+    // 準備できるまでブロックして値を返しますか？
     const answer = future.???(io);
 
     print("The answer is: {}\n", .{answer});

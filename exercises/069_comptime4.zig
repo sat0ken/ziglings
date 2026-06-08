@@ -1,46 +1,47 @@
 //
-// One of the more common uses of 'comptime' function parameters is
-// passing a type to a function:
+// 'comptime' 関数パラメータのより一般的な用途の1つは、
+// 型を関数に渡すことです：
 //
 //     fn foo(comptime MyType: type) void { ... }
 //
-// In fact, types are ONLY available at compile time, so the
-// 'comptime' keyword is required here.
+// 実際、型はコンパイル時にのみ利用可能なので、
+// 'comptime' キーワードはここで必須です。
 //
-// Please take a moment to put on the wizard hat which has been
-// provided for you. We're about to use this ability to implement
-// a generic function.
+// しばらく時間をとってウィザードハットをかぶってください。
+// この機能を使ってジェネリック関数を実装しようとしています。
 //
 const print = @import("std").debug.print;
 
 pub fn main() void {
-    // Here we declare arrays of three different types and sizes
-    // at compile time from a function call. Neat!
-    const s1 = makeSequence(u8, 3); // creates a [3]u8
-    const s2 = makeSequence(u32, 5); // creates a [5]u32
-    const s3 = makeSequence(i64, 7); // creates a [7]i64
+    // ここでは3つの異なる型とサイズの配列を
+    // 関数呼び出しからコンパイル時に宣言します。素敵！
+    const s1 = makeSequence(u8, 3); // [3]u8 を作成
+    const s2 = makeSequence(u32, 5); // [5]u32 を作成
+    const s3 = makeSequence(i64, 7); // [7]i64 を作成
 
     print("s1={any}, s2={any}, s3={any}\n", .{ s1, s2, s3 });
 }
 
-// This function is pretty wild because it executes at runtime
-// and is part of the final compiled program. The function is
-// compiled with unchanging data sizes and types.
+// この関数は非常に面白いです。実行時に実行され、
+// 最終的にコンパイルされたプログラムの一部になります。
+// 関数は変更されないデータのサイズと型でコンパイルされます。
 //
-// And yet it ALSO allows for different sizes and types. This
-// seems paradoxical. How could both things be true?
+// それでも異なるサイズと型を許容します。これは
+// 矛盾しているように見えます。両方が真である
+// ことはどうして可能なのでしょうか？
 //
-// To accomplish this, the Zig compiler actually generates a
-// separate copy of the function for every size/type combination!
-// So in this case, three different functions will be generated
-// for you, each with machine code that handles that specific
-// data size and type.
+// これを実現するために、Zigコンパイラは実際に
+// すべてのサイズ/型の組み合わせについて
+// 別々のコピーの関数を生成します！
+// このケースでは、それぞれの特定のデータのサイズと型を
+// 処理するマシンコードを持つ3つの異なる関数が
+// 生成されます。
 //
-// Please fix this function so that the 'size' parameter:
+// この関数を修正して、'size' パラメータが：
 //
-//     1) Is guaranteed to be known at compile time.
-//     2) Sets the size of the array of type T (which is the
-//        sequence we're creating and returning).
+//     1) コンパイル時に既知であることが保証される。
+//     2) 型T の配列のサイズを設定する（これが
+//        作成して返すシーケンスです）。
 //
 fn makeSequence(comptime T: type, ??? size: usize) [???]T {
     var sequence: [???]T = undefined;

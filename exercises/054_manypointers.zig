@@ -1,55 +1,54 @@
 //
-// You can also make pointers to multiple items without using a slice.
+// スライスを使わずに複数のアイテムへのポインタを作ることもできます。
 //
 //     var foo: [4]u8 = [4]u8{ 1, 2, 3, 4 };
 //     var foo_slice: []u8 = foo[0..];
 //     var foo_ptr: [*]u8 = &foo;
 //     var foo_slice_from_ptr: []u8 = foo_ptr[0..4];
 //
-// The difference between foo_slice and foo_ptr is that the slice has
-// a known length. The pointer doesn't. It is up to YOU to keep track
-// of the number of u8s foo_ptr points to!
+// foo_slice と foo_ptr の違いは、スライスには既知の長さがあることです。
+// ポインタにはありません。foo_ptr が指している u8 の数は
+// あなた自身が管理する必要があります！
 //
 const std = @import("std");
 
 pub fn main() void {
-    // Take a good look at the array type to which we're coercing
-    // the zen12 string (the REAL nature of strings will be
-    // revealed when we've learned some additional features):
+    // zen12 文字列をキャストしている配列型をよく見てください
+    //（文字列の「本当の」性質は追加の機能を学んだときに明らかになります）：
     const zen12: *const [21]u8 = "Memory is a resource.";
     //
-    //   It would also have been valid to coerce to a slice:
+    //   スライスにキャストすることも有効でした：
     //         const zen12: []const u8 = "...";
     //
-    // Now let's turn this into a "many-item pointer":
+    // では、これを「多要素ポインタ」に変換しましょう：
     const zen_manyptr: [*]const u8 = zen12;
 
-    // It's okay to access zen_manyptr just like an array or slice as
-    // long as you keep track of the length yourself!
+    // 長さを自分で管理する限り、zen_manyptr を配列やスライスのように
+    // アクセスできます！
     //
-    // A "string" in Zig is a pointer to an array of const u8 values
-    // (or a slice of const u8 values, as we saw above). So, we could
-    // treat a "many-item pointer" of const u8 as a string as long as
-    // we can CONVERT IT TO A SLICE. (Hint: we do know the length!)
+    // Zig の「文字列」は const u8 値の配列へのポインタ
+    //（または上記のような const u8 値のスライス）です。そのため、
+    // 「スライスに変換できる」限り、const u8 の「多要素ポインタ」を
+    // 文字列として扱えます。（ヒント：長さは知っています！）
     //
-    // Please fix this line so the print statement below can print it:
+    // 以下の print 文が表示できるように、この行を修正してください：
     const zen12_string: []const u8 = zen_manyptr;
 
-    // Here's the moment of truth!
+    // 真実の瞬間！
     std.debug.print("{s}\n", .{zen12_string});
 }
 //
-// Are all of these pointer types starting to get confusing?
+// これらのポインタ型が混乱してきましたか？
 //
-//     FREE ZIG POINTER CHEATSHEET! (Using u8 as the example type.)
+//     Zig ポインタ早見表！（例として u8 を使用）
 //   +---------------+----------------------------------------------+
-//   |  u8           |  one u8                                      |
-//   |  *u8          |  pointer to one u8                           |
-//   |  [2]u8        |  two u8s                                     |
-//   |  [*]u8        |  pointer to unknown number of u8s            |
-//   |  [*]const u8  |  pointer to unknown number of immutable u8s  |
-//   |  *[2]u8       |  pointer to an array of 2 u8s                |
-//   |  *const [2]u8 |  pointer to an immutable array of 2 u8s      |
-//   |  []u8         |  slice of u8s                                |
-//   |  []const u8   |  slice of immutable u8s                      |
+//   |  u8           |  1 つの u8                                   |
+//   |  *u8          |  1 つの u8 へのポインタ                      |
+//   |  [2]u8        |  2 つの u8                                   |
+//   |  [*]u8        |  不明な数の u8 へのポインタ                  |
+//   |  [*]const u8  |  不明な数の不変 u8 へのポインタ              |
+//   |  *[2]u8       |  2 つの u8 の配列へのポインタ                |
+//   |  *const [2]u8 |  2 つの不変 u8 の配列へのポインタ            |
+//   |  []u8         |  u8 のスライス                               |
+//   |  []const u8   |  不変 u8 のスライス                          |
 //   +---------------+----------------------------------------------+

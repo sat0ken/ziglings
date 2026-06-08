@@ -1,25 +1,24 @@
 //
-// When multiple async tasks access shared data, you need
-// synchronization! Io provides a Mutex for this:
+// 複数の非同期タスクが共有データにアクセスする場合、
+// 同期が必要です！Io はこのための Mutex を提供します：
 //
 //     var mutex: std.Io.Mutex = .init;
 //
-//     // In a task:
-//     try mutex.lock(io);       // blocks until lock is acquired
+//     // タスク内で：
+//     try mutex.lock(io);       // ロックが取得されるまでブロック
 //     defer mutex.unlock(io);
-//     // ... critical section: safe to modify shared data ...
+//     // ... クリティカルセクション：共有データの変更が安全 ...
 //
-// Without the mutex, concurrent tasks could read and write the
-// same memory simultaneously, causing a data race — the result
-// would be unpredictable.
+// mutex なしでは、並行タスクが同じメモリを同時に読み書きして
+// データ競合が発生し、結果が予測不能になる可能性があります。
 //
-// mutex.lock() is a cancellation point — it can return
-// error.Canceled. There's also tryLock() which returns
-// immediately (true if acquired, false if not).
+// mutex.lock() はキャンセルポイントです — error.Canceled を
+// 返すことがあります。すぐに返す tryLock() もあります
+// （取得できた場合は true、できなかった場合は false）。
 //
-// Fix this program so the counter is correctly synchronized.
-// Without the fix, the final count would be unpredictable.
-// With it, four tasks incrementing 100 times each = 400.
+// カウンターが正しく同期されるようにこのプログラムを修正してください。
+// 修正なしでは最終カウントが予測不能になります。
+// 修正後は、4つのタスクが各100回インクリメント = 400 になります。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -47,16 +46,16 @@ pub fn main(init: std.process.Init) !void {
 
 fn increment(io: std.Io, state: *SharedState, times: u32) void {
     for (0..times) |_| {
-        // Acquire the lock before modifying shared state.
-        // What Mutex method blocks until the lock is acquired?
+        // 共有状態を変更する前にロックを取得します。
+        // ロックが取得されるまでブロックする Mutex のメソッドは何ですか？
         state.mutex.??? catch return;
-        defer state.mutex.unlock(); // <-- what's missing here?
+        defer state.mutex.unlock(); // <-- ここに何が足りませんか？
 
-        // Sleep to give the other tasks a chance to run in the meantime.
-        // We do this here only to make nondeterminism more visible.
+        // その間に他のタスクが実行できるようにスリープします。
+        // これは非決定性をより見えやすくするためだけに行います。
         io.sleep(std.Io.Duration.fromMilliseconds(1), .awake) catch {};
 
-        // What happens if you neglect to lock the mutex?
+        // mutex のロックを怠ると何が起きますか？
 
         state.counter += 1;
     }

@@ -1,61 +1,61 @@
 //
-// Prerequisite :
-//    - exercise/109_files.zig, or
-//    - create a file {project_root}/output/zigling.txt
-//      with content `It's zigling time!`(18 bytes total)
+// 前提条件：
+//    - exercise/109_files.zig を実行済み、または
+//    - {project_root}/output/zigling.txt というファイルを
+//      内容 `It's zigling time!`（合計18バイト）で作成済み
 //
-// Now there's no point in writing to a file if we don't read from it, am I right?
-// Let's write a program to read the content of the file that we just created.
+// ファイルに書き込んでも読み込まなければ意味がありませんよね？
+// 先ほど作成したファイルの内容を読み込むプログラムを書きましょう。
 //
-// I am assuming that you've created the appropriate files for this to work.
+// 適切なファイルが作成済みであることを前提としています。
 //
-// Alright, bud, lean in close. Here's the game plan.
-//    - First, we open the {project_root}/output/ directory
-//    - Secondly, we open file `zigling.txt` in that directory
-//    - Then, we initialize an array of characters with all letter 'A', and print it
-//    - After that, we read the content of the file into the array
-//    - Finally, we print out the content we just read
+// では、ゲームプランを説明します。
+//    - まず、{project_root}/output/ ディレクトリを開きます
+//    - 次に、そのディレクトリの `zigling.txt` ファイルを開きます
+//    - そして、すべての文字を'A'で初期化した文字配列を作成して出力します
+//    - その後、ファイルの内容を配列に読み込みます
+//    - 最後に、読み込んだ内容を出力します
 //
-// Note: For simplicity, we read byte-by-byte without buffering.
-// In real applications, you'd typically use a buffer for better
-// performance. We'll learn about buffered I/O in a later exercise.
+// 注意：簡単のため、バッファリングなしでバイト単位で読み込みます。
+// 実際のアプリケーションでは、パフォーマンス向上のために
+// 通常バッファを使用します。バッファリングI/Oについては後のエクササイズで学びます。
 
 const std = @import("std");
 
 pub fn main(init: std.process.Init) !void {
     const io = init.io;
 
-    // Get the current working directory
+    // 現在の作業ディレクトリを取得します
     const cwd = std.Io.Dir.cwd();
 
-    // try to open ./output assuming you did your 109_files exercise
+    // 109_filesエクササイズを完了済みであれば ./output を開こうとします
     var output_dir = try cwd.openDir(io, "output", .{});
     defer output_dir.close(io);
 
-    // try to open the file
+    // ファイルを開こうとします
     const file = try output_dir.openFile(io, "zigling.txt", .{});
     defer file.close(io);
 
-    // initialize an array of u8 entirely with the letter 'A'
-    // we need to pick the size of the array, 64 seems like a good number
-    // do you remember the array repetition function?
+    // 文字'A'ですべてを初期化したu8の配列を作成します
+    // 配列のサイズを決める必要があります。64が良い数字に思えます
+    // 配列の繰り返し関数を覚えていますか？
     var content: ??? = ???('A');
-    // this should print out : `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`
+    // これは出力されるはずです：`AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`
     std.debug.print("{s}\n", .{content});
 
     var file_reader = file.reader(io, &.{});
     const reader = &file_reader.interface;
 
-    // okay, seems like a threat of violence is not the answer in this case
-    // can you go here to find a way to read the content?
+    // 暴力的な脅しはこの場合答えではないようです
+    // ファイルの内容を読み込む方法をここで探してみてください
     // https://ziglang.org/documentation/master/std/#std.Io.Reader
-    // hint: look for a method that reads into a slice
+    // ヒント：スライスに読み込むメソッドを探してください
     const bytes_read = zig_read_the_file_or_i_will_fight_you(&content);
 
-    // Woah, too screamy. I know you're excited for zigling time but tone it down a bit.
-    // Can you print only what we read from the file?
+    // うわ、少し叫びすぎです。zigling timeに興奮しているのはわかりますが、少し落ち着いてください。
+    // ファイルから読み込んだものだけを出力できますか？
     std.debug.print("Successfully Read {d} bytes: {s}\n", .{
         bytes_read,
-        content, // change this line only
+        content, // この行のみ変更してください
     });
 }

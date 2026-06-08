@@ -1,5 +1,5 @@
-// This is the end for now!
-// More exercises will follow...
+// 今のところここで終わりです！
+// さらにエクササイズが追加される予定です...
 
 const print = @import("std").debug.print;
 

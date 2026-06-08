@@ -1,68 +1,66 @@
 //
-// When Andrew Kelley announced the idea of a new programming language
-// - namely Zig - in his blog on February 8, 2016, he also immediately
-// stated his ambitious goal: to replace the C language!
+// Andrew Kelley が2016年2月8日のブログで新しいプログラミング言語
+// — すなわち Zig — のアイデアを発表したとき、彼はすぐに
+// 野心的な目標も表明しました：C 言語を置き換えること！
 //
-// In order to be able to achieve this goal at all, Zig should be
-// as compatible as possible with its "predecessor".
-// Only if it is possible to exchange individual modules in existing
-// C programs without having to use complicated wrappers,
-// the undertaking has a chance of success.
+// この目標を達成するためには、Zig は「前身」と可能な限り
+// 互換性を持つべきです。
+// 複雑なラッパーを使わずに既存の C プログラムの個々のモジュールを
+// 交換できる場合にのみ、この試みは成功の見込みがあります。
 //
-// So it is not surprising that calling C functions and vice versa
-// is extremely "smooth".
+// ですから、C 関数を呼び出すことおよびその逆が非常に「スムーズ」なのは
+// 驚くことではありません。
 //
-// To call C functions in Zig, you only need to specify the library
-// that contains said function. For this purpose there is a built-in
-// function corresponding to the well-known @import():
+// Zig で C 関数を呼び出すには、その関数を含むライブラリを
+// 指定するだけです。そのために、よく知られた @import() に
+// 対応する組み込み関数があります：
 //
 //                           @cImport()
 //
-// All required libraries can now be included in the usual Zig notation:
+// これで必要なすべてのライブラリを通常の Zig 記法で取り込めます：
 //
 //                    const c = @cImport({
 //                        @cInclude("stdio.h");
 //                        @cInclude("...");
 //                    });
 //
-// Now a function can be called via the (in this example) constant 'c':
+// これで（この例では）定数 'c' を通じて関数を呼び出せます：
 //
 //                    c.puts("Hello world!");
 //
-// By the way, most C functions have return values in the form of an
-// integer value. Errors can then be evaluated (return < 0) or other
-// information can be obtained. For example, 'puts' returns the number
-// of characters output.
+// ちなみに、ほとんどの C 関数は整数値の形で戻り値を持ちます。
+// エラーを評価したり（return < 0）、他の情報を取得したりできます。
+// 例えば 'puts' は出力した文字数を返します。
 //
-// So that all this does not remain a dry theory now, let's just start
-// and call a C function out of Zig.
+// これがただの理論にならないように、今すぐ始めて
+// Zig から C 関数を呼び出してみましょう。
 
-// our well-known "import" for Zig
+// お馴染みの Zig の "import"
 const std = @import("std");
 
-// and here the new import for C
+// C の新しい import
 const c = @cImport({
     @cInclude("unistd.h");
 });
 
 pub fn main() void {
 
-    // In order to output text that can be evaluated by the
-    // Zig Builder, we need to write it to the Error output.
-    // In Zig, we do this with "std.debug.print" and in C we can
-    // specify a file descriptor i.e. 2 for error console.
+    // Zig Builder で評価できるテキストを出力するために、
+    // エラー出力に書き込む必要があります。
+    // Zig では "std.debug.print" を使い、C ではファイルディスクリプタ
+    // つまりエラーコンソール用の 2 を指定できます。
     //
-    // In this exercise we use 'write' to output 17 chars,
-    // but something is still missing...
+    // この演習では 'write' を使って17文字を出力しますが、
+    // まだ何かが足りません...
     const c_res = write(2, "Hello C from Zig!", 17);
 
-    // let's see what the result from C is:
+    // C からの結果を見てみましょう：
     std.debug.print(" - C result is {d} chars written.\n", .{c_res});
 }
 //
-// Something must be considered when compiling with C functions.
-// Namely that the Zig compiler knows that it should include
-// corresponding libraries. For this purpose we call the compiler
-// with the parameter "lc" for such a program,
-// e.g. "zig run -lc hello_c.zig".
+// C 関数を使ってコンパイルする際に考慮すべきことがあります。
+// Zig コンパイラが対応するライブラリを含めるべきだということを
+// 知っている必要があります。そのため、このようなプログラムには
+// "lc" パラメータをつけてコンパイラを呼び出します。
+// 例：「zig run -lc hello_c.zig」
 //

@@ -1,26 +1,26 @@
 //
-// Tasks often need to communicate! Io provides Queue for this —
-// a bounded, thread-safe channel for passing data between tasks:
+// タスク間で通信が必要なことがよくあります！Io はそのために Queue を
+// 提供します — タスク間でデータを渡すための有界スレッドセーフチャネルです：
 //
 //     var backing: [16]u32 = undefined;
 //     var queue: std.Io.Queue(u32) = .init(&backing);
 //
-//     // Producer task:
-//     try queue.putOne(io, value);    // blocks if queue is full
+//     // プロデューサータスク：
+//     try queue.putOne(io, value);    // キューが満杯の場合ブロック
 //
-//     // Consumer task:
-//     const val = try queue.getOne(io);  // blocks if queue is empty
+//     // コンシューマータスク：
+//     const val = try queue.getOne(io);  // キューが空の場合ブロック
 //
-// When the producer is done, it calls queue.close(io) to signal
-// that no more data is coming. After that, getOne() will return
-// error.Closed once the queue is drained.
+// プロデューサーが終わったら queue.close(io) を呼び出して
+// データがこれ以上来ないことを知らせます。その後、キューが
+// ドレインされると getOne() は error.Closed を返します。
 //
-// This is the classic producer/consumer pattern — one task
-// generates work, another processes it, and the queue handles
-// all the synchronization automatically.
+// これは古典的なプロデューサー/コンシューマーパターンです —
+// 一つのタスクが仕事を生成し、別のタスクがそれを処理し、
+// キューがすべての同期を自動的に処理します。
 //
-// Fix this program: the producer sends numbers 1..10, the
-// consumer sums them up. The expected sum is 55.
+// このプログラムを修正してください：プロデューサーは1..10の数値を送り、
+// コンシューマーはそれらを合計します。期待される合計は 55 です。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -40,12 +40,12 @@ pub fn main(init: std.process.Init) !void {
 }
 
 fn producer(io: std.Io, queue: *std.Io.Queue(u32)) void {
-    // Send numbers 1 through 10 into the queue.
+    // 1から10までの数値をキューに送ります。
     for (1..11) |i| {
-        // What Queue method sends a single element, blocking if full?
+        // 単一の要素を送り、満杯の場合ブロックする Queue のメソッドは何ですか？
         queue.???(io, @intCast(i)) catch return;
     }
-    // Signal that we're done sending.
+    // 送信が完了したことを知らせます。
     queue.close(io);
 }
 

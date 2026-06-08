@@ -1,45 +1,43 @@
 //
-// It's important to note that variable pointers and constant pointers
-// are different types.
+// 変数ポインタと定数ポインタは異なる型であることに注意が必要です。
 //
-// Given:
+// 次のように宣言した場合：
 //
 //     var foo: u8 = 5;
 //     const bar: u8 = 5;
 //
-// Then:
+// すると：
 //
-//     &foo is of type "*u8"
-//     &bar is of type "*const u8"
+//     &foo の型は "*u8"
+//     &bar の型は "*const u8"
 //
-// You can always make a const pointer to a mutable value (var), but
-// you cannot make a var pointer to an immutable value (const).
-// This sounds like a logic puzzle, but it just means that once data
-// is declared immutable, you can't coerce it to a mutable type.
-// Think of mutable data as being volatile or even dangerous. Zig
-// always lets you be "more safe" and never "less safe."
+// ミュータブルな値（var）へのconstポインタは常に作れますが、
+// イミュータブルな値（const）へのvarポインタは作れません。
+// これは論理パズルのように聞こえますが、一度データがイミュータブルと
+// 宣言されたら、それをミュータブルな型に強制変換できないということです。
+// ミュータブルなデータは不安定または危険なものと考えてください。Zig
+// は常に「より安全」であることを許可し、「より安全でない」ことは許可しません。
 //
 const std = @import("std");
 
 pub fn main() void {
     const a: u8 = 12;
-    const b: *u8 = &a; // fix this!
+    const b: *u8 = &a; // ここを修正してください！
 
     std.debug.print("a: {}, b: {}\n", .{ a, b.* });
 }
 //
-// A look into the future:
-// When you allocate memory, you store the returned address in
-// a const var. The pointer itself never changes — it always
-// refers to the same allocation — but you can still read and
-// write the data it points to.
+// 未来への展望：
+// メモリを確保する際、返されたアドレスをconst変数に格納します。
+// ポインタ自体は変わりません — 常に同じ確保先を参照し続けます —
+// しかし、それが指すデータの読み書きは可能です。
 //
-// Example:
+// 例：
 //
 //     const buf = try allocator.alloc(u8, 1024);
-//     buf[0] = 42;  // fine: the *contents* are mutable
+//     buf[0] = 42;  // OK：*内容*はミュータブル
 //
-// Note:
-// Passing this pointer to a function is cheap: it's just an address
-// copied on the stack. The caller can work with the data without
-// needing to know where it came from or how it was allocated.
+// 注意：
+// このポインタを関数に渡すのはコストが低いです：スタックにコピーされた
+// アドレスにすぎません。呼び出し先はデータがどこから来たのか、
+// どのように確保されたのかを知らずにデータを扱えます。

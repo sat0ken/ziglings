@@ -1,15 +1,15 @@
 //
-// Here's a fun one: Zig has multi-line strings!
+// 面白い機能です：Zigには複数行文字列があります！
 //
-// To make a multi-line string, put '\\' at the beginning of each
-// line just like a code comment but with backslashes instead:
+// 複数行文字列を作るには、コードコメントと同じように各行の先頭に
+// '\\' を付けます（バックスラッシュを使います）：
 //
 //     const two_lines =
 //         \\Line One
 //         \\Line Two
 //     ;
 //
-// See if you can make this program print some song lyrics.
+// このプログラムで歌詞を表示できるか試してみてください。
 //
 const std = @import("std");
 

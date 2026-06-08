@@ -1,5 +1,5 @@
 //
-// Now we get into the fun stuff, starting with the 'if' statement!
+// いよいよ楽しいところに入ります。'if' 文から始めましょう！
 //
 //     if (true) {
 //         ...
@@ -7,25 +7,24 @@
 //         ...
 //     }
 //
-// Zig has the "usual" comparison operators such as:
+// Zigには次のような「通常の」比較演算子があります：
 //
-//     a == b   means "a equals b"
-//     a < b    means "a is less than b"
-//     a > b    means "a is greater than b"
-//     a != b   means "a does not equal b"
+//     a == b   は「a は b と等しい」を意味します
+//     a < b    は「a は b より小さい」を意味します
+//     a > b    は「a は b より大きい」を意味します
+//     a != b   は「a は b と等しくない」を意味します
 //
-// The important thing about Zig's "if" is that it *only* accepts
-// boolean values. It won't coerce numbers or other types of data
-// to true and false.
+// Zigの "if" で重要なのは、ブール値*のみ*を受け付けることです。
+// 数値や他のデータ型を true や false に強制変換しません。
 //
 const std = @import("std");
 
 pub fn main() void {
     const foo = 42;
 
-    // Please fix this condition:
+    // この条件を修正してください：
     if (foo) {
-        // We want our program to print this message!
+        // このメッセージを表示したいです！
         std.debug.print("Foo is 42!\n", .{});
     } else {
         std.debug.print("Foo is not 42!\n", .{});

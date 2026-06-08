@@ -1,12 +1,12 @@
 //
-// Believe it or not, sometimes things go wrong in programs.
+// 信じられないかもしれませんが、プログラムで何かがうまくいかないことがあります。
 //
-// In Zig, an error is a value. Errors are named so we can identify
-// things that can go wrong. Errors are created in "error sets", which
-// are just a collection of named errors.
+// Zigでは、エラーは値です。エラーには名前がついており、何が問題かを特定できます。
+// エラーは「エラーセット」の中に作成されます。エラーセットとは
+// 名前付きエラーのコレクションです。
 //
-// We have the start of an error set, but we're missing the condition
-// "TooSmall". Please add it where needed!
+// エラーセットの始まりはありますが、"TooSmall"という条件が
+// 欠けています。必要な場所に追加してください！
 const MyNumberError = error{
     TooBig,
     ???,
@@ -37,10 +37,9 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// Notice how this function can return any member of the MyNumberError
-// error set.
+// この関数がMyNumberErrorエラーセットの任意のメンバーを返せることに注目してください。
 fn numberFail(n: u8) MyNumberError {
     if (n > 4) return MyNumberError.TooBig;
-    if (n < 4) return MyNumberError.TooSmall; // <---- this one is free!
+    if (n < 4) return MyNumberError.TooSmall; // <---- これはサービスです！
     return MyNumberError.TooFour;
 }

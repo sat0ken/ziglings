@@ -1,25 +1,23 @@
 //
-// Remember that little mathematical virtual machine we made using the
-// "unreachable" statement?  Well, there were two problems with the
-// way we were using op codes:
+// "unreachable"文を使って作った小さな数学的仮想マシンを覚えていますか？
+// オペコードの使い方には2つの問題がありました：
 //
-//   1. Having to remember op codes by number is no good.
-//   2. We had to use "unreachable" because Zig had no way of knowing
-//      how many valid op codes there were.
+//   1. オペコードを番号で覚えなければならないのは良くありません。
+//   2. Zigは有効なオペコードがいくつあるかわからないため、
+//      "unreachable"を使わなければなりませんでした。
 //
-// An "enum" is a Zig construct that lets you give names to numeric
-// values and store them in a set. They look a lot like error sets:
+// "enum"はZigの構造で、数値に名前をつけてセットに格納できます。
+// エラーセットによく似ています：
 //
 //     const Fruit = enum{ apple, pear, orange };
 //
 //     const my_fruit = Fruit.apple;
 //
-// Let's use an enum in place of the numbers we were using in the
-// previous version!
+// 前のバージョンで使っていた数値の代わりにenumを使いましょう！
 //
 const std = @import("std");
 
-// Please complete the enum!
+// enumを完成させてください！
 const Ops = enum { ??? };
 
 pub fn main() void {
@@ -45,7 +43,7 @@ pub fn main() void {
             Ops.pow => {
                 current_value *= current_value;
             },
-            // No "else" needed! Why is that?
+            // "else"は必要ありません！なぜでしょうか？
         }
 
         std.debug.print("{} ", .{current_value});

@@ -1,31 +1,29 @@
 //
-// Remember our ant and bee simulator constructed with unions
-// back in exercises 55 and 56? There, we demonstrated that
-// unions allow us to treat different data types in a uniform
-// manner.
+// 演習55と56でユニオンを使って構築したアリとミツバチのシミュレーターを
+// 覚えていますか？そこでは、ユニオンが異なるデータ型を統一的に
+// 扱えることを示しました。
 //
-// One neat feature was using tagged unions to create a single
-// function to print a status for ants *or* bees by switching:
+// タグ付きユニオンを使ってアリ*またはミツバチのステータスを
+// 出力する単一関数を作成するという便利な機能がありました：
 //
 //   switch (insect) {
-//      .still_alive => ...      // (print ant stuff)
-//      .flowers_visited => ...  // (print bee stuff)
+//      .still_alive => ...      // （アリの情報を出力）
+//      .flowers_visited => ...  // （ミツバチの情報を出力）
 //   }
 //
-// Well, that simulation was running just fine until a new insect
-// arrived in the virtual garden, a grasshopper!
+// さて、そのシミュレーションは順調に動いていましたが、
+// 仮想の庭に新しい昆虫、バッタが現れました！
 //
-// Doctor Zoraptera started to add grasshopper code to the
-// program, but then she backed away from her keyboard with an
-// angry hissing sound. She had realized that having code for
-// each insect in one place and code to print each insect in
-// another place was going to become unpleasant to maintain when
-// the simulation expanded to hundreds of different insects.
+// Zoraptera博士はバッタのコードを追加しようとしましたが、
+// 怒った唸り声を上げてキーボードから離れました。彼女は、
+// 各昆虫のコードが一箇所にあり、各昆虫の出力コードが別の場所にある
+// という構造は、シミュレーションが数百種類の異なる昆虫に
+// 拡張されるときに保守が大変になることに気づいたのです。
 //
-// Thankfully, Zig has another comptime feature we can use
-// to get out of this dilemma called the 'inline else'.
+// ありがたいことに、Zig にはこの問題から抜け出すために使える
+// 別のコンパイル時機能、'inline else' があります。
 //
-// We can replace this redundant code:
+// この冗長なコードを：
 //
 //   switch (thing) {
 //       .a => |a| special(a),
@@ -36,20 +34,19 @@
 //       ...
 //   }
 //
-// With:
+// 以下のように置き換えられます：
 //
 //   switch (thing) {
 //       .a => |a| special(a),
 //       inline else => |t| normal(t),
 //   }
 //
-// We can have special handling of some cases and then Zig
-// handles the rest of the matches for us.
+// 一部のケースを特別扱いして、残りのマッチングはZigに任せられます。
 //
-// With this feature, you decide to make an Insect union with a
-// single uniform 'print()' function. All of the insects can
-// then be responsible for printing themselves. And Doctor
-// Zoraptera can calm down and stop gnawing on the furniture.
+// この機能を使って、単一の統一された 'print()' 関数を持つ
+// Insect ユニオンを作ることにしました。すべての昆虫は
+// 自分自身を出力する責任を持てます。そして Zoraptera 博士は
+// 落ち着いて家具を噛むのをやめられます。
 //
 const std = @import("std");
 
@@ -69,8 +66,7 @@ const Bee = struct {
     }
 };
 
-// Here's the new grasshopper. Notice how we've also added print
-// methods to each insect.
+// 新しいバッタです。各昆虫に print メソッドも追加しました。
 const Grasshopper = struct {
     distance_hopped: u16,
 
@@ -84,10 +80,10 @@ const Insect = union(enum) {
     bee: Bee,
     grasshopper: Grasshopper,
 
-    // Thanks to 'inline else', we can think of this print() as
-    // being an interface method. Any member of this union with
-    // a print() method can be treated uniformly by outside
-    // code without needing to know any other details. Cool!
+    // 'inline else' のおかげで、この print() をインターフェース
+    // メソッドのように考えることができます。このユニオンの print() メソッドを
+    // 持つメンバーはすべて、他の詳細を知らなくても外部コードから
+    // 統一的に扱えます。素晴らしい！
     pub fn print(self: Insect) void {
         switch (self) {
             inline else => |case| return case.print(),
@@ -104,24 +100,23 @@ pub fn main() !void {
 
     std.debug.print("=== Doctor Zoraptera's Insect Report ===\n", .{});
     for (my_insects) |insect| {
-        // Almost done! We want to print() each insect with a
-        // single method call here.
+        // もう少しで完成！ここで単一のメソッド呼び出しで
+        // 各昆虫を print() したいです。
         ???
     }
 }
 
-// Our print() method in the Insect union above demonstrates
-// something very similar to the object-oriented concept of an
-// abstract data type. That is, the Insect type doesn't contain
-// the underlying data, and the print() function doesn't
-// actually do the printing.
+// 上記の Insect ユニオンの print() メソッドは、
+// オブジェクト指向の抽象データ型の概念に非常に近いものを
+// 示しています。つまり、Insect 型は基礎となるデータを含まず、
+// print() 関数は実際には出力を行いません。
 //
-// The point of an interface is to support generic programming:
-// the ability to treat different things as if they were the
-// same to cut down on clutter and conceptual complexity.
+// インターフェースの目的は汎用プログラミングをサポートすることです：
+// 異なるものを同じように扱い、雑然さと概念的な複雑さを
+// 減らす能力です。
 //
-// The Daily Insect Report doesn't need to worry about *which*
-// insects are in the report - they all print the same way via
-// the interface!
+// 昆虫の日次レポートは、レポートの中の*どの*昆虫かを
+// 心配する必要はありません - インターフェースを介して
+// すべて同じ方法で出力されます！
 //
-// Doctor Zoraptera loves it.
+// Zoraptera 博士もお気に入りです。

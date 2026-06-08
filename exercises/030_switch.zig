@@ -1,8 +1,8 @@
 //
-// The "switch" statement lets you match the possible values of an
-// expression and perform a different action for each.
+// "switch"文は式の取りうる値に一致させて、それぞれで
+// 異なる処理を実行できます。
 //
-// This switch:
+// このswitch：
 //
 //     switch (players) {
 //         1 => startOnePlayerGame(),
@@ -13,7 +13,7 @@
 //         }
 //     }
 //
-// Is equivalent to this if/else:
+// は、このif/elseと等価です：
 //
 //     if (players == 1) startOnePlayerGame();
 //     else if (players == 2) startTwoPlayerGame();
@@ -39,13 +39,13 @@ pub fn main() void {
             8 => std.debug.print("H", .{}),
             9 => std.debug.print("I", .{}),
             10 => std.debug.print("J", .{}),
-            // ... we don't need everything in between ...
+            // ... 途中は省略 ...
             25 => std.debug.print("Y", .{}),
             26 => std.debug.print("Z", .{}),
-            // Switch statements must be "exhaustive" (there must be a
-            // match for every possible value).  Please add an "else"
-            // to this switch to print a question mark "?" when c is
-            // not one of the existing matches.
+            // switch文は「網羅的」でなければなりません（すべての
+            // 取りうる値に一致するものが必要です）。cが
+            // 既存のどのマッチにも一致しない場合に"?"を出力する
+            // "else"をこのswitchに追加してください。
         }
     }
 

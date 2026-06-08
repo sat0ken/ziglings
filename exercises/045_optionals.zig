@@ -1,50 +1,47 @@
 //
-// Sometimes you know that a variable might hold a value or
-// it might not. Zig has a neat way of expressing this idea
-// called Optionals. An optional type just has a '?' like this:
+// 変数が値を保持するかもしれないし、保持しないかもしれない場合があります。
+// Zig にはこのアイデアを表現する洗練された方法として「Optional（省略可能型）」があります。
+// Optional 型は次のように '?' を付けるだけです：
 //
 //     var foo: ?u32 = 10;
 //
-// Now foo can store a u32 integer OR null (a value storing
-// the cosmic horror of a value NOT EXISTING!)
+// これで foo は u32 整数 OR null（値が「存在しない」という宇宙的恐怖の値）を保持できます！
 //
 //     foo = null;
 //
 //     if (foo == null) beginScreaming();
 //
-// Before we can use the optional value as the non-null type
-// (a u32 integer in this case), we need to guarantee that it
-// isn't null. One way to do this is to THREATEN IT with the
-// "orelse" statement.
+// Optional の値を null でない型（この場合は u32 整数）として使用する前に、
+// null でないことを保証する必要があります。その方法の一つは
+// "orelse" 文で「脅す」ことです。
 //
 //     var bar = foo orelse 2;
 //
-// Here, bar will either equal the u32 integer value stored in
-// foo, or it will equal 2 if foo was null.
+// ここで bar は foo に格納された u32 整数値か、
+// foo が null の場合は 2 になります。
 //
 const std = @import("std");
 
 pub fn main() void {
     const result = deepThought();
 
-    // Please threaten the result so that answer is either the
-    // integer value from deepThought() OR the number 42:
+    // result を「脅して」、answer が deepThought() からの整数値か
+    // 数値 42 になるようにしてください：
     const answer: u8 = result;
 
     std.debug.print("The Ultimate Answer: {}.\n", .{answer});
 }
 
 fn deepThought() ?u8 {
-    // It seems Deep Thought's output has declined in quality.
-    // But we'll leave this as-is. Sorry Deep Thought.
+    // Deep Thought の出力品質が低下しているようです。
+    // でもそのままにしておきます。ごめんなさい、Deep Thought。
     return null;
 }
-// Blast from the past:
+// 過去のおさらい：
 //
-// Optionals are a lot like error union types which can either
-// hold a value or an error. Likewise, the orelse statement is
-// like the catch statement used to "unwrap" a value or supply
-// a default value:
+// Optional はエラーユニオン型によく似ています。エラーユニオン型は
+// 値かエラーのどちらかを保持できます。同様に、orelse 文は
+// 値を「アンラップ」するか、デフォルト値を提供する catch 文に似ています：
 //
 //    var maybe_bad: Error!u32 = Error.Evil;
 //    var number: u32 = maybe_bad catch 0;

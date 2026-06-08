@@ -1,51 +1,49 @@
 //
-// Zig has builtins for mathematical operations such as...
+// Zigには数学的演算のための組み込み関数があります。例えば...
 //
 //      @sqrt        @sin           @cos
 //      @exp         @log           @floor
 //
-// ...and lots of type casting operations such as...
+// ...そして多くの型キャスト演算があります。例えば...
 //
 //      @as          @errorFromInt  @floatFromInt
 //      @ptrFromInt  @intFromPtr    @intFromEnum
 //
-// Spending part of a rainy day skimming through the complete
-// list of builtins in the official Zig documentation wouldn't be
-// a bad use of your time. There are some seriously cool features
-// in there. Check out @call, @compileLog, @embedFile, and @src!
+// 雨の日の一部を公式Zigドキュメントの組み込み関数一覧を
+// ざっと読むのに使っても時間の無駄にはならないでしょう。
+// 本当にクールな機能があります。@call、@compileLog、
+// @embedFile、@src などを確認してみてください！
 //
 //                            ...
 //
-// For now, we're going to complete our examination of builtins
-// by exploring just THREE of Zig's MANY introspection abilities:
+// 今は、Zigの多くのイントロスペクション能力のうち
+// たった3つを探ることで組み込み関数の調査を完了します：
 //
 // 1. @This() type
 //
-// Returns the innermost struct, enum, or union that a function
-// call is inside.
+// 関数呼び出しが内側にある最もネストされた
+// struct、enum、またはunionを返します。
 //
 // 2. @typeInfo(comptime T: type) @import("std").builtin.Type
 //
-// Returns information about any type in a data structure which
-// will contain different information depending on which type
-// you're examining.
+// 任意の型についての情報を、調べている型によって
+// 異なる情報を含むデータ構造で返します。
 //
 // 3. @TypeOf(...) type
 //
-// Returns the type common to all input parameters (each of which
-// may be any expression). The type is resolved using the same
-// "peer type resolution" process the compiler itself uses when
-// inferring types.
+// すべての入力パラメータ（それぞれが任意の式になりえます）に
+// 共通の型を返します。型はコンパイラ自体が型を推論する際に
+// 使う「ピア型解決」プロセスと同じものを使って解決されます。
 //
-// (Notice how the two functions which return types start with
-// uppercase letters? This is a standard naming practice in Zig.)
+// （型を返す2つの関数が大文字で始まることに気づきましたか？
+// これはZigの標準的な命名規則です。）
 //
 const print = @import("std").debug.print;
 
 const Narcissus = struct {
     me: *Narcissus = undefined,
     myself: *Narcissus = undefined,
-    echo: void = undefined, // Alas, poor Echo!
+    echo: void = undefined, // ああ、可哀想なEcho！
 
     fn fetchTheMostBeautifulType() type {
         return @This();
@@ -55,53 +53,53 @@ const Narcissus = struct {
 pub fn main() void {
     var narcissus: Narcissus = Narcissus{};
 
-    // Oops! We cannot leave the 'me' and 'myself' fields
-    // undefined. Please set them here:
+    // おっと！'me'と'myself'フィールドを
+    // undefinedのままにしておくことはできません。
+    // ここで設定してください：
     narcissus.me = &narcissus;
     narcissus.??? = ???;
 
-    // This determines a "peer type" from three separate
-    // references (they just happen to all be the same object).
+    // 3つの別々の参照（たまたますべて同じオブジェクトです）から
+    // 「ピア型」を決定します。
     const Type1 = @TypeOf(narcissus, narcissus.me.*, narcissus.myself.*);
 
-    // Oh dear, we seem to have done something wrong when calling
-    // this function. We called it as a method, which would work
-    // if it had a self parameter. But it doesn't. (See above.)
+    // まずいことをしてしまったようです。この関数を
+    // メソッドとして呼び出しましたが、selfパラメータが
+    // ありません。（上記参照。）
     //
-    // The fix for this is very subtle, but it makes a big
-    // difference!
+    // この修正は非常に微妙ですが、大きな違いをもたらします！
     const Type2 = narcissus.fetchTheMostBeautifulType();
 
-    // Now we print a pithy statement about Narcissus.
+    // Narcissusについての気の利いた文を出力します。
     print("A {s} loves all {s}es. ", .{
         maximumNarcissism(Type1),
         maximumNarcissism(Type2),
     });
 
-    //   His final words as he was looking in
-    //   those waters he habitually watched
-    //   were these:
-    //       "Alas, my beloved boy, in vain!"
-    //   The place gave every word back in reply.
-    //   He cried:
-    //            "Farewell."
-    //   And Echo called:
-    //                   "Farewell!"
+    //   彼がいつも見ていた水の中を
+    //   見つめながら息を引き取る際の
+    //   最後の言葉はこうでした：
+    //       「ああ、愛しい少年よ、むなしく！」
+    //   その場所はすべての言葉を返しました。
+    //   彼は叫びました：
+    //            「さようなら。」
+    //   そしてEchoが呼びかけました：
+    //                   「さようなら！」
     //
-    //     --Ovid, The Metamorphoses
-    //       translated by Ian Johnston
+    //     --オウィディウス、「変身物語」
+    //       イアン・ジョンストン訳
 
     print("He has room in his heart for:", .{});
 
-    // `field_names` is a slice of strings and it holds the names of the struct's fields
-    // `field_types` is a slice of strings and it holds the types of the struct's fields,
-    //               it is guaranteed to be the same length as `field_names`
+    // `field_names` は文字列のスライスで、structのフィールド名を保持しています
+    // `field_types` は文字列のスライスで、structのフィールドの型を保持しています、
+    //               `field_names` と同じ長さが保証されています
     const field_names = @typeInfo(Narcissus).@"struct".field_names;
     const field_types = @typeInfo(Narcissus).@"struct".field_types;
 
-    // Please complete these 'if' statements so that the field
-    // name will not be printed if the field is of type 'void'
-    // (which is a zero-bit type that takes up no space at all!):
+    // フィールドが 'void' 型の場合（まったくスペースを
+    // 取らないゼロビット型！）はフィールド名を出力しないよう
+    // これらの 'if' 文を完成させてください：
     if (field_???[???] != void) {
         print(" {s}", .{field_???[???]});
     }
@@ -114,32 +112,32 @@ pub fn main() void {
         print(" {s}", .{field_???[???]});
     }
 
-    // Yuck, look at all that repeated code above! I don't know
-    // about you, but it makes me itchy.
+    // 上のコードの繰り返しを見てください！嫌ですね、
+    // 見ているだけでむずむずしてきます。
     //
-    // Alas, we can't use a regular 'for' loop here because
-    // 'fields' can only be evaluated at compile time.  It seems
-    // like we're overdue to learn about this "comptime" stuff,
-    // doesn't it? Don't worry, we'll get there.
+    // 残念ながら、'fields'はコンパイル時にしか
+    // 評価できないため、通常の'for'ループは使えません。
+    // この"comptime"について学ぶ時期が来たようですね？
+    // 心配しないでください、すぐにたどり着きます。
 
     print(".\n", .{});
 }
 
-// NOTE: This exercise did not originally include the function below.
-// After Zig 0.10.0, `@typeName` began prefixing the returned type name
-// with the source file name. For example, "Narcissus" became
-// "065_builtins2.Narcissus".
+// 注意：この演習はもともと以下の関数を含んでいませんでした。
+// Zig 0.10.0以降、`@typeName`は返される型名の先頭に
+// ソースファイル名を付けるようになりました。例えば、"Narcissus"が
+// "065_builtins2.Narcissus"になりました。
 //
-// To fix this, we've added this function to strip the filename from
-// the front of the type name. (It returns a slice of the type name
-// starting just after the ".")
+// これを修正するため、型名の先頭からファイル名を
+// 取り除く関数を追加しました。（"."の直後から始まる
+// 型名のスライスを返します。）
 //
-// We'll be seeing @typeName again in Exercise 070. For now, you can
-// see that it takes a Type and returns a u8 "string".
+// @typeName は演習070でも見ることになります。今は、
+// 型を受け取りu8の「文字列」を返すことが分かれば十分です。
 fn maximumNarcissism(myType: type) []const u8 {
     const find = @import("std").mem.find;
 
-    // Turn "065_builtins2.Narcissus" into "Narcissus"
+    // "065_builtins2.Narcissus" を "Narcissus" に変換する
     const name = @typeName(myType);
     return name[find(u8, name, ".").? + 1 ..];
 }

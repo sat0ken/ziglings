@@ -1,9 +1,9 @@
 //
-// Sometimes you want to race multiple tasks and act on whichever
-// finishes first. That's what Select is for!
+// 複数のタスクをレースさせて、最初に終わったものに対して
+// 処理したい場合があります。それが Select の用途です！
 //
-// Select is like a Group, but lets you receive individual results
-// as tasks complete — one at a time:
+// Select は Group に似ていますが、タスクが完了するたびに
+// 個別の結果を一度に一つ受け取れます：
 //
 //     const Race = std.Io.Select(union(enum) {
 //         fast: u32,
@@ -16,22 +16,22 @@
 //     sel.async(.fast, fastFn, .{io});
 //     sel.async(.slow, slowFn, .{io});
 //
-//     const winner = try sel.await();  // returns first completed
+//     const winner = try sel.await();  // 最初に完了したものを返す
 //     switch (winner) {
 //         .fast => |val| ...,
 //         .slow => |val| ...,
 //     }
-//     sel.cancelDiscard();  // cancel remaining, discard results
+//     sel.cancelDiscard();  // 残りをキャンセルして結果を破棄
 //
-// As with all async primitives: tasks spawned in a Select MUST
-// be cleaned up. Use sel.cancel() to get remaining results one
-// by one (for resource cleanup), or sel.cancelDiscard() if you
-// don't need them.
+// 他のすべての async プリミティブと同様：Select 内でスポーンされた
+// タスクは必ずクリーンアップしなければなりません。残りの結果を
+// 一つずつ取得するには sel.cancel() を使い（リソースクリーンアップ用）、
+// 不要な場合は sel.cancelDiscard() を使います。
 //
-// The buffer must be large enough for all tasks that might
-// complete before you call cancelDiscard().
+// バッファは cancelDiscard() を呼び出すまでに完了するかもしれない
+// すべてのタスクに対して十分な大きさでなければなりません。
 //
-// Fix this program to receive the winner of the race.
+// レースの勝者を受け取るようにこのプログラムを修正してください。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -50,8 +50,8 @@ pub fn main(init: std.process.Init) !void {
     sel.async(.hare, runHare, .{io});
     sel.async(.tortoise, runTortoise, .{io});
 
-    // Wait for the first finisher.
-    // What Select method returns the first completed result?
+    // 最初に終わったものを待ちます。
+    // 最初に完了した結果を返す Select のメソッドは何ですか？
     const winner = try sel.???();
 
     switch (winner) {
@@ -59,18 +59,18 @@ pub fn main(init: std.process.Init) !void {
         .tortoise => |msg| print("Tortoise: {s}\n", .{msg}),
     }
 
-    // Clean up the loser — we don't need their result.
+    // 負けた方をクリーンアップします - 結果は不要です。
     sel.cancelDiscard();
 }
 
 fn runHare(io: std.Io) []const u8 {
-    // The hare is fast — only 1 second!
+    // ウサギは速い - 1秒だけ！
     io.sleep(std.Io.Duration.fromSeconds(1), .awake) catch return "I got canceled!";
     return "I'm fast!";
 }
 
 fn runTortoise(io: std.Io) []const u8 {
-    // The tortoise is slow — 10 seconds.
+    // カメは遅い - 10秒。
     io.sleep(std.Io.Duration.fromSeconds(10), .awake) catch return "I got canceled!";
     return "Slow and steady...";
 }

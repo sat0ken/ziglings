@@ -1,43 +1,40 @@
 //
-// We've already learned plenty about bit manipulation using bitwise operations
-// in exercises 097 and 098 and in quiz 110. The techniques we already know work
-// just fine, but creating masks and shifting individual bits around can become
-// quite tedious and unwieldy pretty quickly.
-// What if there was a better, a more convenient way to control individual bits?
+// エクササイズ097、098、クイズ110でビット演算を使ったビット操作について
+// 十分に学びました。すでに知っているテクニックは問題なく動作しますが、
+// マスクの作成や個々のビットのシフトはすぐに面倒で扱いにくくなります。
+// 個々のビットを制御するより良い、より便利な方法があったら？
 //
-// Luckily, Zig has a keyword for exactly this purpose:
+// 幸いにも、Zigにはまさにこの目的のためのキーワードがあります：
 //
 //     packed
 //
-// It doesn't do anything on its own, to unlock its potential (and to get our
-// program to compile) we have to attach it either to a struct or to a union
-// declaration:
+// これ単体では何もしません。そのポテンシャルを引き出すために（そして
+// プログラムをコンパイルできるようにするために）、structまたはunionの
+// 宣言に付ける必要があります：
 //
 //     const Foo = packed struct { ... };
 //     const Bar = packed union { ... };
 //
-// Now, what does this keyword even do?
-// To answer this question we first have to talk about *container layouts*.
+// では、このキーワードは何をするのでしょうか？
+// この質問に答えるには、まず*コンテナレイアウト*について説明する必要があります。
 //
-// Plain structs and unions use the `auto` layout; it gives no guarantees about
-// their size or the order of the fields they contain, both are fully up to the
-// compiler (though both size and field order *are* guaranteed to be the same
-// across any single compilation unit).
+// 通常のstructとunionは`auto`レイアウトを使用します。サイズやフィールドの順序について
+// 保証を与えません。どちらもコンパイラ次第です（ただし、サイズとフィールドの順序は
+// 同一のコンパイル単位内では同じであることが保証されています）。
 //
-// Attaching the `packed` keyword to a container makes it use `packed` layout:
-// Suddenly, all of its fields are *packed* together tightly without any padding
-// in between and their order is guaranteed to be the same as the one specified
-// in our source code. For structs, the size of the container is guaranteed to
-// be the sum of the (bit-)sizes of all of its fields. For unions, all fields
-// have to have the exact same (bit-)size (no padding allowed!); the union itself
-// is also guaranteed to be exactly of this size.
+// コンテナに`packed`キーワードを付けると`packed`レイアウトが使用されます：
+// 突然、すべてのフィールドがパディングなしで*ぎっしりと*まとめられ、
+// その順序はソースコードに指定されたものと同じであることが保証されます。
+// structの場合、コンテナのサイズはすべてのフィールドの（ビット）サイズの合計であることが
+// 保証されます。unionの場合、すべてのフィールドは全く同じ（ビット）サイズである
+// 必要があります（パディングなし）。union自体もこのサイズであることが保証されます。
 //
-// If you're familiar with C, you might have already heard of structure packing
-// in a different context: arranging fields in a way that minimizes the amount
-// of alignment padding between them (or having the compiler do it for you).
-// This is *not* what Zig's `packed` keyword is for!
+// Cに慣れ親しんでいる場合、別の文脈でstructパッキングについて
+// 聞いたことがあるかもしれません：フィールドをアライメントパディングが
+// 最小になるように配置すること（またはコンパイラにそれをやってもらうこと）。
+// これはZigの`packed`キーワードの目的ではありません！
 //
-// Try to make the comptime assertions below pass:
+// 以下のcomptime assertionをパスさせてみましょう：
 
 const PackedStruct = packed struct {
     a: u2,
@@ -57,16 +54,16 @@ comptime {
     assert(@bitSizeOf(PackedUnion) == 1);
 }
 
-// Now, how can we use this new knowledge to manipulate some bits?
+// では、この新しい知識をビット操作にどう活用できるでしょうか？
 //
-// As you might have already guessed, `packed` containers are very useful for
-// representing bitflags or other tightly packed collections of bit-sized values
-// often found in file headers and network protocols.
+// おそらくすでに推測しているように、`packed`コンテナはビットフラグや
+// ファイルヘッダーやネットワークプロトコルでよく見られる
+// 他のタイトに詰められたビットサイズの値の集合を表現するのに非常に便利です。
 //
-// Let's take a look at a real-life example:
-// The LZ4 compression format (†) specifies a frame format to describe compressed
-// data. Each LZ4 frame has a descriptor, and each descriptor contains a 'FLG'
-// byte that specifies the contents of its frame:
+// 実際の例を見てみましょう：
+// LZ4圧縮フォーマット（†）は圧縮データを記述するためのフレームフォーマットを指定しています。
+// 各LZ4フレームにはディスクリプタがあり、各ディスクリプタにはそのフレームの内容を
+// 指定する'FLG'バイトが含まれています：
 
 /// |  BitNb  |  7-6  |   5   |    4     |  3   |    2     |   1    |   0  |
 /// | ------- |-------|-------|----------|------|----------|--------|------|
@@ -82,26 +79,25 @@ const FLG = packed struct(u8) {
     version: u2,
 };
 
-// Wait, what's with the `(u8)` after the `struct` keyword? What do integers have
-// to do with all of this?
-// Well, this is a good opportunity to come clear about something:
-// packed structs and packed unions aren't actually structs or unions at all...
-// They are merely integers in disguise! For all intents and purposes, their
-// fields are just convenient names for ranges of their underlying bits. To make
-// it easier to enforce size requirements for packed containers, Zig allows us
-// to specify a *backing integer* for them, just like for enums.
+// ちょっと待ってください、`struct`キーワードの後の`(u8)`は何でしょうか？
+// 整数はこれと何の関係があるのでしょうか？
+// これは何かを明らかにする良い機会です：
+// packed structとpacked unionは実際にはstructやunionではありません...
+// これらは単に整数が変装したものです！すべての目的において、
+// それらのフィールドは単に基礎となるビットの範囲に便利な名前を付けたものです。
+// packed コンテナのサイズ要件を強制しやすくするために、Zigではenumと同様に
+// それらの*バッキング整数*を指定できます。
 //
-// In the case of `FLG`, we want our struct to occupy exactly a single byte, so
-// we specify `u8` as the backing integer. It's safe to convert between a packed
-// container and its backing integer using the builtin `@bitCast`.
-// The LZ4 spec also mandates that reserved bits must always be zero, so it's
-// good practice to set `0` as a default value for `reserved`.
+// `FLG`の場合、structが正確に1バイトを占有することを望むので、
+// `u8`をバッキング整数として指定します。ビルトイン`@bitCast`を使って
+// packedコンテナとそのバッキング整数の間で安全に変換できます。
+// LZ4の仕様では予約ビットは常にゼロでなければならないと定められているので、
+// `reserved`のデフォルト値として`0`を設定するのが良い慣行です。
 //
-// The fields of a packed struct start at the least significant bit of its backing
-// integer and end at its most significant bit. This is the case no matter what
-// endianness our target has.
+// packed structのフィールドはバッキング整数の最下位ビットから始まり、
+// 最上位ビットで終わります。これはターゲットのエンディアンに関わらず同じです。
 //
-// Try to silence the complaints below:
+// 以下の不満を解消してみましょう：
 
 const Bits = packed struct(u4) {
     a: u1 = 0,
@@ -142,24 +138,24 @@ pub fn main() void {
     }
 }
 
-// As we can see, equality comparisons (`==` and `!=`) work for packed structs.
-// They also work for packed unions. However, since packed containers are not
-// naturally ordered, we can't use any other comparison operators on them.
+// 見てわかるように、等値比較（`==`と`!=`）はpacked structで動作します。
+// packed unionでも動作します。ただし、packed コンテナは自然には順序付けられないため、
+// それらに対して他の比較演算子を使用することはできません。
 //
-// It's also possible to use packed containers in `switch` statements, which we
-// will cover in the next exercise!
+// packed コンテナを`switch`文で使用することも可能で、
+// これは次のエクササイズでカバーします！
 //
-// Since packed containers make very strong guarantees about their memory layout,
-// only a handful of types are eligible to be part of them.
-// The following types are allowed as field types:
+// packed コンテナはメモリレイアウトについて非常に強い保証をするため、
+// それらの一部として使用できる型は限られています。
+// フィールド型として許可されている型：
 //
-// - integers
-// - floats
+// - 整数型
+// - 浮動小数点型
 // - bool
 // - void
-// - enums with explicit backing integers
-// - packed unions
-// - packed structs
+// - 明示的なバッキング整数を持つenum
+// - packed union
+// - packed struct
 //
 
 const std = @import("std");

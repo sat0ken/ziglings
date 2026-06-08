@@ -1,7 +1,7 @@
 //
-// Quiz time. See if you can make this program work!
+// クイズです。このプログラムを動かせるか試してみましょう！
 //
-// Solve this any way you like, just be sure the output is:
+// 好きな方法で解いてください。ただし出力は次のようにしてください：
 //
 //     my_num=42
 //
@@ -19,7 +19,7 @@ pub fn main(init: std.process.Init) !void {
     try stdout.print("my_num={}\n", .{my_num});
 }
 
-// This function is obviously weird and non-functional. But you will not be changing it for this quiz.
+// この関数は明らかに奇妙で正常に動作しません。ただし、このクイズでは変更しないでください。
 fn getNumber() NumError!u32 {
     if (false) return NumError.IllegalNumber;
     return 42;

@@ -1,11 +1,10 @@
 //
-// A union lets you store different types and sizes of data at
-// the same memory address. How is this possible? The compiler
-// sets aside enough memory for the largest thing you might want
-// to store.
+// ユニオンは同じメモリアドレスに異なる型とサイズのデータを保存できます。
+// なぜこれが可能かというと、コンパイラが保存したい最大のものに対して
+// 十分なメモリを確保するからです。
 //
-// In this example, an instance of Foo always takes up u64 of
-// space in memory even if you're currently storing a u8.
+// この例では、Foo のインスタンスは u8 を保存している場合でも
+// 常に u64 のメモリを占有します。
 //
 //     const Foo = union {
 //         small: u8,
@@ -13,61 +12,57 @@
 //         large: u64,
 //     };
 //
-// The syntax looks just like a struct, but a Foo can only hold a
-// small OR a medium OR a large value. Once a field becomes
-// active, the other inactive fields cannot be accessed. To
-// change active fields, assign a whole new instance:
+// 構文は構造体とまったく同じように見えますが、Foo は small か medium か
+// large のどれか一つの値しか保持できません。フィールドがアクティブになると、
+// 他の非アクティブなフィールドにはアクセスできません。アクティブなフィールドを
+// 変更するには、新しいインスタンスを丸ごと代入します：
 //
 //     var f = Foo{ .small = 5 };
-//     f.small += 5;                  // OKAY
-//     f.medium = 5432;               // ERROR!
-//     f = Foo{ .medium = 5432 };     // OKAY
+//     f.small += 5;                  // OK
+//     f.medium = 5432;               // エラー！
+//     f = Foo{ .medium = 5432 };     // OK
 //
-// Unions can save space in memory because they let you "re-use"
-// a space in memory. They also provide a sort of primitive
-// polymorphism. Here fooBar() can take a Foo no matter what size
-// of unsigned integer it holds:
+// ユニオンはメモリ内のスペースを「再利用」できるため、メモリを節約できます。
+// また、一種の原始的なポリモーフィズムも提供します。ここでは fooBar() が
+// 保持する符号なし整数のサイズに関係なく Foo を受け取れます：
 //
 //     fn fooBar(f: Foo) void { ... }
 //
-// Oh, but how does fooBar() know which field is active? Zig has
-// a neat way of keeping track, but for now, we'll just have to
-// do it manually.
+// でも、fooBar() はどのフィールドがアクティブかどうやって知るのでしょうか？
+// Zig には管理する素晴らしい方法がありますが、今のところ手動でやるしかありません。
 //
-// Let's see if we can get this program working!
+// このプログラムを動作させてみましょう！
 //
 const std = @import("std");
 
-// We've just started writing a simple ecosystem simulation.
-// Insects will be represented by either bees or ants. Bees store
-// the number of flowers they've visited that day and ants just
-// store whether or not they're still alive.
+// 簡単なエコシステムシミュレーションを書き始めました。
+// 昆虫はミツバチかアリのどちらかで表されます。ミツバチはその日に
+// 訪れた花の数を保存し、アリはまだ生きているかどうかを保存します。
 const Insect = union {
     flowers_visited: u16,
     still_alive: bool,
 };
 
-// Since we need to specify the type of insect, we'll use an
-// enum (remember those?).
+// 昆虫の種類を指定する必要があるため、enum を使います（覚えていますか？）。
 const AntOrBee = enum { a, b };
 
 pub fn main() void {
-    // We'll just make one bee and one ant to test them out:
+    // アリとミツバチを一匹ずつ作ってテストします：
     const ant = Insect{ .still_alive = true };
     const bee = Insect{ .flowers_visited = 15 };
 
     std.debug.print("Insect report! ", .{});
 
-    // Oops! We've made a mistake here.
+    // おっと！ここに間違いがあります。
     printInsect(ant, AntOrBee.c);
     printInsect(bee, AntOrBee.c);
 
     std.debug.print("\n", .{});
 }
 
-// Eccentric Doctor Zoraptera says that we can only use one
-// function to print our insects. Doctor Z is small and sometimes
-// inscrutable but we do not question her.
+// 風変わりな Zoraptera 博士は、昆虫を表示するのに
+// 1 つの関数しか使えないと言っています。博士は小柄で
+// 時々わかりにくいですが、私たちは疑問を呈しません。
 fn printInsect(insect: Insect, what_it_is: AntOrBee) void {
     switch (what_it_is) {
         .a => std.debug.print("Ant alive is: {}. ", .{insect.still_alive}),

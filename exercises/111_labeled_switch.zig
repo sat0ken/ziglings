@@ -1,12 +1,12 @@
 //
-// You've heard of while loops in exercises 011,012,013 and 014
-// You've also heard of switch expressions in exercises 030 and 31.
-// You've also seen how labels can be used in exercise 063.
+// エクササイズ011、012、013、014でwhileループを学びました。
+// エクササイズ030と031でswitch式も学びました。
+// エクササイズ063でラベルの使い方も見ました。
 //
-// By combining while loops and switch statements with continue and break statements
-// one can create very concise State Machines.
+// whileループとswitch文をcontinueおよびbreak文と組み合わせることで、
+// 非常に簡潔なステートマシンを作成できます。
 //
-// One such example would be:
+// その例として：
 //
 //      pub fn main() void {
 //          var op: u8 = 1;
@@ -22,12 +22,13 @@
 //          std.debug.print("This statement cannot be reached\n", .{});
 //      }
 //
-// By combining all we've learned so far, we can now proceed with a labeled switch.
+// これまでに学んだことをすべて組み合わせることで、ラベル付きswitchに進めます。
 //
-// A labeled switch is some extra syntactic sugar, which comes with all sorts of
-// candy (performance benefits). Don't believe me? Directly to source https://github.com/ziglang/zig/pull/21367
+// ラベル付きswitchは追加の糖衣構文で、あらゆる種類の
+// お菓子（パフォーマンス上のメリット）が付いています。
+// 信じられませんか？直接ソースへ https://github.com/ziglang/zig/pull/21367
 //
-// Here is the previous excerpt implemented as a labeled switch instead:
+// 上記の抜粋をラベル付きswitchで実装すると：
 //
 //      pub fn main() void {
 //          foo: switch (@as(u8, 1)) {
@@ -39,17 +40,18 @@
 //          std.debug.print("This statement cannot be reached\n", .{});
 //      }
 //
-// The flow of execution on this second case is:
-//  1. The switch starts with value '1';
-//  2. The switch evaluates to case '1' which in turn uses the continue statement
-//     to re-evaluate the labeled switch again, now providing the value '2';
-//  3. In the case '2' we repeat the same pattern as case '1'
-//     but instead the value to be evaluated is now '3';
-//  4. Finally we get to case '3', where we return from the function as a whole,
-//     so the debug statement is never executed.
-//  5. In this example, since the input does not have clear, exhaustive patterns and
-//     can essentially be any 'u8' integer, we need to handle all cases not explicitly
-//     covered by using the 'else => {}' branch as the default case.
+// この2番目のケースの実行フローは：
+//  1. switchは値'1'で開始します；
+//  2. switchはケース'1'を評価し、continue文を使って
+//     ラベル付きswitchを再評価します。今度は値'2'を提供します；
+//  3. ケース'2'でケース'1'と同じパターンを繰り返しますが、
+//     評価される値は'3'になります；
+//  4. 最後にケース'3'に到達し、関数全体からreturnします。
+//     そのためdebug文は実行されません。
+//  5. この例では、入力に明確で網羅的なパターンがなく、
+//     本質的に任意の'u8'整数になり得るため、
+//     明示的にカバーされていないすべてのケースを
+//     'else => {}'ブランチをデフォルトケースとして処理する必要があります。
 //
 //
 const std = @import("std");
@@ -63,8 +65,8 @@ const PullRequestState = enum(u8) {
 };
 
 pub fn main() void {
-    // Oh no, your pull request keeps being rejected,
-    // how would you fix it?
+    // プルリクエストが拒否され続けています。
+    // どうやって修正しますか？
     pr: switch (PullRequestState.Draft) {
         PullRequestState.Draft => continue :pr PullRequestState.InReview,
         PullRequestState.InReview => continue :pr PullRequestState.Rejected,
@@ -73,7 +75,7 @@ pub fn main() void {
             std.debug.print("The pull request has been rejected.\n", .{});
             return;
         },
-        PullRequestState.Merged => break, // Would you know where to break to?
+        PullRequestState.Merged => break, // どこにbreakすべきかわかりますか？
     }
     std.debug.print("The pull request has been merged.\n", .{});
 }

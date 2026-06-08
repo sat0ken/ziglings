@@ -1,33 +1,32 @@
 //
-// In exercise 089, we learned that cancellation happens at
-// "cancellation points" — any Io function that can return
-// error.Canceled.
+// 演習089で、キャンセルは「キャンセルポイント」— error.Canceled を
+// 返せる任意の Io 関数 — で発生することを学びました。
 //
-// But sometimes a task has a critical section that MUST NOT
-// be interrupted — for example, writing a consistent state
-// to disk, or completing a transaction.
+// しかし時には、タスクに絶対に割り込まれてはいけないクリティカルセクションが
+// あります — 例えば、一貫した状態をディスクに書き込んだり、
+// トランザクションを完了させたりする場合です。
 //
-// Io provides CancelProtection for this:
+// Io はそのために CancelProtection を提供します：
 //
 //     const old = io.swapCancelProtection(.blocked);
 //     defer _ = io.swapCancelProtection(old);
 
-//     // In this block, NO Io function will return error.Canceled.
-//     // The cancel request is held until protection is restored.
+//     // このブロックでは、どの Io 関数も error.Canceled を返しません。
+//     // キャンセル要求は保護が解除されるまで保留されます。
 //
-// There are two states:
-//   .unblocked — normal: cancellation points can fire (default)
-//   .blocked   — protected: error.Canceled is never returned
+// 2つの状態があります：
+//   .unblocked — 通常：キャンセルポイントが発火できます（デフォルト）
+//   .blocked   — 保護中：error.Canceled は絶対に返されません
 //
-// There's also io.checkCancel() — a pure cancellation point
-// that does nothing except return error.Canceled if a cancel
-// request is pending. Useful in long CPU-bound loops.
+// io.checkCancel() もあります — キャンセル要求が保留中の場合に
+// error.Canceled を返すだけの純粋なキャンセルポイントです。
+// 長い CPU バウンドループで便利です。
 //
-// And io.recancel() — re-arms a consumed cancel request so
-// the NEXT cancellation point will fire again.
+// そして io.recancel() — 消費されたキャンセル要求を再武装して
+// 次のキャンセルポイントが再び発火するようにします。
 //
-// Fix this program so the critical section completes even
-// when the task is canceled.
+// タスクがキャンセルされてもクリティカルセクションが完了するように
+// このプログラムを修正してください。
 //
 const std = @import("std");
 const print = std.debug.print;
@@ -38,10 +37,10 @@ pub fn main(init: std.process.Init) !void {
     var future = io.async(importantTask, .{io});
     defer _ = future.cancel(io);
 
-    // Give the task time to start and enter its critical section.
+    // タスクがクリティカルセクションに入るまで時間を与えます。
     io.sleep(std.Io.Duration.fromMilliseconds(200), .awake) catch {};
 
-    // Cancel while the task is in its protected section.
+    // タスクが保護されたセクションにいる間にキャンセルします。
     const result = future.cancel(io);
     print("Task result: {s}\n", .{result});
 }
@@ -49,16 +48,16 @@ pub fn main(init: std.process.Init) !void {
 fn importantTask(io: std.Io) []const u8 {
     print("Starting critical section...\n", .{});
 
-    // Protect this section from cancellation.
-    // What method swaps the cancel protection state?
+    // このセクションをキャンセルから保護します。
+    // キャンセル保護状態を切り替えるメソッドは何ですか？
     const old = io.???(.blocked);
     defer _ = io.???(old);
 
-    // This sleep will NOT return error.Canceled even though
-    // we get canceled during it — protection is active!
+    // このスリープは保護が有効な間はキャンセルされても
+    // error.Canceled を返しません！
     io.sleep(std.Io.Duration.fromMilliseconds(300), .awake) catch |err| switch (err) {
         error.Canceled => {
-            // This should never happen while protected!
+            // 保護中はこれは絶対に起きてはいけません！
             return "ERROR: canceled during critical section!";
         },
     };

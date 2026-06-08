@@ -1,18 +1,18 @@
 //
-// Oh no, this is supposed to print "Hello world!" but it needs
-// your help.
+// おっと、このプログラムは "Hello world!" を表示するはずですが、
+// あなたの助けが必要です。
 //
-// Zig functions are private by default, but the main() function
-// must be public.
+// Zigの関数はデフォルトでプライベートですが、main()関数は
+// パブリックでなければなりません。
 //
-// A function is made public with the "pub" statement like so:
+// 関数を公開するには、次のように "pub" 文を使います：
 //
 //     pub fn foo() void {
 //         ...
 //     }
 //
-// Perhaps knowing this will help solve the errors we're getting
-// with this little program?
+// このことを知っていれば、この小さなプログラムで発生している
+// エラーを解決できるかもしれません。
 //
 const std = @import("std");
 

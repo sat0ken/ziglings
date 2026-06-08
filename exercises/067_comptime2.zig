@@ -1,40 +1,40 @@
 //
-// We've seen that Zig implicitly performs some evaluations at
-// compile time. But sometimes you'll want to explicitly request
-// compile time evaluation. For that, we have a new keyword:
+// Zigが暗黙的にコンパイル時にいくつかの評価を行うことを見てきました。
+// しかし、明示的にコンパイル時評価を要求したい場合もあります。
+// そのために新しいキーワードがあります：
 //
 //  .     .   .      o       .          .       *  . .     .
 //    .  *  |     .    .            .   .     .   .     * .    .
 //        --o--            comptime        *    |      ..    .
 //     *    |       *  .        .    .   .    --*--  .     *  .
 //  .     .    .    .   . . .      .        .   |   .    .  .
-// (ASCII art depicting a starry sky with "comptime" as rising star)
+// (「comptime」が輝く星として描かれた星空のASCIIアート)
 //
-// When placed before a variable declaration, 'comptime'
-// guarantees that every usage of that variable will be performed
-// at compile time.
+// 変数宣言の前に置かれると、'comptime'はその変数の
+// すべての使用がコンパイル時に行われることを保証します。
 //
-// As a simple example, compare these two statements:
+// 簡単な例として、これら2つの文を比較してください：
 //
-//    var bar1 = 5;            // ERROR!
-//    comptime var bar2 = 5;   // OKAY!
+//    var bar1 = 5;            // エラー！
+//    comptime var bar2 = 5;   // OK！
 //
-// The first one gives us an error because Zig assumes mutable
-// identifiers (declared with 'var') will be used at runtime and
-// we have not assigned a runtime type (like u8 or f32). Trying
-// to use a comptime_int of undetermined size at runtime is
-// a MEMORY CRIME and you are UNDER ARREST.
+// 最初のものはエラーになります。Zigはミュータブルな識別子
+// （'var'で宣言されたもの）が実行時に使用されると想定しており、
+// 実行時の型（u8やf32など）を割り当てていないからです。
+// 不確定サイズのcomptime_intを実行時に使用しようとすることは
+// メモリ犯罪であり、あなたは逮捕されます。
 //
-// The second one is okay because we've told Zig that 'bar2' is
-// a compile time variable. Zig will help us ensure this is true
-// and let us know if we make a mistake.
+// 2番目はOKです。'bar2'がコンパイル時変数であることをZigに
+// 伝えているからです。Zigはこれが正しいことを確認し、
+// 間違いがあれば教えてくれます。
 //
 const print = @import("std").debug.print;
 
 pub fn main() void {
     //
-    // In this contrived example, we've decided to allocate some
-    // arrays using a variable count! But something's missing...
+    // この人工的な例では、変数のカウントを使って
+    // いくつかの配列を割り当てることにしました！
+    // でも何かが足りません...
     //
     var count = 0;
 
@@ -52,14 +52,14 @@ pub fn main() void {
 
     print("{s} {s} {s} {s}\n", .{ a1, a2, a3, a4 });
 
-    // Builtin BONUS!
+    // 組み込み関数ボーナス！
     //
-    // The @compileLog() builtin is like a print statement that
-    // ONLY operates at compile time. The Zig compiler treats
-    // @compileLog() calls as errors, so you'll want to use them
-    // temporarily to debug compile time logic.
+    // @compileLog() 組み込み関数はコンパイル時にのみ
+    // 動作するprint文のようなものです。Zigコンパイラは
+    // @compileLog() 呼び出しをエラーとして扱うため、
+    // コンパイル時ロジックのデバッグに一時的に使用します。
     //
-    // Try uncommenting this line and playing around with it
-    // (copy it, move it) to see what it does:
+    // この行のコメントを外して、何が起こるか確認してみてください
+    // （コピーしたり移動したりして試してみてください）：
     //@compileLog("Count at compile time: ", count);
 }

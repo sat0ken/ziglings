@@ -1,6 +1,6 @@
 //
-// Now that we've seen how methods work, let's see if we can help
-// our elephants out a bit more with some Elephant methods.
+// メソッドの仕組みを理解したので、Elephant メソッドを使って
+// 象たちをもう少し助けてみましょう。
 //
 const std = @import("std");
 
@@ -9,9 +9,9 @@ const Elephant = struct {
     tail: ?*Elephant = null,
     visited: bool = false,
 
-    // New Elephant methods!
+    // 新しい Elephant メソッド！
     pub fn getTail(self: *Elephant) *Elephant {
-        return self.tail.?; // Remember, this means "orelse unreachable"
+        return self.tail.?; // 「orelse unreachable」を意味します
     }
 
     pub fn hasTail(self: *Elephant) bool {
@@ -23,7 +23,7 @@ const Elephant = struct {
     }
 
     pub fn print(self: *Elephant) void {
-        // Prints elephant letter and [v]isited
+        // 象の文字と [v]isited を表示します
         const v: u8 = if (self.visited) 'v' else ' ';
         std.debug.print("{u}{u} ", .{ self.letter, v });
     }
@@ -34,7 +34,7 @@ pub fn main() void {
     var elephantB = Elephant{ .letter = 'B' };
     var elephantC = Elephant{ .letter = 'C' };
 
-    // This links the elephants so that each tail "points" to the next.
+    // 象たちをリンクして、それぞれのしっぽが次を「指す」ようにします。
     elephantA.tail = &elephantB;
     elephantB.tail = &elephantC;
 
@@ -43,8 +43,8 @@ pub fn main() void {
     std.debug.print("\n", .{});
 }
 
-// This function visits all elephants once, starting with the
-// first elephant and following the tails to the next elephant.
+// この関数は最初の象から始めてしっぽをたどりながら、
+// すべての象を一度だけ訪問します。
 fn visitElephants(first_elephant: *Elephant) void {
     var e = first_elephant;
 
@@ -52,27 +52,27 @@ fn visitElephants(first_elephant: *Elephant) void {
         e.print();
         e.visit();
 
-        // This gets the next elephant or stops:
-        // which method do we want here?
+        // 次の象を取得するか停止します：
+        // ここではどのメソッドを使えばよいでしょうか？
         e = if (e.hasTail()) e.??? else break;
     }
 }
 
-// Zig's enums can also have methods! This comment originally asked
-// if anyone could find instances of enum methods in the wild. The
-// first five pull requests were accepted and here they are:
+// Zig の enum もメソッドを持てます！このコメントはもともと
+// 実際のコードで enum メソッドの例を見つけた人を募集していました。
+// 最初の 5 つのプルリクエストが受理され、以下にまとめられています：
 //
-// 1) drforester - I found one in the Zig source:
+// 1) drforester - Zig のソースコードで見つけました：
 // https://github.com/ziglang/zig/blob/041212a41cfaf029dc3eb9740467b721c76f406c/src/Compilation.zig#L2495
 //
-// 2) bbuccianti - I found one!
+// 2) bbuccianti - 見つけました！
 // https://github.com/ziglang/zig/blob/6787f163eb6db2b8b89c2ea6cb51d63606487e12/lib/std/debug.zig#L477
 //
-// 3) GoldsteinE - Found many, here's one
+// 3) GoldsteinE - たくさん見つけました、これはそのひとつ
 // https://github.com/ziglang/zig/blob/ce14bc7176f9e441064ffdde2d85e35fd78977f2/lib/std/target.zig#L65
 //
-// 4) SpencerCDixon - Love this language so far :-)
+// 4) SpencerCDixon - この言語を気に入っています :-)
 // https://github.com/ziglang/zig/blob/a502c160cd51ce3de80b3be945245b7a91967a85/src/zir.zig#L530
 //
-// 5) tomkun - here's another enum method
+// 5) tomkun - こちらも別の enum メソッドです
 // https://github.com/ziglang/zig/blob/4ca1f4ec2e3ae1a08295bc6ed03c235cb7700ab9/src/codegen/aarch64.zig#L24

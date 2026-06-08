@@ -1,31 +1,31 @@
 // ----------------------------------------------------------------------------
-// Quiz Time: Toggling, Setting, and Clearing Bits
+// クイズ：ビットのトグル、セット、クリア
 // ----------------------------------------------------------------------------
 //
-// Another exciting thing about Zig is its suitability for embedded
-// programming. Your Zig code doesn't have to remain on your laptop; you can
-// also deploy your code to microcontrollers! This means you can write Zig to
-// drive your next robot or greenhouse climate control system! Ready to enter
-// the exciting world of embedded programming? Let's get started!
+// Zigのもう一つの素晴らしい点は、組み込みプログラミングへの適性です。
+// Zigのコードはノートパソコンに留まらず、マイクロコントローラーにも
+// デプロイできます！つまり、次のロボットや温室の気候制御システムを
+// 動かすZigを書けるのです！組み込みプログラミングの
+// エキサイティングな世界に入る準備はできていますか？始めましょう！
 //
 // ----------------------------------------------------------------------------
-// Some Background
+// 背景知識
 // ----------------------------------------------------------------------------
 //
-// A common activity in microcontroller programming is setting and clearing
-// bits on input and output pins. This lets you control LEDs, sensors, motors
-// and more! In a previous exercise (097_bit_manipulation.zig) you learned how
-// to swap two bytes using the ^ (XOR - exclusive or) operator. This quiz will
-// test your knowledge of bit manipulation in Zig while giving you a taste of
-// what it's like to control registers in a real microcontroller. Included at
-// the end are some helper functions that demonstrate how we might make our
-// code a little more readable.
+// マイクロコントローラープログラミングの一般的な作業は、
+// 入出力ピンのビットをセットおよびクリアすることです。
+// これによりLED、センサー、モーターなどを制御できます！
+// 前のエクササイズ（097_bit_manipulation.zig）では、
+// ^（XOR - 排他的論理和）演算子を使って2バイトを交換する方法を学びました。
+// このクイズでは、実際のマイクロコントローラーのレジスタ制御の
+// 雰囲気を味わいながら、Zigのビット操作の知識をテストします。
+// 最後に、コードをより読みやすくするためのヘルパー関数の例を示します。
 //
-// Below is a pinout diagram for the famous ATmega328 AVR microcontroller used
-// as the primary microchip on popular microcontroller platforms like the
-// Arduino UNO.
+// 以下は、Arduino UNOなどの人気のマイクロコントローラープラットフォームで
+// メインマイクロチップとして使用される有名なATmega328 AVRマイクロコントローラーの
+// ピン配置図です。
 //
-//  ============ PINOUT DIAGRAM FOR ATMEGA328 MICROCONTROLLER ============
+//  ============ ATMEGA328マイクロコントローラーのピン配置図 ============
 //                                _____ _____
 //                               |     U     |
 //                 (RESET) PC6 --|  1     28 |-- PC5
@@ -47,52 +47,50 @@
 //                                    |
 //                                  PORTB
 //
-// Drawing inspiration from this diagram, we'll use the pins for PORTB as our
-// mental model for this quiz on bit manipulation. It should be noted that
-// in the following problems we are using ordinary variables, one of which we
-// have named PORTB, to simulate modifying the bits of real hardware registers.
-// But in actual microcontroller code, PORTB would be defined something like
-// this:
+// この図からインスピレーションを得て、PORTBのピンをこのクイズの
+// ビット操作についての精神的モデルとして使用します。
+// 以下の問題では、実際のハードウェアレジスタのビット変更をシミュレートするために、
+// PORTBと名付けた通常の変数を使用していることに注意してください。
+// 実際のマイクロコントローラーコードでは、PORTBは次のように定義されます：
 //          pub const PORTB = @as(*volatile u8, @ptrFromInt(0x25));
 //
-// This lets the compiler know not to make any optimizations to PORTB so that
-// the IO pins are properly mapped to our code.
+// これによりコンパイラはPORTBに最適化を行わず、
+// IOピンがコードに正しくマッピングされることを確認します。
 //
-// NOTE : To keep things simple, the following problems are given using type
-// u4, so applying the output to PORTB would only affect the lower four pins
-// PB0..PB3. Of course, there is nothing to prevent you from swapping the u4
-// with a u8 so you can control all 8 of PORTB's IO pins.
+// 注意：シンプルにするために、以下の問題ではu4型を使用しています。
+// そのため出力をPORTBに適用すると下位4ピンPB0..PB3のみに影響します。
+// もちろん、u4をu8に置き換えてPORTBの8つすべてのIOピンを
+// 制御することを妨げるものは何もありません。
 
 const std = @import("std");
 const print = std.debug.print;
 const testing = std.testing;
 
 pub fn main() !void {
-    var PORTB: u4 = 0b0000; // only 4 bits wide for simplicity
+    var PORTB: u4 = 0b0000; // 簡単のため4ビット幅
 
     // ------------------------------------------------------------------------
-    // Quiz
+    // クイズ
     // ------------------------------------------------------------------------
 
-    // See if you can solve the following problems. The last two problems throw
-    // you a bit of a curve ball. Try solving them on your own. If you need
-    // help, scroll to the bottom of main to see some in depth explanations on
-    // toggling, setting, and clearing bits in Zig.
+    // 以下の問題を解いてみてください。最後の2つの問題は少しひねりがあります。
+    // 自分で解いてみてください。助けが必要な場合は、mainの下部までスクロールすると
+    // Zigでのビットのトグル、セット、クリアについての詳細な説明があります。
 
     print("Toggle pins with XOR on PORTB\n", .{});
     print("-----------------------------\n", .{});
     PORTB = 0b1100;
-    print("  {b:0>4} // (initial state of PORTB)\n", .{PORTB});
-    print("^ {b:0>4} // (bitmask)\n", .{0b0101});
-    PORTB ^= (1 << 1) | (1 << 0); // What's wrong here?
+    print("  {b:0>4} // (PORTBの初期状態)\n", .{PORTB});
+    print("^ {b:0>4} // (ビットマスク)\n", .{0b0101});
+    PORTB ^= (1 << 1) | (1 << 0); // ここは何が間違っていますか？
     checkAnswer(0b1001, PORTB);
 
     newline();
 
     PORTB = 0b1100;
-    print("  {b:0>4} // (initial state of PORTB)\n", .{PORTB});
-    print("^ {b:0>4} // (bitmask)\n", .{0b0011});
-    PORTB ^= (1 << 1) & (1 << 0); // What's wrong here?
+    print("  {b:0>4} // (PORTBの初期状態)\n", .{PORTB});
+    print("^ {b:0>4} // (ビットマスク)\n", .{0b0011});
+    PORTB ^= (1 << 1) & (1 << 0); // ここは何が間違っていますか？
     checkAnswer(0b1111, PORTB);
 
     newline();
@@ -100,18 +98,18 @@ pub fn main() !void {
     print("Set pins with OR on PORTB\n", .{});
     print("-------------------------\n", .{});
 
-    PORTB = 0b1001; // reset PORTB
-    print("  {b:0>4} // (initial state of PORTB)\n", .{PORTB});
-    print("| {b:0>4} // (bitmask)\n", .{0b0100});
-    PORTB = PORTB ??? (1 << 2); // What's missing here?
+    PORTB = 0b1001; // PORTBをリセット
+    print("  {b:0>4} // (PORTBの初期状態)\n", .{PORTB});
+    print("| {b:0>4} // (ビットマスク)\n", .{0b0100});
+    PORTB = PORTB ??? (1 << 2); // ここに何が足りませんか？
     checkAnswer(0b1101, PORTB);
 
     newline();
 
-    PORTB = 0b1001; // reset PORTB
-    print("  {b:0>4} // (reset state)\n", .{PORTB});
-    print("| {b:0>4} // (bitmask)\n", .{0b0100});
-    PORTB ??? (1 << 2); // What's missing here?
+    PORTB = 0b1001; // PORTBをリセット
+    print("  {b:0>4} // (リセット状態)\n", .{PORTB});
+    print("| {b:0>4} // (ビットマスク)\n", .{0b0100});
+    PORTB ??? (1 << 2); // ここに何が足りませんか？
     checkAnswer(0b1101, PORTB);
 
     newline();
@@ -119,18 +117,18 @@ pub fn main() !void {
     print("Clear pins with AND and NOT on PORTB\n", .{});
     print("------------------------------------\n", .{});
 
-    PORTB = 0b1110; // reset PORTB
-    print("  {b:0>4} // (initial state of PORTB)\n", .{PORTB});
-    print("& {b:0>4} // (bitmask)\n", .{0b1011});
-    PORTB = PORTB & ???@as(u4, 1 << 2); // What character is missing here?
+    PORTB = 0b1110; // PORTBをリセット
+    print("  {b:0>4} // (PORTBの初期状態)\n", .{PORTB});
+    print("& {b:0>4} // (ビットマスク)\n", .{0b1011});
+    PORTB = PORTB & ???@as(u4, 1 << 2); // ここに何の文字が足りませんか？
     checkAnswer(0b1010, PORTB);
 
     newline();
 
-    PORTB = 0b0111; // reset PORTB
-    print("  {b:0>4} // (reset state)\n", .{PORTB});
-    print("& {b:0>4} // (bitmask)\n", .{0b1110});
-    PORTB &= ~(1 << 0); // What's missing here?
+    PORTB = 0b0111; // PORTBをリセット
+    print("  {b:0>4} // (リセット状態)\n", .{PORTB});
+    print("& {b:0>4} // (ビットマスク)\n", .{0b1110});
+    PORTB &= ~(1 << 0); // ここに何が足りませんか？
     checkAnswer(0b0110, PORTB);
 
     newline();
@@ -138,7 +136,7 @@ pub fn main() !void {
 }
 
 // ************************************************************************
-//                    IN-DEPTH EXPLANATIONS BELOW
+//                    詳細な説明は以下にあります
 // ************************************************************************
 //
 //
@@ -152,203 +150,194 @@ pub fn main() !void {
 //
 //
 // ------------------------------------------------------------------------
-// Toggling bits with XOR:
+// XORによるビットのトグル：
 // ------------------------------------------------------------------------
-// XOR stands for "exclusive or". We can toggle bits with the ^ (XOR)
-// bitwise operator, like so:
+// XORは「排他的論理和」を意味します。^（XOR）ビット演算子でビットをトグルできます：
 //
 //
-// In order to output a 1, the logic of an XOR operation requires that the
-// two input bits are of different values. Therefore, 0 ^ 1 and 1 ^ 0 will
-// both yield a 1 but 0 ^ 0 and 1 ^ 1 will output 0. XOR's unique behavior
-// of outputting a 0 when both inputs are 1s is what makes it different from
-// the OR operator; it also gives us the ability to toggle bits by putting
-// 1s into our bitmask.
+// 1を出力するために、XOR演算のロジックでは2つの入力ビットが
+// 異なる値である必要があります。したがって、0 ^ 1と1 ^ 0は
+// どちらも1を返しますが、0 ^ 0と1 ^ 1は0を出力します。
+// 両方の入力が1の場合に0を出力するXORのユニークな動作が、
+// OR演算子と異なる点であり、ビットマスクに1を置くことで
+// ビットをトグルする能力を与えます。
 //
-// - 1s in our bitmask operand, can be thought of as causing the
-//   corresponding bits in the other operand to flip to the opposite value.
-// - 0s cause no change.
+// - ビットマスクオペランドの1は、もう一方のオペランドの対応する
+//   ビットを反転させると考えることができます。
+// - 0は変化をもたらしません。
 //
-//                            The 0s in our bitmask preserve these values
-// -XOR op- ---expanded---    in the output.
-//            _______________/
+//                            ビットマスクの0はこれらの値を出力で保持します
+// -XOR演算- ---展開---        ________________/
 //           /       /
 //   1100   1   1   0   0
-// ^ 0101   0   1   0   1 (bitmask)
+// ^ 0101   0   1   0   1 (ビットマスク)
 // ------   -   -   -   -
-// = 1001   1   0   0   1 <- This bit was already cleared.
+// = 1001   1   0   0   1 <- このビットはすでにクリアされていました。
 //              \_______\
 //                       \
-//                         We can think of these bits having flipped
-//                         because of the presence of 1s in those columns
-//                         of our bitmask.
+//                         これらのビットはビットマスクのそれらの列に
+//                         1が存在するためフリップしたと考えられます。
 //
-// Now let's take a look at setting bits with the | operator.
+// 次に|演算子によるビットのセットを見てみましょう。
 //
 //
 //
 //
 //
 // ------------------------------------------------------------------------
-// Setting bits with OR:
+// ORによるビットのセット：
 // ------------------------------------------------------------------------
-// We can set bits on PORTB with the | (OR) operator, like so:
+// |（OR）演算子でPORTBのビットをセットできます：
 //
 // var PORTB: u4 = 0b1001;
 // PORTB = PORTB | 0b0010;
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output: 1011
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 出力: 1011
 //
-// -OR op-  ---expanded---
-//                    _ Set only this bit.
+// -OR演算- ---展開---
+//                    _ このビットだけをセットします。
 //                   /
 //   1001   1   0   0   1
-// | 0010   0   0   1   0 (bitmask)
+// | 0010   0   0   1   0 (ビットマスク)
 // ------   -   -   -   -
 // = 1011   1   0   1   1
 //           \___\_______\
 //                        \
-//                          These bits remain untouched because OR-ing with
-//                          a 0 effects no change.
+//                          これらのビットは0とのOR演算では変化がないため
+//                          そのままです。
 //
 // ------------------------------------------------------------------------
-// To create a bitmask like 0b0010 used above:
+// 上記で使用した0b0010のようなビットマスクを作成するには：
 //
-// 1. First, shift the value 1 over one place with the bitwise << (shift
-// left) operator as indicated below:
+// 1. まず、以下に示すようにビット単位の<<（左シフト）演算子で
+//    値1を1つ左にシフトします：
 //           1 << 0 -> 0001
-//           1 << 1 -> 0010  <-- Shift 1 one place to the left
+//           1 << 1 -> 0010  <-- 1を1つ左にシフト
 //           1 << 2 -> 0100
 //           1 << 3 -> 1000
 //
-// This allows us to rewrite the above code like this:
+// これにより上記のコードを次のように書き直せます：
 //
 // var PORTB: u4 = 0b1001;
 // PORTB = PORTB | (1 << 1);
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output: 1011
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 出力: 1011
 //
-// Finally, as in the C language, Zig allows us to use the |= operator, so
-// we can rewrite our code again in an even more compact and idiomatic
-// form: PORTB |= (1 << 1)
+// 最後に、C言語と同様にZigでも|=演算子を使えるため、
+// さらにコンパクトでイディオム的な形式にコードを書き直せます：
+// PORTB |= (1 << 1)
 
-// So now we've covered how to toggle and set bits. What about clearing
-// them? Well, this is where Zig throws us a curve ball. Don't worry we'll
-// go through it step by step.
+// これでビットのトグルとセットの方法をカバーしました。クリアはどうでしょうか？
+// Zigがここでひねりを加えます。でも安心してください、ステップごとに説明します。
 //
 //
 //
 //
 //
 // ------------------------------------------------------------------------
-// Clearing bits with AND and NOT:
+// ANDとNOTによるビットのクリア：
 // ------------------------------------------------------------------------
-// We can clear bits with the & (AND) bitwise operator, like so:
+// &（AND）ビット演算子でビットをクリアできます：
 
-// PORTB = 0b1110; // reset PORTB
+// PORTB = 0b1110; // PORTBをリセット
 // PORTB = PORTB & 0b1011;
-// print("PORTB: {b:0>4}\n", .{PORTB}); // output -> 1010
+// print("PORTB: {b:0>4}\n", .{PORTB}); // 出力 -> 1010
 //
-// - 0s clear bits when used in conjunction with a bitwise AND.
-// - 1s do nothing, thus preserving the original bits.
+// - ビット単位のANDと組み合わせて使用すると、0はビットをクリアします。
+// - 1は何もせず、元のビットを保持します。
 //
-// -AND op- ---expanded---
-//                __________ Clear only this bit.
+// -AND演算- ---展開---
+//                __________ このビットだけをクリアします。
 //               /
 //   1110   1   1   1   0
-// & 1011   1   0   1   1 (bitmask)
+// & 1011   1   0   1   1 (ビットマスク)
 // ------   -   -   -   -
-// = 1010   1   0   1   0 <- This bit was already cleared.
+// = 1010   1   0   1   0 <- このビットはすでにクリアされていました。
 //           \_______\
 //                    \
-//                      These bits remain untouched because AND-ing with a
-//                      1 preserves the original bit value whether 0 or 1.
+//                      1とのAND演算は元のビット値（0か1）を
+//                      保持するため、これらのビットはそのままです。
 //
 // ------------------------------------------------------------------------
-// We can use the ~ (NOT) operator to easily create a bitmask like 1011:
+// ~（NOT）演算子を使って1011のようなビットマスクを簡単に作成できます：
 //
-//  1. First, shift the value 1 over two places with the bit-wise << (shift
-//     left) operator as indicated below:
+//  1. まず、以下に示すようにビット単位の<<（左シフト）演算子で
+//     値1を2つ左にシフトします：
 //          1 << 0 -> 0001
 //          1 << 1 -> 0010
-//          1 << 2 -> 0100 <- The 1 has been shifted two places to the left
+//          1 << 2 -> 0100 <- 1が2つ左にシフトされました
 //          1 << 3 -> 1000
 //
-//  2. The second step in creating our bitmask is to invert the bits
+//  2. ビットマスクを作成する2番目のステップはビットを反転することです：
 //          ~0100 -> 1011
-//     in C we would write this as:
+//     Cではこれを次のように書きます：
 //          ~(1 << 2) -> 1011
 //
-//     But if we try to compile ~(1 << 2) in Zig, we'll get an error:
+//     しかし、Zigで~(1 << 2)をコンパイルしようとするとエラーが発生します：
 //          unable to perform binary not operation on type 'comptime_int'
 //
-//     Before Zig can invert our bits, it needs to know the number of
-//     bits it's being asked to invert.
+//     Zigがビットを反転する前に、反転するよう求めているビット数を
+//     知る必要があります。
 //
-//     We do this with the @as (cast as) built-in like this:
+//     これは@as（キャスト）ビルトインを使って行います：
 //          @as(u4, 1 << 2) -> 0100
 //
-//     Finally, we can invert our new mask by placing the NOT ~ operator
-//     before our expression, like this:
+//     最後に、NOT ~演算子を式の前に置いて新しいマスクを反転できます：
 //          ~@as(u4, 1 << 2) -> 1011
 //
-//     If you are offput by the fact that you can't simply invert bits like
-//     you can in languages such as C without casting to a particular size
-//     of integer, you're not alone. However, this is actually another
-//     instance where Zig is really helpful because it protects you from
-//     difficult to debug integer overflow bugs that can have you tearing
-//     your hair out. In the interest of keeping things sane, Zig requires
-//     you simply to tell it the size of number you are inverting. In the
-//     words of Andrew Kelley, "If you want to invert the bits of an
-//     integer, zig has to know how many bits there are."
+//     CのようにキャストなしでビットをXYZ反転できないことに違和感を感じるなら、
+//     あなただけではありません。しかし、これは実際にはZigが本当に役立つ
+//     別のケースです。デバッグが難しい整数オーバーフローバグから
+//     守ってくれるからです。Zigは単に反転する数値のサイズを教えることを
+//     要求しています。Andrew Kelleyの言葉を借りれば、「整数のビットを
+//     反転したいなら、Zigはビット数を知る必要があります。」
 //
-//     For more insight into the Zig team's position on why the language
-//     takes the approach it does with the ~ operator, take a look at
-//     Andrew's comments on the following github issue:
+//     このアプローチについてのZigチームの見解の詳細については、
+//     以下のGitHubイシューにあるAndrewのコメントを参照してください：
 //     https://github.com/ziglang/zig/issues/1382#issuecomment-414459529
 //
-// Whew, so after all that what we end up with is:
+// 結局のところ、次のようになります：
 //          PORTB = PORTB & ~@as(u4, 1 << 2);
 //
-// We can shorten this with the &= combined AND and assignment operator,
-// which applies the AND operator on PORTB and then reassigns PORTB. Here's
-// what that looks like:
+// &=結合ANDと代入演算子を使って短縮できます。
+// これはPORTBにAND演算を適用してからPORTBに再代入します。
+// 次のようになります：
 //          PORTB &= ~@as(u4, 1 << 2);
 //
 
 // ------------------------------------------------------------------------
-// Conclusion
+// まとめ
 // ------------------------------------------------------------------------
 //
-// While the examples in this quiz have used only 4-bit wide variables,
-// working with 8 bits is no different. Here's an example where we set
-// every other bit beginning with the two's place:
+// このクイズの例では4ビット幅の変数のみを使用しましたが、
+// 8ビットでの作業も変わりません。2の位から始まり
+// 1つおきにビットをセットする例を示します：
 
 // var PORTD: u8 = 0b0000_0000;
 // print("PORTD: {b:0>8}\n", .{PORTD});
 // PORTD |= (1 << 1);
 // PORTD = setBit(u8, PORTD, 3);
 // PORTD |= (1 << 5) | (1 << 7);
-// print("PORTD: {b:0>8} // set every other bit\n", .{PORTD});
+// print("PORTD: {b:0>8} // 1つおきにビットをセット\n", .{PORTD});
 // PORTD = ~PORTD;
-// print("PORTD: {b:0>8} // bits flipped with NOT (~)\n", .{PORTD});
+// print("PORTD: {b:0>8} // NOT (~) でビットを反転\n", .{PORTD});
 // newline();
 //
-// // Here we clear every other bit beginning with the two's place.
+// // ここで2の位から始めて1つおきにビットをクリアします。
 //
 // PORTD = 0b1111_1111;
 // print("PORTD: {b:0>8}\n", .{PORTD});
 // PORTD &= ~@as(u8, 1 << 1);
 // PORTD = clearBit(u8, PORTD, 3);
 // PORTD &= ~@as(u8, (1 << 5) | (1 << 7));
-// print("PORTD: {b:0>8} // clear every other bit\n", .{PORTD});
+// print("PORTD: {b:0>8} // 1つおきにビットをクリア\n", .{PORTD});
 // PORTD = ~PORTD;
-// print("PORTD: {b:0>8} // bits flipped with NOT (~)\n", .{PORTD});
+// print("PORTD: {b:0>8} // NOT (~) でビットを反転\n", .{PORTD});
 // newline();
 
 // ----------------------------------------------------------------------------
-// Here are some helper functions for manipulating bits
+// ビット操作のためのヘルパー関数
 // ----------------------------------------------------------------------------
 
-// Functions for setting, clearing, and toggling a single bit
+// 単一ビットのセット、クリア、トグルのための関数
 fn setBit(comptime T: type, byte: T, comptime bit_pos: T) !T {
     return byte | (1 << bit_pos);
 }
@@ -377,8 +366,7 @@ test "toggleBit" {
 }
 
 // ----------------------------------------------------------------------------
-// Some additional functions for setting, clearing, and toggling multiple bits
-// at once with a tuple because, hey, why not?
+// タプルを使って複数のビットを一度にセット、クリア、トグルするための追加関数
 // ----------------------------------------------------------------------------
 //
 
@@ -465,7 +453,7 @@ test "toggleBits" {
 }
 
 // ----------------------------------------------------------------------------
-// Utility functions
+// ユーティリティ関数
 // ----------------------------------------------------------------------------
 
 fn newline() void {
@@ -475,7 +463,7 @@ fn newline() void {
 fn checkAnswer(expected: u4, answer: u4) void {
     if (expected != answer) {
         print("*************************************************************\n", .{});
-        print("= {b:0>4} <- INCORRECT! THE EXPECTED OUTPUT IS {b:0>4}\n", .{ answer, expected });
+        print("= {b:0>4} <- 不正解！期待される出力は {b:0>4} です\n", .{ answer, expected });
         print("*************************************************************\n", .{});
     } else {
         print("= {b:0>4}", .{answer});

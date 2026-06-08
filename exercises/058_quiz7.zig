@@ -1,55 +1,52 @@
 //
-// We've absorbed a lot of information about the variations of types
-// we can use in Zig. Roughly, in order we have:
+// Zig で使用できる型のバリエーションについて多くの情報を吸収してきました。
+// おおまかに順番に並べると：
 //
-//                          u8  single item
-//                         *u8  single-item pointer
-//                        []u8  slice (size known at runtime)
-//                       [5]u8  array of 5 u8s
-//                       [*]u8  many-item pointer (zero or more)
-//                 enum {a, b}  set of unique values a and b
-//                error {e, f}  set of unique error values e and f
-//      struct {y: u8, z: i32}  group of values y and z
-// union(enum) {a: u8, b: i32}  single value either u8 or i32
+//                          u8  単一アイテム
+//                         *u8  単一アイテムポインタ
+//                        []u8  スライス（実行時にサイズが判明）
+//                       [5]u8  5 つの u8 の配列
+//                       [*]u8  多要素ポインタ（0 個以上）
+//                 enum {a, b}  一意な値 a と b の集合
+//                error {e, f}  一意なエラー値 e と f の集合
+//      struct {y: u8, z: i32}  値 y と z のグループ
+// union(enum) {a: u8, b: i32}  u8 か i32 のどちらかの単一値
 //
-// Values of any of the above types can be assigned as "var" or "const"
-// to allow or disallow changes (mutability) via the assigned name:
+// 上記のいずれかの型の値は "var" または "const" として代入でき、
+// 代入された名前からの変更（可変性）を許可または禁止できます：
 //
-//     const a: u8 = 5; // immutable
-//       var b: u8 = 5; //   mutable
+//     const a: u8 = 5; // 不変
+//       var b: u8 = 5; // 可変
 //
-// We can also make error unions or optional types from any of
-// the above:
+// 上記のいずれかからエラーユニオンや optional 型を作ることもできます：
 //
-//     var a: E!u8 = 5; // can be u8 or error from set E
-//     var b: ?u8 = 5;  // can be u8 or null
+//     var a: E!u8 = 5; // u8 か集合 E のエラーのどちらか
+//     var b: ?u8 = 5;  // u8 か null のどちらか
 //
-// Knowing all of this, maybe we can help out a local hermit. He made
-// a little Zig program to help him plan his trips through the woods,
-// but it has some mistakes.
+// これを踏まえて、近所の隠者を助けられるかもしれません。彼は
+// 森の中の旅を計画するための小さな Zig プログラムを作りましたが、
+// いくつか間違いがあります。
 //
 // *************************************************************
-// *                A NOTE ABOUT THIS EXERCISE                 *
+// *               この演習に関する注意事項                    *
 // *                                                           *
-// * You do NOT have to read and understand every bit of this  *
-// * program. This is a very big example. Feel free to skim    *
-// * through it and then just focus on the few parts that are  *
-// * actually broken!                                          *
+// * このプログラムのすべてを読んで理解する必要はありません。  *
+// * これは非常に大きな例です。さっと読み流してから、          *
+// * 実際に壊れている少数の部分だけに集中してください！        *
 // *                                                           *
 // *************************************************************
 //
 const print = @import("std").debug.print;
 
-// The grue is a nod to Zork.
+// grue は Zork へのオマージュです。
 const TripError = error{ Unreachable, EatenByAGrue };
 
-// Let's start with the Places on the map. Each has a name and a
-// distance or difficulty of travel (as judged by the hermit).
+// まずは地図上の場所から。それぞれに名前と
+// 移動の距離や難易度（隠者の判断による）があります。
 //
-// Note that we declare the places as mutable (var) because we need to
-// assign the paths later. And why is that? Because paths contain
-// pointers to places and assigning them now would create a dependency
-// loop!
+// 場所は可変（var）として宣言していることに注意してください。後でパスを
+// 代入する必要があるためです。なぜかというと、パスは場所へのポインタを含んでおり、
+// 今すぐ代入すると依存ループが生じてしまうためです！
 const Place = struct {
     name: []const u8,
     paths: []const Path = undefined,
@@ -62,7 +59,7 @@ var d = Place{ .name = "Dogwood Grove" };
 var e = Place{ .name = "East Pond" };
 var f = Place{ .name = "Fox Pond" };
 
-//           The hermit's hand-drawn ASCII map
+//           隠者の手書き ASCII 地図
 //  +---------------------------------------------------+
 //  |         * Archer's Point                ~~~~      |
 //  | ~~~                              ~~~~~~~~         |
@@ -85,25 +82,23 @@ var f = Place{ .name = "Fox Pond" };
 //  |                ~~~~~                              |
 //  +---------------------------------------------------+
 //
-// We'll be reserving memory in our program based on the number of
-// places on the map. Note that we do not have to specify the type of
-// this value because we don't actually use it in our program once
-// it's compiled! (Don't worry if this doesn't make sense yet.)
+// 地図上の場所の数に基づいてプログラムのメモリを予約します。
+// コンパイルされると実際にはプログラムで使用しないため、
+// この値の型を指定する必要はありません！（まだ意味がわからなくても大丈夫です。）
 const place_count = 6;
 
-// Now let's create all of the paths between sites. A path goes from
-// one place to another and has a distance.
+// では、場所間のすべてのパスを作成しましょう。パスは一つの場所から
+// 別の場所へ行き、距離を持ちます。
 const Path = struct {
     from: *const Place,
     to: *const Place,
     dist: u8,
 };
 
-// By the way, if the following code seems like a lot of tedious
-// manual labor, you're right! One of Zig's killer features is letting
-// us write code that runs at compile time to "automate" repetitive
-// code (much like macros in other languages), but we haven't learned
-// how to do that yet!
+// ところで、以下のコードが大量の退屈な手作業のように見えるなら、
+// その通りです！Zig のキラー機能の一つは、コンパイル時に実行されるコードを
+// 書いて繰り返しのコードを「自動化」できることです（他の言語のマクロに似ています）。
+// でもそのやり方はまだ学んでいません！
 const a_paths = [_]Path{
     Path{
         .from = &a, // from: Archer's Point
@@ -165,7 +160,7 @@ const e_paths = [_]Path{
     Path{
         .from = &e, // from: East Pond
         .to = &f, //   to: Fox Pond
-        .dist = 1, // (one-way down a short waterfall!)
+        .dist = 1, // （小さな滝を一方向に下る！）
     },
 };
 
@@ -177,33 +172,30 @@ const f_paths = [_]Path{
     },
 };
 
-// Once we've plotted the best course through the woods, we'll make a
-// "trip" out of it. A trip is a series of Places connected by Paths.
-// We use a TripItem union to allow both Places and Paths to be in the
-// same array.
+// 森の中の最適なルートを計画したら、それを「旅」にします。
+// 旅は場所とパスが交互に続く系列です。
+// 場所とパスの両方を同じ配列に入れるために TripItem ユニオンを使います。
 const TripItem = union(enum) {
     place: *const Place,
     path: *const Path,
 
-    // This is a little helper function to print the two different
-    // types of item correctly.
+    // 2 種類のアイテムを正しく表示するための小さなヘルパー関数です。
     fn printMe(self: TripItem) void {
         switch (self) {
-            // Oops! The hermit forgot how to capture the union values
-            // in a switch statement. Please capture each value as
-            // 'p' so the print statements work!
+            // おっと！隠者は switch 文でユニオン値をキャプチャする方法を
+            // 忘れてしまいました。print 文が動作するように
+            // 各値を 'p' としてキャプチャしてください！
             .place => print("{s}", .{p.name}),
             .path => print("--{}->", .{p.dist}),
         }
     }
 };
 
-// The Hermit's Notebook is where all the magic happens. A notebook
-// entry is a Place discovered on the map along with the Path taken to
-// get there and the distance to reach it from the start point. If we
-// find a better Path to reach a Place (shorter distance), we update the
-// entry. Entries also serve as a "todo" list which is how we keep
-// track of which paths to explore next.
+// 隠者のノートブックはすべての魔法が起きる場所です。ノートブックの
+// エントリは地図上で発見された場所で、そこに至るパスと出発点からの
+// 距離を記録します。もし場所に到達するより良いパス（短い距離）が
+// 見つかったら、エントリを更新します。エントリはまた「TODO リスト」
+// としても機能し、次に探索するパスを追跡します。
 const NotebookEntry = struct {
     place: *const Place,
     coming_from: ?*const Place,
@@ -212,9 +204,9 @@ const NotebookEntry = struct {
 };
 
 // +------------------------------------------------+
-// |              ~ Hermit's Notebook ~             |
+// |           〜 隠者のノートブック 〜             |
 // +---+----------------+----------------+----------+
-// |   |      Place     |      From      | Distance |
+// |   |      場所      |      出発地    |   距離   |
 // +---+----------------+----------------+----------+
 // | 0 | Archer's Point | null           |        0 |
 // | 1 | Bridge         | Archer's Point |        2 | < next_entry
@@ -224,53 +216,48 @@ const NotebookEntry = struct {
 // +---+----------------+----------------+----------+
 //
 const HermitsNotebook = struct {
-    // Remember the array repetition function @splat()? It is a great way
-    // to assign multiple items in an array without having to list them
-    // one by one. Here we use it to initialize an array with null values.
+    // 配列の繰り返し関数 @splat() を覚えていますか？一つひとつ列挙せずに
+    // 配列内の複数のアイテムを代入する素晴らしい方法です。
+    // ここでは null 値で配列を初期化するために使います。
     entries: [place_count]?NotebookEntry = @splat(null),
 
-    // The next entry keeps track of where we are in our "todo" list.
+    // next_entry は「TODO リスト」のどこにいるかを追跡します。
     next_entry: u8 = 0,
 
-    // Mark the start of empty space in the notebook.
+    // ノートブックの空きスペースの開始位置をマークします。
     end_of_entries: u8 = 0,
 
-    // We'll often want to find an entry by Place. If one is not
-    // found, we return null.
+    // 場所でエントリを見つけたい場合がよくあります。
+    // 見つからない場合は null を返します。
     fn getEntry(self: *HermitsNotebook, place: *const Place) ?*NotebookEntry {
         for (&self.entries, 0..) |*entry, i| {
             if (i >= self.end_of_entries) break;
 
-            // Here's where the hermit got stuck. We need to return
-            // an optional pointer to a NotebookEntry.
+            // ここで隠者が行き詰まりました。NotebookEntry への
+            // optional ポインタを返す必要があります。
             //
-            // What we have with "entry" is the opposite: a pointer to
-            // an optional NotebookEntry!
+            // "entry" で持っているのはその逆：optional な
+            // NotebookEntry へのポインタです！
             //
-            // To get one from the other, we need to dereference
-            // "entry" (with .*) and get the non-null value from the
-            // optional (with .?) and return the address of that. The
-            // if statement provides some clues about how the
-            // dereference and optional value "unwrapping" look
-            // together. Remember that you return the address with the
-            // "&" operator.
+            // 一方から他方を得るには、"entry" を逆参照（.*）して
+            // optional から非 null 値を取得（.?）し、そのアドレスを
+            // 返す必要があります。if 文は逆参照と optional 値の
+            // 「アンラップ」がどのように見えるかについてヒントを提供します。
+            // "&" 演算子でアドレスを返すことを覚えておいてください。
             if (place == entry.*.?.place) return entry;
-            // Try to make your answer this long:__________;
+            // 答えはこの長さにしてください：__________;
         }
         return null;
     }
 
-    // The checkNote() method is the beating heart of the magical
-    // notebook. Given a new note in the form of a NotebookEntry
-    // struct, we check to see if we already have an entry for the
-    // note's Place.
+    // checkNote() メソッドは魔法のノートブックの核心です。
+    // NotebookEntry 構造体の形で新しいメモを受け取り、
+    // そのメモの場所のエントリがすでにあるか確認します。
     //
-    // If we DON'T, we'll add the entry to the end of the notebook
-    // along with the Path taken and distance.
+    // ない場合は、パスと距離とともにノートブックの末尾にエントリを追加します。
     //
-    // If we DO, we check to see if the path is "better" (shorter
-    // distance) than the one we'd noted before. If it is, we
-    // overwrite the old entry with the new one.
+    // ある場合は、そのパスが以前記録したものより「良い」（短い距離）か
+    // 確認します。良ければ、古いエントリを新しいもので上書きします。
     fn checkNote(self: *HermitsNotebook, note: NotebookEntry) void {
         const existing_entry = self.getEntry(note.place);
 
@@ -282,67 +269,60 @@ const HermitsNotebook = struct {
         }
     }
 
-    // The next two methods allow us to use the notebook as a "todo"
-    // list.
+    // 次の 2 つのメソッドでノートブックを「TODO リスト」として使用できます。
     fn hasNextEntry(self: *HermitsNotebook) bool {
         return self.next_entry < self.end_of_entries;
     }
 
     fn getNextEntry(self: *HermitsNotebook) *const NotebookEntry {
-        defer self.next_entry += 1; // Increment after getting entry
+        defer self.next_entry += 1; // エントリを取得した後インクリメント
         return &self.entries[self.next_entry].?;
     }
 
-    // After we've completed our search of the map, we'll have
-    // computed the shortest Path to every Place. To collect the
-    // complete trip from the start to the destination, we need to
-    // walk backwards from the destination's notebook entry, following
-    // the coming_from pointers back to the start. What we end up with
-    // is an array of TripItems with our trip in reverse order.
+    // 地図の探索が完了したら、すべての場所への最短パスが計算できています。
+    // 出発点から目的地への完全な旅を収集するには、目的地のノートブック
+    // エントリから逆方向に歩き、出発点まで coming_from ポインタをたどる
+    // 必要があります。結果として、旅を逆順に並べた TripItem の配列が得られます。
     //
-    // We need to take the trip array as a parameter because we want
-    // the main() function to "own" the array memory. What do you
-    // suppose could happen if we allocated the array in this
-    // function's stack frame (the space allocated for a function's
-    // "local" data) and returned a pointer or slice to it?
+    // trip 配列をパラメータとして受け取るのは、main() 関数が配列のメモリを
+    // 「所有」するようにしたいからです。この関数のスタックフレーム（関数の
+    // 「ローカル」データ用に確保されたスペース）に配列を割り当てて
+    // そのポインタやスライスを返したら、どうなると思いますか？
     //
-    // Looks like the hermit forgot something in the return value of
-    // this function. What could that be?
+    // 隠者はこの関数の戻り値で何かを忘れているようです。それは何でしょうか？
     fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) void {
-        // We start at the destination entry.
+        // 目的地のエントリから始めます。
         const destination_entry = self.getEntry(dest);
 
-        // This function needs to return an error if the requested
-        // destination was never reached. (This can't actually happen
-        // in our map since every Place is reachable by every other
-        // Place.)
+        // 要求された目的地に到達できなかった場合、この関数はエラーを
+        // 返す必要があります（地図上ではすべての場所が他のすべての場所から
+        // 到達可能なので、実際にはこれは起こり得ません）。
         if (destination_entry == null) {
             return TripError.Unreachable;
         }
 
-        // Variables hold the entry we're currently examining and an
-        // index to keep track of where we're appending trip items.
+        // 現在調べているエントリと、旅のアイテムを追加する場所を
+        // 追跡するインデックスを保持する変数です。
         var current_entry = destination_entry.?;
         var i: u8 = 0;
 
-        // At the end of each looping, a continue expression increments
-        // our index. Can you see why we need to increment by two?
+        // 各ループの終わりに、continue 式がインデックスをインクリメントします。
+        // なぜ 2 ずつ増やす必要があるのかわかりますか？
         while (true) : (i += 2) {
             trip[i] = TripItem{ .place = current_entry.place };
 
-            // An entry "coming from" nowhere means we've reached the
-            // start, so we're done.
+            // どこからも来ていないエントリは出発点に到達したことを意味します。
+            // 完了です。
             if (current_entry.coming_from == null) break;
 
-            // Otherwise, entries have a path.
+            // それ以外の場合、エントリにはパスがあります。
             trip[i + 1] = TripItem{ .path = current_entry.via_path.? };
 
-            // Now we follow the entry we're "coming from".  If we
-            // aren't able to find the entry we're "coming from" by
-            // Place, something has gone horribly wrong with our
-            // program! (This really shouldn't ever happen. Have you
-            // checked for grues?)
-            // Note: you do not need to fix anything here.
+            // 「来た場所」のエントリをたどります。場所で「来た場所」の
+            // エントリを見つけられない場合、プログラムに何か恐ろしい
+            // ことが起きています！（これは本当に起こるべきではありません。
+            // グルーはいませんか？）
+            // 注：ここは修正不要です。
             const previous_entry = self.getEntry(current_entry.coming_from.?);
             if (previous_entry == null) return TripError.EatenByAGrue;
             current_entry = previous_entry.?;
@@ -351,16 +331,15 @@ const HermitsNotebook = struct {
 };
 
 pub fn main() void {
-    // Here's where the hermit decides where he would like to go. Once
-    // you get the program working, try some different Places on the
-    // map!
+    // 隠者がどこへ行きたいかを決める場所です。プログラムが動いたら、
+    // 地図上の別の場所を試してみてください！
     const start = &a; // Archer's Point
     const destination = &f; // Fox Pond
 
-    // Store each Path array as a slice in each Place. As mentioned
-    // above, we needed to delay making these references to avoid
-    // creating a dependency loop when the compiler is trying to
-    // figure out how to allocate space for each item.
+    // 各 Path 配列をスライスとして各 Place に保存します。
+    // 前述の通り、コンパイラが各アイテムのスペース割り当てを
+    // 解決しようとするときに依存ループを作らないよう、
+    // これらの参照の作成を遅らせる必要がありました。
     a.paths = a_paths[0..];
     b.paths = b_paths[0..];
     c.paths = c_paths[0..];
@@ -368,10 +347,10 @@ pub fn main() void {
     e.paths = e_paths[0..];
     f.paths = f_paths[0..];
 
-    // Now we create an instance of the notebook and add the first
-    // "start" entry. Note the null values. Read the comments for the
-    // checkNote() method above to see how this entry gets added to
-    // the notebook.
+    // ノートブックのインスタンスを作成し、最初の「出発点」エントリを
+    // 追加します。null 値に注目してください。このエントリが
+    // どのようにノートブックに追加されるかは checkNote() メソッドの
+    // コメントを読んでください。
     var notebook = HermitsNotebook{};
     var working_note = NotebookEntry{
         .place = start,
@@ -381,17 +360,15 @@ pub fn main() void {
     };
     notebook.checkNote(working_note);
 
-    // Get the next entry from the notebook (the first being the
-    // "start" entry we just added) until we run out, at which point
-    // we'll have checked every reachable Place.
+    // ノートブックから次のエントリを取得します（最初は今追加した
+    // 「出発点」エントリです）。到達可能なすべての場所を確認するまで続けます。
     while (notebook.hasNextEntry()) {
         const place_entry = notebook.getNextEntry();
 
-        // For every Path that leads FROM the current Place, create a
-        // new note (in the form of a NotebookEntry) with the
-        // destination Place and the total distance from the start to
-        // reach that place. Again, read the comments for the
-        // checkNote() method to see how this works.
+        // 現在の場所から出るすべてのパスについて、目的地の場所と
+        // そこに到達するための出発点からの合計距離を含む新しいメモ
+        //（NotebookEntry の形で）を作成します。checkNote() メソッドの
+        // コメントを読んでこれがどのように機能するか確認してください。
         for (place_entry.place.paths) |*path| {
             working_note = NotebookEntry{
                 .place = path.to,
@@ -403,11 +380,10 @@ pub fn main() void {
         }
     }
 
-    // Once the loop above is complete, we've calculated the shortest
-    // path to every reachable Place! What we need to do now is set
-    // aside memory for the trip and have the hermit's notebook fill
-    // in the trip from the destination back to the path. Note that
-    // this is the first time we've actually used the destination!
+    // 上のループが完了したら、到達可能なすべての場所への最短パスが
+    // 計算できています！次にすることは、旅のためのメモリを確保し、
+    // 隠者のノートブックに目的地から出発点までの旅を埋めてもらうことです。
+    // これが実際に目的地を使う最初の場所です！
     var trip: [place_count * 2]?TripItem = @splat(null);
 
     notebook.getTripTo(trip[0..], destination) catch |err| {
@@ -415,19 +391,19 @@ pub fn main() void {
         return;
     };
 
-    // Print the trip with a little helper function below.
+    // 下の小さなヘルパー関数で旅を表示します。
     printTrip(trip[0..]);
 }
 
-// Remember that trips will be a series of alternating TripItems
-// containing a Place or Path from the destination back to the start.
-// The remaining space in the trip array will contain null values, so
-// we need to loop through the items in reverse, skipping nulls, until
-// we reach the destination at the front of the array.
+// 旅は目的地から出発点まで、場所またはパスを含む TripItem が
+// 交互に続く系列であることを覚えておいてください。
+// trip 配列の残りのスペースには null 値が含まれるため、
+// 目的地に到達するまで、アイテムを逆順にループして null をスキップする
+// 必要があります。
 fn printTrip(trip: []?TripItem) void {
-    // We convert the usize length to a u8 with @intCast(), a
-    // builtin function just like @import().  We'll learn about
-    // these properly in a later exercise.
+    // @intCast() で usize の長さを u8 に変換します。
+    // @import() と同様の組み込み関数です。
+    // これについては後の演習で適切に学びます。
     var i: u8 = @intCast(trip.len);
 
     while (i > 0) {
@@ -439,32 +415,28 @@ fn printTrip(trip: []?TripItem) void {
     print("\n", .{});
 }
 
-// Going deeper:
+// 深掘り：
 //
-// In computer science terms, our map places are "nodes" or "vertices" and
-// the paths are "edges". Together, they form a "weighted, directed
-// graph". It is "weighted" because each path has a distance (also
-// known as a "cost"). It is "directed" because each path goes FROM
-// one place TO another place (undirected graphs allow you to travel
-// on an edge in either direction).
+// コンピュータサイエンスの用語では、地図の場所は「ノード」または「頂点」であり、
+// パスは「辺」です。合わせて「重み付き有向グラフ」を形成します。
+// 各パスに距離（「コスト」とも呼ばれる）があるため「重み付き」です。
+// 各パスが一つの場所から別の場所へ「向かう」ため「有向」です
+//（無向グラフは辺をどちらの方向にも進めます）。
 //
-// Since we append new notebook entries at the end of the list and
-// then explore each sequentially from the beginning (like a "todo"
-// list), we are treating the notebook as a "First In, First Out"
-// (FIFO) queue.
+// ノートブックの末尾に新しいエントリを追加し、先頭から順番に探索する
+//（「TODO リスト」のように）ので、ノートブックを「先入れ先出し（FIFO）」
+// キューとして扱っています。
 //
-// Since we examine all closest paths first before trying further ones
-// (thanks to the "todo" queue), we are performing a "Breadth-First
-// Search" (BFS).
+// より遠いものを試す前に最も近いパスをすべて調べるため
+//（「TODO」キューのおかげで）、「幅優先探索（BFS）」を行っています。
 //
-// By tracking "lowest cost" paths, we can also say that we're
-// performing a "least-cost search".
+// 「最低コスト」のパスを追跡することで、「最小コスト探索」も
+// 行っていると言えます。
 //
-// Even more specifically, the Hermit's Notebook most closely
-// resembles the Shortest Path Faster Algorithm (SPFA), attributed to
-// Edward F. Moore. By replacing our simple FIFO queue with a
-// "priority queue", we would basically have Dijkstra's algorithm. A
-// priority queue retrieves items sorted by "weight" (in our case, it
-// would keep the paths with the shortest distance at the front of the
-// queue). Dijkstra's algorithm is more efficient because longer paths
-// can be eliminated more quickly. (Work it out on paper to see why!)
+// さらに具体的には、隠者のノートブックは Shortest Path Faster Algorithm（SPFA）に
+// 最も近く、Edward F. Moore によるものです。単純な FIFO キューを
+// 「優先度付きキュー」に置き換えると、基本的にダイクストラのアルゴリズムに
+// なります。優先度付きキューは「重み」でソートしてアイテムを取得します
+//（この場合、最短距離のパスをキューの先頭に置きます）。
+// ダイクストラのアルゴリズムはより効率的です。なぜなら、長いパスを
+// より早く排除できるからです。（紙の上で解いてみてなぜかを確認してください！）

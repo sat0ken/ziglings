@@ -1,49 +1,48 @@
 //
-// Now that we've learned about arrays, we can talk about strings.
+// 配列について学んだので、文字列について話しましょう。
 //
-// We've already seen Zig string literals: "Hello world.\n"
+// Zigの文字列リテラルはすでに見てきました："Hello world.\n"
 //
-// Zig stores strings as arrays of bytes.
+// Zigは文字列をバイトの配列として格納します。
 //
 //     const foo = "Hello";
 //
-// Is almost* the same as:
+// これはほぼ*以下と同じです：
 //
 //     const foo = [_]u8{ 'H', 'e', 'l', 'l', 'o' };
 //
-// (* We'll see what Zig strings REALLY are in Exercise 77.)
+// (* Zigの文字列が本当は何かは演習77で学びます。)
 //
-// Notice how individual characters use single quotes ('H') and
-// strings use double quotes ("H"). These are not interchangeable!
+// 個々の文字はシングルクォート ('H') を使い、
+// 文字列はダブルクォート ("H") を使うことに注目してください。
+// これらは互換性がありません！
 //
 const std = @import("std");
 
 pub fn main() void {
     const ziggy = "stardust";
 
-    // (Problem 1)
-    // Use array square bracket syntax to get the letter 'd' from
-    // the string "stardust" above.
+    // （問題1）
+    // 配列の角括弧記法を使って、上の文字列 "stardust" から
+    // 文字 'd' を取得してください。
     const d: u8 = ziggy[???];
 
-    // (Problem 2)
-    // Use the array concatenation '++' operator to make "Major Tom".
-    // (You'll need to add a space as well!)
+    // （問題2）
+    // 配列連結演算子 '++' を使って "Major Tom" を作ってください。
+    // （スペースも追加する必要があります！）
     const major = "Major";
     const tom = "Tom";
     const major_tom = major ??? tom;
 
-    // That's all the problems. Let's see our results:
+    // 問題はここまでです。結果を確認しましょう：
     std.debug.print("d={u} {s}\n", .{ d, major_tom });
-    // Keen eyes will notice that we've put 'u' and 's' inside the '{}'
-    // placeholders in the format string above. This tells the
-    // print() function to format the values as a UTF-8 character and
-    // UTF-8 strings respectively. If we didn't do this, we'd see '100',
-    // which is the decimal number corresponding with the 'd' character
-    // in UTF-8. (And an error in the case of the strings.)
+    // 鋭い目の方は、フォーマット文字列の '{}' プレースホルダー内に
+    // 'u' と 's' が入っていることに気づくでしょう。これはprint()関数に
+    // 値をそれぞれUTF-8文字とUTF-8文字列としてフォーマットするよう
+    // 指示しています。これをしないと、'd' 文字に対応する10進数の '100' が
+    // 表示されてしまいます。（文字列の場合はエラーになります。）
     //
-    // While we're on this subject, 'c' (ASCII encoded character)
-    // would work in place for 'u' because the first 128 characters
-    // of UTF-8 are the same as ASCII!
+    // 余談ですが、UTF-8の最初の128文字はASCIIと同じなので、
+    // 'u' の代わりに 'c'（ASCII エンコード文字）を使うこともできます！
     //
 }

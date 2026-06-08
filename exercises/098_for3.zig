@@ -1,65 +1,60 @@
 //
-// The Zig language is in rapid development and continuously
-// improves the language constructs. Ziglings evolves with it.
+// Zig 言語は急速に開発が進んでおり、言語構造を継続的に
+// 改善しています。Ziglings もそれに合わせて進化しています。
 //
-// Until version 0.11, Zig's 'for' loops did not directly
-// replicate the functionality of the C-style: "for(a;b;c)"
-// which are so well suited for iterating over a numeric
-// sequence.
+// バージョン 0.11 まで、Zig の 'for' ループは C スタイルの
+// 「for(a;b;c)」の機能を直接再現していませんでした。
+// これは数値シーケンスのイテレーションに非常に適したものです。
 //
-// Instead, 'while' loops with counters clumsily stood in their
-// place:
+// 代わりに、カウンターを使った 'while' ループが不格好に
+// その役割を担っていました：
 //
 //     var i: usize = 0;
 //     while (i < 10) : (i += 1) {
-//         // Here variable 'i' will have each value 0 to 9.
+//         // ここで変数 'i' は 0 から 9 の各値を持ちます。
 //     }
 //
-// But here we are in the glorious future and Zig's 'for' loops
-// can now take this form:
+// しかし今は輝かしい未来にいて、Zig の 'for' ループは
+// 次の形を取れるようになりました：
 //
 //     for (0..10) |i| {
-//         // Here variable 'i' will have each value 0 to 9.
+//         // ここで変数 'i' は 0 から 9 の各値を持ちます。
 //     }
 //
-// The key to understanding this example is to know that '0..9'
-// uses the new range syntax:
+// この例を理解する鍵は、'0..9' が新しい範囲構文を
+// 使っていることを知ることです：
 //
-//     0..10 is a range from 0 to 9
-//     1..4  is a range from 1 to 3
+//     0..10 は 0 から 9 の範囲
+//     1..4  は 1 から 3 の範囲
 //
-//     Crucially, the end value is EXCLUSIVE.
+//     重要：終端の値は除外されます。
 //
-// At the moment, ranges in loops are only supported in 'for' loops.
+// 現時点では、ループ内の範囲は 'for' ループでのみサポートされています。
 //
-// Perhaps you recall Exercise 13? We were printing a numeric
-// sequence like so:
+// 演習13を覚えていますか？次のように数値シーケンスを出力していました：
 //
 //     var n: u32 = 1;
 //
-//     // I want to print every number between 1 and 20 that is NOT
-//     // divisible by 3 or 5.
+//     // 3 または 5 で割り切れない 1 から 20 の間のすべての数を出力したい。
 //     while (n <= 20) : (n += 1) {
-//         // The '%' symbol is the "modulo" operator and it
-//         // returns the remainder after division.
+//         // '%' 記号は「モジュロ」演算子で
+//         // 除算後の余りを返します。
 //         if (n % 3 == 0) continue;
 //         if (n % 5 == 0) continue;
 //         std.debug.print("{} ", .{n});
 //     }
 //
-//  Let's try out the new form of 'for' to re-implement that
-//  exercise:
+//  その演習を再実装するために 'for' の新しい形を試してみましょう：
 //
 const std = @import("std");
 
 pub fn main() void {
 
-    // I want to print every number between 1 and 20 that is NOT
-    // divisible by 3 or 5.
+    // 3 または 5 で割り切れない 1 から 20 の間のすべての数を出力したい。
     for (???) |n| {
 
-        // The '%' symbol is the "modulo" operator and it
-        // returns the remainder after division.
+        // '%' 記号は「モジュロ」演算子で
+        // 除算後の余りを返します。
         if (n % 3 == 0) continue;
         if (n % 5 == 0) continue;
         std.debug.print("{} ", .{n});
@@ -67,15 +62,15 @@ pub fn main() void {
 
     std.debug.print("\n", .{});
 
-    // Let's also print every number from 1 through 15
+    // 1 から 15 までのすべての数も出力しましょう
     for (???) |n| {
         std.debug.print("{} ", .{n});
     }
     std.debug.print("\n", .{});
 }
 //
-// That's a bit nicer, right?
+// 少し nice になりましたね？
 //
-// Of course, both 'while' and 'for' have different advantages.
-// Exercises 11, 12, and 14 would NOT be simplified by switching
-// a 'while' for a 'for'.
+// もちろん、'while' と 'for' にはそれぞれ異なる利点があります。
+// 演習11、12、14 は 'while' を 'for' に切り替えても
+// 簡単にはなりません。

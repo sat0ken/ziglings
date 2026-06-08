@@ -1,98 +1,95 @@
 //
-// A sentinel value indicates the end of data. Let's imagine a
-// sequence of lowercase letters where uppercase 'S' is the
-// sentinel, indicating the end of the sequence:
+// センチネル値はデータの終端を示します。大文字の 'S' が
+// センチネルとして終端を示す小文字のシーケンスを
+// 想像してみましょう：
 //
 //     abcdefS
 //
-// If our sequence also allows for uppercase letters, 'S' would
-// make a terrible sentinel since it could no longer be a regular
-// value in the sequence:
+// シーケンスが大文字も許可する場合、'S' は通常の値に
+// なれないため、ひどいセンチネルになってしまいます：
 //
 //     abcdQRST
-//          ^-- Oops! The last letter in the sequence is R!
+//          ^-- おっと！シーケンスの最後の文字はRです！
 //
-// A popular choice for indicating the end of a string is the
-// value 0. ASCII and Unicode call this the "Null Character".
+// 文字列の末尾を示すために一般的に選ばれる値は 0 です。
+// ASCIIとUnicodeではこれを「ヌル文字」と呼びます。
 //
-// Zig supports sentinel-terminated arrays, slices, and pointers:
+// Zigはセンチネル終端の配列、スライス、ポインタをサポートします：
 //
 //     const a: [4:0]u32       =  [4:0]u32{1, 2, 3, 4};
 //     const b: [:0]const u32  = &[4:0]u32{1, 2, 3, 4};
 //     const c: [*:0]const u32 = &[4:0]u32{1, 2, 3, 4};
 //
-// Array 'a' stores 5 u32 values, the last of which is 0.
-// However the compiler takes care of this housekeeping detail
-// for you. You can treat 'a' as a normal array with just 4
-// items.
+// 配列 'a' は5つの u32 値を格納し、最後は 0 です。
+// ただし、コンパイラがこの管理上の詳細を
+// 処理してくれます。'a' を通常の4アイテムの
+// 配列として扱えます。
 //
-// Slice 'b' is only allowed to point to zero-terminated arrays
-// but otherwise works just like a normal slice.
+// スライス 'b' はゼロ終端の配列のみを指すことができますが、
+// それ以外は通常のスライスと同様に動作します。
 //
-// Pointer 'c' is exactly like the many-item pointers we learned
-// about in exercise 054, but it is guaranteed to end in 0.
-// Because of this guarantee, we can safely find the end of this
-// many-item pointer without knowing its length. (We CAN'T do
-// that with regular many-item pointers!).
+// ポインタ 'c' は演習054で学んだ多アイテムポインタと
+// まったく同じですが、0で終わることが保証されています。
+// この保証があるため、長さを知らなくてもこの多アイテムポインタの
+// 末尾を安全に見つけることができます。
+// （通常の多アイテムポインタではそれができません！）。
 //
-// Important: the sentinel value must be of the same type as the
-// data being terminated!
+// 重要：センチネル値は終端されるデータと同じ型でなければなりません！
 //
 const print = @import("std").debug.print;
 const sentinel = @import("std").meta.sentinel;
 
 pub fn main() void {
-    // Here's a zero-terminated array of u32 values:
+    // ここにゼロ終端の u32 値の配列があります：
     var nums = [_:0]u32{ 1, 2, 3, 4, 5, 6 };
 
-    // And here's a zero-terminated many-item pointer:
+    // そしてここにゼロ終端の多アイテムポインタがあります：
     const ptr: [*:0]u32 = &nums;
 
-    // For fun, let's replace the value at position 3 with the
-    // sentinel value 0. This seems kind of naughty.
+    // 楽しみのため、位置3の値をセンチネル値 0 に置き換えましょう。
+    // これはちょっといたずらっぽいですね。
     nums[3] = 0;
 
-    // So now we have a zero-terminated array and a many-item
-    // pointer that reference the same data: a sequence of
-    // numbers that both ends in and CONTAINS the sentinel value.
+    // これでゼロ終端の配列と、同じデータを参照する多アイテムポインタが
+    // あります：センチネル値を含み、かつセンチネル値で終わる
+    // 数値のシーケンスです。
     //
-    // Attempting to loop through and print both of these should
-    // demonstrate how they are similar and different.
+    // これら両方をループして出力しようとすると、
+    // 類似点と相違点が示されるはずです。
     //
-    // (It turns out that the array prints completely, including
-    // the sentinel 0 in the middle. The many-item pointer stops
-    // at the first sentinel value.)
+    // （配列は中間のセンチネル 0 を含めて完全に出力されます。
+    // 多アイテムポインタは最初のセンチネル値で停止します。）
     printSequence(nums);
     printSequence(ptr);
 
     print("\n", .{});
 }
 
-// Here's our generic sequence printing function. It's nearly
-// complete, but there are a couple of missing bits. Please fix
-// them!
+// ここにジェネリックなシーケンス出力関数があります。
+// ほぼ完成していますが、いくつかの欠けている部分があります。
+// 修正してください！
 fn printSequence(my_seq: anytype) void {
     const my_typeinfo = @typeInfo(@TypeOf(my_seq));
 
-    // The TypeInfo contained in my_typeinfo is a union. We use
-    // a switch to handle printing the Array or Pointer fields,
-    // depending on which type of my_seq was passed in:
+    // my_typeinfo に含まれる TypeInfo はユニオンです。
+    // switch を使って、渡された my_seq の型に応じて
+    // Array または Pointer フィールドの出力を処理します：
     switch (my_typeinfo) {
         .array => {
             print("Array:", .{});
 
-            // Loop through the items in my_seq.
+            // my_seq のアイテムをループします。
             for (???) |s| {
                 print("{}", .{s});
             }
         },
         .pointer => {
-            // Check this out - it's pretty cool:
+            // これを確認してください - かなりクールです：
             const my_sentinel = sentinel(@TypeOf(my_seq));
             print("Many-item pointer:", .{});
 
-            // Loop through the items in my_seq until we hit the
-            // sentinel value.
+            // センチネル値に達するまで my_seq のアイテムを
+            // ループします。
             var i: usize = 0;
             while (??? != my_sentinel) {
                 print("{}", .{my_seq[i]});

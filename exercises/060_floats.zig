@@ -1,104 +1,94 @@
 //
-// Zig has support for IEEE-754 floating-point numbers in these
-// specific sizes: f16, f32, f64, f80, and f128. Floating point
-// literals may be written in the same ways as integers but also
-// in scientific notation:
+// Zig は IEEE-754 浮動小数点数を次の特定のサイズでサポートしています：
+// f16、f32、f64、f80、f128。浮動小数点リテラルは整数と同じ方法で書けますが、
+// 科学的表記法でも書けます：
 //
 //     const a1: f32 = 1200;       //    1,200
 //     const a2: f32 = 1.2e+3;     //    1,200
 //     const b1: f32 = -500_000.0; // -500,000
 //     const b2: f32 = -5.0e+5;    // -500,000
 //
-// Hex floats can't use the letter 'e' because that's a hex
-// digit, so we use a 'p' instead:
+// 16 進数浮動小数点は 'e' が 16 進数の桁なので使えないため、
+// 代わりに 'p' を使います：
 //
-//     const hex: f16 = 0x2A.F7p+3; // Wow, that's arcane!
+//     const hex: f16 = 0x2A.F7p+3; // これは難解ですね！
 //
-// Be sure to use a float type that is large enough to store your
-// value (both in terms of significant digits and scale).
-// Rounding may or may not be okay, but numbers which are too
-// large or too small become inf or -inf (positive or negative
-// infinity)!
+// 値を格納するのに十分な大きさの浮動小数点型を使用してください
+//（有効桁数とスケールの両方の観点から）。
+// 丸めは問題ない場合もありますが、大きすぎる値や小さすぎる値は
+// inf または -inf（正または負の無限大）になります！
 //
-//     const pi: f16 = 3.1415926535;   // rounds to 3.140625
-//     const av: f16 = 6.02214076e+23; // Avogadro's inf(inity)!
+//     const pi: f16 = 3.1415926535;   // 3.140625 に丸められます
+//     const av: f16 = 6.02214076e+23; // アボガドロの inf（無限大）！
 //
-// When performing math operations with numeric literals, ensure
-// the types match. Zig does not perform unsafe type coercions
-// behind your back:
+// 数値リテラルを使った数学演算を行う場合は、型が一致していることを
+// 確認してください。Zig は裏で安全でない型強制変換を行いません：
 //
-//    var foo: f16 = 5;       // NO ERROR
+//    var foo: f16 = 5;       // エラーなし
 //
-//    A runtime value can coerce to a different type,
-//    as long as the value is losslessly representable:
+//    実行時の値は、値が損失なく表現できる場合に限り
+//    別の型に強制変換できます：
 //
 //    var foo: u16 = 5;
-//    var bar: f16 = foo;     // NO ERROR (5 fits in f16)
+//    var bar: f16 = foo;     // エラーなし（5 は f16 に収まります）
 //
 //    var foo: u16 = 49876;
-//    var bar: f16 = foo;     // ERROR (49876 not representable in f16)
+//    var bar: f16 = foo;     // エラー（49876 は f16 で表現できません）
 //
 //
-// Please fix the two float problems with this program and
-// display the result as a whole number.
+// このプログラムの 2 つの浮動小数点の問題を修正し、
+// 結果を整数として表示してください。
 
 const print = @import("std").debug.print;
 
 pub fn main() void {
-    // The approximate weight of the Space Shuttle upon liftoff
-    // (including boosters and fuel tank) was 4,480,000 lb.
+    // スペースシャトルの打ち上げ時の概算重量
+    //（ブースターと燃料タンクを含む）は 4,480,000 ポンドでした。
     //
-    // We'll convert this weight from pounds to metric units at a
-    // conversion of 0.453592 kg to the pound.
+    // この重量をポンドから、1 ポンド = 0.453592 kg の換算で
+    // メートル法の単位に変換します。
     const shuttle_weight: f16 = 0.453592 * 4480e3;
 
-    // By default, float values are formatted in standard decimal
-    // notation. Experiment with '{d}' and '{d:.3}' to see how
-    // decimal formatting works, or try '{e}' and '{e:.3}' for
-    // scientific notation.
-    // NOTE: The weight of the shuttle is a huge number, a scientific notation
-    // may be more appropriate.
+    // デフォルトでは、浮動小数点値は標準的な 10 進数表記でフォーマットされます。
+    // '{d}' と '{d:.3}' で 10 進数フォーマットがどのように機能するか、
+    // または '{e}' と '{e:.3}' で科学的表記法を試してみてください。
+    // 注意：シャトルの重量は非常に大きな数なので、科学的表記法の方が
+    // 適切かもしれません。
     print("Shuttle liftoff weight: {d:.0} metric tons\n", .{shuttle_weight / 1e3});
 }
 
-// Floating further:
+// 浮動小数点についてさらに：
 //
-// As an example, Zig's f16 is a IEEE 754 "half-precision" binary
-// floating-point format ("binary16"), which is stored in memory
-// like so:
+// 例として、Zig の f16 は IEEE 754 の「半精度」2 進浮動小数点形式
+//（"binary16"）であり、メモリには次のように保存されます：
 //
 //         0 1 0 0 0 0 1 0 0 1 0 0 1 0 0 0
 //         | |-------| |-----------------|
-//         |  exponent     significand
+//         |  指数部      仮数部
 //         |
-//          sign
+//          符号部
 //
-// This example is the decimal number 3.140625, which happens to
-// be the closest representation of Pi we can make with an f16
-// due to the way IEEE-754 floating points store digits:
+// この例は 10 進数の 3.140625 であり、IEEE-754 浮動小数点が桁を
+// 保存する方法により、f16 で表現できる Pi に最も近い値です：
 //
-//   * Sign bit 0 makes the number positive.
-//   * Exponent bits 10000 are a scale of 16.
-//   * Significand bits 1001001000 are the decimal value 584.
+//   * 符号ビット 0 は正の数を示します。
+//   * 指数ビット 10000 はスケール 16 です。
+//   * 仮数ビット 1001001000 は 10 進数の値 584 です。
 //
-// IEEE-754 saves space by modifying these values: the value
-// 01111 is always subtracted from the exponent bits (in our
-// case, 10000 - 01111 = 1, so our exponent is 2^1) and our
-// significand digits become the decimal value _after_ an
-// implicit 1 (so 1.1001001000 or 1.5703125 in decimal)! This
-// gives us:
+// IEEE-754 はこれらの値を修正して空間を節約します：値 01111 は常に
+// 指数ビットから減算されます（この場合、10000 - 01111 = 1 なので
+// 指数は 2^1）。仮数の桁は暗黙の 1 の後の 10 進数値になります
+//（1.1001001000 または 10 進数で 1.5703125）！これにより：
 //
 //     2^1 * 1.5703125 = 3.140625
 //
-// Feel free to forget these implementation details immediately.
-// The important thing to know is that floating point numbers are
-// great at storing big and small values (f64 lets you work with
-// numbers on the scale of the number of atoms in the universe),
-// but digits may be rounded, leading to results which are less
-// precise than integers.
+// これらの実装の詳細はすぐに忘れても構いません。
+// 重要なのは、浮動小数点数は大きな値と小さな値を保存するのに
+// 優れている（f64 では宇宙の原子の数のスケールの数値を扱えます）ことですが、
+// 桁が丸められる場合があり、整数より精度が低い結果になる可能性があります。
 //
-// Fun fact: sometimes you'll see the significand labeled as a
-// "mantissa" but Donald E. Knuth says not to do that.
+// 豆知識：仮数部を「mantissa」と呼ぶこともありますが、
+// Donald E. Knuth はそうしないようにと言っています。
 //
-// C compatibility fact: There is also a Zig floating point type
-// specifically for working with C ABIs called c_longdouble.
+// C 互換性の豆知識：C の ABI と連携するために特別に設計された
+// c_longdouble という Zig の浮動小数点型もあります。

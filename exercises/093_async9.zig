@@ -1,44 +1,42 @@
 //
-// We've been using io.async() to launch tasks. But there's a
-// stronger variant: io.concurrent().
+// io.async() を使ってタスクを起動してきましたが、より強力な
+// バリアントがあります：io.concurrent() です。
 //
-// The difference:
+// 違い：
 //
 //   io.async():
-//     * The function MAY run on a separate unit of concurrency,
-//       or it may run immediately on the caller (synchronously).
-//     * Never fails — if no concurrency is available, it just
-//       runs the function right away.
-//     * More portable, works with all Io backends.
+//     * 関数は別の並行処理ユニットで実行されるかもしれないし、
+//       呼び出し元で即座に（同期的に）実行されるかもしれません。
+//     * 絶対に失敗しません — 並行処理が利用できない場合、
+//       関数をすぐに実行するだけです。
+//     * より移植性が高く、すべての Io バックエンドで動作します。
 //
 //   io.concurrent():
-//     * GUARANTEES a separate unit of concurrency.
-//     * Can fail with error.ConcurrencyUnavailable if resources
-//       are exhausted or the backend doesn't support it.
-//     * Use when you NEED the task to run independently of the
-//       caller.
+//     * 別の並行処理ユニットを保証します。
+//     * リソースが枯渇したりバックエンドがサポートしない場合、
+//       error.ConcurrencyUnavailable で失敗することがあります。
+//     * タスクが呼び出し元とは独立して実行される必要がある場合に使用します。
 //
-// What is a "unit of concurrency"? That depends on the backend!
-// The Threaded backend uses OS threads. But the Evented backends
-// (Uring, Kqueue, Dispatch) use M:N green threads / fibers,
-// which can provide concurrency even on a SINGLE OS thread.
-// Your code doesn't need to know the difference.
+// 「並行処理ユニット」とは何ですか？それはバックエンドによります！
+// Threaded バックエンドは OS スレッドを使います。しかし Evented バックエンド
+// （Uring、Kqueue、Dispatch）は M:N グリーンスレッド/ファイバーを使い、
+// 単一の OS スレッドでも並行処理を提供できます。
+// コードはその違いを知る必要はありません。
 //
-// Because concurrent() can fail, you must handle the error:
+// concurrent() は失敗する可能性があるため、エラーを処理する必要があります：
 //
 //     var future = try io.concurrent(myFn, .{args});
 //     defer _ = future.cancel(io);
 //     const result = future.await(io);
 //
-// Let's try a slightly simplified example from signal processing:
-// Suppose we're looking for the beginning of a signal above the noise
-// level. To do this, we compare each entry from beginning to end with
-// the threshold. To speed things up a bit, we split the signal into
-// two halves and have two parallel workers search for them.
-// Who finds the beginning first "wins" and thus ends the other one.
+// 信号処理からの少し単純化した例を試してみましょう：
+// ノイズレベルを超える信号の開始点を探しているとします。
+// そのために、先頭から末尾に向かって各エントリをしきい値と比較します。
+// 処理を速くするために、信号を2つの半分に分割して
+// 2つの並行ワーカーにそれぞれ探させます。
+// 最初に見つけた方が「勝ち」となり、もう一方を終了させます。
 //
-// As I said, this is a simplified explanation,
-// but in practice it's done more or less like this.
+// これは単純化した説明ですが、実際にはほぼこのように行われます。
 //
 const std = @import("std");
 const Io = std.Io;
@@ -57,19 +55,19 @@ pub fn main(init: std.process.Init) !void {
     const threshold = 70;
     const mid = data.len / 2;
 
-    // A queue with space for one result.
+    // 1つの結果を格納するキュー。
     var buf: [1]SearchResult = undefined;
     var queue = Io.Queue(SearchResult).init(&buf);
 
-    // Launch two workers, each searching half the array.
-    // Remember, we want them to be guaranteed separate units of concurrency.
+    // 2つのワーカーを起動し、それぞれが配列の半分を検索します。
+    // 別々の並行処理ユニットを保証したいことを忘れずに。
     var f1 = ???(searchThreshold, .{ io, data[0..mid], threshold, 0, 0, &queue });
     defer _ = f1.cancel(io);
 
     var f2 = ???(searchThreshold, .{ io, data[mid..], threshold, mid, 1, &queue });
     defer _ = f2.cancel(io);
 
-    // Wait for the first result.
+    // 最初の結果を待ちます。
     const result = try queue.getOne(io);
 
     if (result.found)
@@ -85,13 +83,13 @@ fn searchThreshold(
     queue: *Io.Queue(SearchResult),
 ) void {
     for (slice, 0..) |val, i| {
-        // This pause is necessary so that the process can be canceled
-        // if another one has already finished. Without this pause,
-        // all workers would continue until the end.
+        // 別のワーカーがすでに終了した場合にプロセスをキャンセルできるように
+        // この一時停止が必要です。この一時停止がなければ、
+        // すべてのワーカーが最後まで続けてしまいます。
         io.sleep(Io.Duration.fromMilliseconds(1), .awake) catch return;
 
-        // To test this, you can uncomment this to view the work of the workers
-        // and then comment out the pause.
+        // テストのために、ワーカーの動作を確認するには以下をコメント解除し、
+        // 一時停止をコメントアウトします。
         // print("id: {} - val: {}\n", .{ worker_id, val });
 
         if (val >= threshold) {
@@ -104,6 +102,6 @@ fn searchThreshold(
         }
     }
 
-    // Nothing found
+    // 見つからなかった場合
     queue.putOneUncancelable(io, .{ .found = false }) catch return;
 }

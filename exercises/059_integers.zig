@@ -1,28 +1,28 @@
 //
-// Zig lets you express integer literals in several convenient
-// formats. These are all the same value:
+// Zig では整数リテラルをいくつかの便利な形式で表現できます。
+// これらはすべて同じ値です：
 //
-//     const a1: u8 = 65;          // decimal
-//     const a2: u8 = 0x41;        // hexadecimal
-//     const a3: u8 = 0o101;       // octal
-//     const a4: u8 = 0b1000001;   // binary
-//     const a5: u8 = 'A';         // ASCII code point literal
-//     const a6: u16 = '\u{0041}'; // Unicode code points can take up to 21 bits
+//     const a1: u8 = 65;          // 10 進数
+//     const a2: u8 = 0x41;        // 16 進数
+//     const a3: u8 = 0o101;       // 8 進数
+//     const a4: u8 = 0b1000001;   // 2 進数
+//     const a5: u8 = 'A';         // ASCII コードポイントリテラル
+//     const a6: u16 = '\u{0041}'; // Unicode コードポイントは最大 21 ビット
 //
-// You can also place underscores in numbers to aid readability:
+// 読みやすさのために数値にアンダースコアを入れることもできます：
 //
-//     const t1: u32 = 14_689_520 // Ford Model T sales 1909-1927
-//     const t2: u32 = 0xE0_24_F0 // same, in hex pairs
+//     const t1: u32 = 14_689_520 // Ford Model T の販売台数 1909-1927
+//     const t2: u32 = 0xE0_24_F0 // 同じ値を 16 進数ペアで
 //
-// Please fix the message:
+// メッセージを修正してください：
 
 const print = @import("std").debug.print;
 
 pub fn main() void {
     const zig = [_]u8{
-        0o131, // octal
-        0b1101000, // binary
-        0x66, // hex
+        0o131, // 8 進数
+        0b1101000, // 2 進数
+        0x66, // 16 進数
     };
 
     print("{s} is cool.\n", .{zig});

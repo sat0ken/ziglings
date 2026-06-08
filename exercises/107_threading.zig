@@ -1,29 +1,26 @@
 //
-// In Exercises 84-91, we learned about Zig's Io interface for
-// concurrent execution: io.async(), Group, Select, and Futures.
-// Under the hood, the Threaded backend manages a pool of real
-// OS threads for you - including scheduling, cancellation, and
-// resource cleanup.
+// エクササイズ84〜91では、並行実行のためのZigのIoインターフェースを学びました：
+// io.async()、Group、Select、Futuresです。
+// 内部では、ThreadedバックエンドがOSスレッドのプールを管理します。
+// スケジューリング、キャンセル、リソースのクリーンアップを含めて。
 //
-// But sometimes you need direct control over threads:
-//   * Long-lived dedicated workers
-//   * Specific stack sizes or thread counts
-//   * Code that doesn't have an Io interface available
-//   * Fine-grained synchronization patterns
+// しかし、スレッドを直接制御する必要がある場合もあります：
+//   * 長期間動作する専用ワーカー
+//   * 特定のスタックサイズやスレッド数
+//   * Ioインターフェースが利用できないコード
+//   * 細かい同期パターン
 //
-// That's where std.Thread comes in. It gives you a raw OS thread
-// that you spawn, manage, and join yourself. No pool, no Futures,
-// no automatic cancellation - but full control.
+// そこでstd.Threadの出番です。自分でspawn、管理、joinする
+// 生のOSスレッドを提供します。プールもFuturesも自動キャンセルもありませんが、
+// 完全な制御が得られます。
 //
-// The following diagram roughly illustrates the difference between
-// the various types of process execution:
+// 以下の図は、さまざまな種類のプロセス実行の違いを大まかに示しています：
 //
 //
-// Synchronous  Asynchronous
-// Processing   Processing        Multithreading
+// 同期処理       非同期処理        マルチスレッド
 // ┌──────────┐ ┌──────────┐  ┌──────────┐ ┌──────────┐
 // │ Thread 1 │ │ Thread 1 │  │ Thread 1 │ │ Thread 2 │
-// ├──────────┤ ├──────────┤  ├──────────┤ ├──────────┤    Overall Time
+// ├──────────┤ ├──────────┤  ├──────────┤ ├──────────┤    全体の時間
 // └──┼┼┼┼┼───┴─┴──┼┼┼┼┼───┴──┴──┼┼┼┼┼───┴─┴──┼┼┼┼┼───┴──┬───────┬───────┬──
 //    ├───┤        ├───┤         ├───┤        ├───┤      │       │       │
 //    │ T │        │ T │         │ T │        │ T │      │       │       │
@@ -33,16 +30,16 @@
 //    │   │        │   │         │   │        │   │      │       │       │
 //    │ 1 │        │ 1 │         │ 1 │        │ 3 │      │       │       │
 //    └─┬─┘        └─┬─┘         └─┬─┘        └─┬─┘      │       │       │
-//      │            │             │            │      5 Sec     │       │
+//      │            │             │            │      5秒      │       │
 // ┌────┴───┐      ┌─┴─┐         ┌─┴─┐        ┌─┴─┐      │       │       │
-// │Blocking│      │ T │         │ T │        │ T │      │       │       │
+// │ブロック │      │ T │         │ T │        │ T │      │       │       │
 // └────┬───┘      │ a │         │ a │        │ a │      │       │       │
-//      │          │ s │         │ s │        │ s │      │     8 Sec     │
+//      │          │ s │         │ s │        │ s │      │     8秒       │
 //    ┌─┴─┐        │ k │         │ k │        │ k │      │       │       │
 //    │ T │        │   │         │   │        │   │      │       │       │
 //    │ a │        │ 2 │         │ 2 │        │ 4 │      │       │       │
 //    │ s │        └─┬─┘         ├───┤        ├───┤      │       │       │
-//    │ k │          │           │┼┼┼│        │┼┼┼│      ▼       │    10 Sec
+//    │ k │          │           │┼┼┼│        │┼┼┼│      ▼       │    10秒
 //    │   │        ┌─┴─┐         └───┴────────┴───┴─────────     │       │
 //    │ 1 │        │ T │                                         │       │
 //    └─┬─┘        │ a │                                         │       │
@@ -59,71 +56,69 @@
 //    └───┴────────────────────────────────────────────────────────────────
 //
 //
-// The diagram was modeled on the one in a blog in which the differences
-// between asynchronous processing and multithreading are explained in detail:
+// この図は、非同期処理とマルチスレッドの違いを詳しく説明した
+// ブログの図を参考にモデル化されました：
 // https://blog.devgenius.io/multi-threading-vs-asynchronous-programming-what-is-the-difference-3ebfe1179a5
 //
-// Our exercise is essentially about clarifying the approach in Zig and
-// therefore we try to keep it as simple as possible.
-// Multithreading in itself is already difficult enough. ;-)
+// このエクササイズは本質的にZigでのアプローチを明確にすることについてであり、
+// そのためできるだけシンプルに保つようにしています。
+// マルチスレッド自体はすでに十分難しいですから。 ;-)
 //
 const std = @import("std");
 
 pub fn main() !void {
-    // This is where the preparatory work takes place
-    // before the parallel processing begins.
+    // ここで並列処理が始まる前の準備作業が行われます。
     std.debug.print("Starting work...\n", .{});
 
-    // These curly brackets are very important, they are necessary
-    // to enclose the area where the threads are called.
-    // Without these brackets, the program would not wait for the
-    // end of the threads and they would continue to run beyond the
-    // end of the program.
+    // これらの波括弧は非常に重要で、スレッドが呼び出される
+    // エリアを囲むために必要です。
+    // これらの括弧がなければ、プログラムはスレッドの終了を
+    // 待たず、プログラムの終了を超えて実行が続きます。
     {
-        // Now we start the first thread, with the number as parameter
+        // 最初のスレッドをパラメータとして番号を渡して開始します
         const handle = try std.Thread.spawn(.{}, thread_function, .{1});
 
-        // Waits for the thread to complete,
-        // then deallocates any resources created on `spawn()`.
+        // スレッドが完了するのを待ち、
+        // `spawn()`で作成されたリソースを解放します。
         defer handle.join();
 
-        // Second thread
-        const handle2 = try std.Thread.spawn(.{}, thread_function, .{-4}); // that can't be right?
+        // 2番目のスレッド
+        const handle2 = try std.Thread.spawn(.{}, thread_function, .{-4}); // これは正しくないのでは？
         defer handle2.join();
 
-        // Third thread
+        // 3番目のスレッド
         const handle3 = try std.Thread.spawn(.{}, thread_function, .{3});
-        defer ??? // <-- something is missing
+        defer ??? // <-- 何かが足りません
 
-        // After the threads have been started,
-        // they run in parallel and we can still do some work in between.
+        // スレッドが開始された後、
+        // それらは並列で実行され、その間にも作業を続けられます。
         var io_instance: std.Io.Threaded = .init_single_threaded;
         const io = io_instance.io();
         try io.sleep(std.Io.Duration.fromMilliseconds(400), .awake);
         std.debug.print("Some weird stuff, after starting the threads.\n", .{});
     }
-    // After we have left the closed area, we wait until
-    // the threads have run through, if this has not yet been the case.
+    // 閉じたエリアを出た後、まだ実行中であれば
+    // スレッドが完了するまで待ちます。
     std.debug.print("Zig is cool!\n", .{});
 }
 
-// This function is started with every thread that we set up.
-// In our example, we pass the number of the thread as a parameter.
+// この関数は設定したすべてのスレッドで起動されます。
+// この例では、スレッドの番号をパラメータとして渡します。
 fn thread_function(id: usize) !void {
     var io_instance: std.Io.Threaded = .init_single_threaded;
     const io = io_instance.io();
     try io.sleep(std.Io.Duration.fromMilliseconds(100 * @as(isize, @intCast(id))), .awake);
     std.debug.print("thread {d}: {s}\n", .{ id, "started." });
 
-    // This timer simulates the work of the thread.
+    // このタイマーはスレッドの作業をシミュレートします。
     const work_time = 300 * ((5 - id % 3) - 2);
     try io.sleep(std.Io.Duration.fromMilliseconds(@intCast(work_time)), .awake);
 
     std.debug.print("thread {d}: {s}\n", .{ id, "finished." });
 }
-// This is the easiest way to run threads in parallel.
-// In general, however, more management effort is required,
-// e.g. by setting up a pool and allowing the threads to communicate
-// with each other using semaphores.
+// これはスレッドを並列で実行する最も簡単な方法です。
+// しかし一般的には、より多くの管理作業が必要です。
+// 例えば、プールを設定してセマフォを使ってスレッド同士が
+// 通信できるようにするなどです。
 //
-// But that's a topic for another exercise.
+// しかし、それは別のエクササイズのテーマです。

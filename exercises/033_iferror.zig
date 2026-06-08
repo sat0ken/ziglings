@@ -1,19 +1,18 @@
 //
-// Let's revisit the very first error exercise. This time, we're going to
-// look at an error-handling variation of the "if" statement.
+// 最初のエラー演習を振り返ってみましょう。今回は
+// "if"文のエラー処理バリアントを見ていきます。
 //
 //     if (foo) |value| {
 //
-//         // foo was NOT an error; value is the non-error value of foo
+//         // fooはエラーではなかった；valueはfooのエラーでない値
 //
 //     } else |err| {
 //
-//         // foo WAS an error; err is the error value of foo
+//         // fooはエラーだった；errはfooのエラー値
 //
 //     }
 //
-// We'll take it even further and use a switch statement to handle
-// the error types.
+// さらに進んで、switch文を使ってエラーの種類を処理します。
 //
 //     if (foo) |value| {
 //         ...
@@ -39,15 +38,15 @@ pub fn main() void {
             std.debug.print("={}. ", .{value});
         } else |err| switch (err) {
             MyNumberError.TooBig => std.debug.print(">4. ", .{}),
-            // Please add a match for TooSmall here and have it print: "<4. "
+            // TooSmallのマッチをここに追加して"<4. "と出力されるようにしてください
         }
     }
 
     std.debug.print("\n", .{});
 }
 
-// This time we'll have numberMaybeFail() return an error union rather
-// than a straight error.
+// 今回はnumberMaybeFail()がエラーそのものではなく
+// エラーユニオンを返すようにします。
 fn numberMaybeFail(n: u8) MyNumberError!u8 {
     if (n > 4) return MyNumberError.TooBig;
     if (n < 4) return MyNumberError.TooSmall;
