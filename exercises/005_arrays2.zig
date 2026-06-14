@@ -20,12 +20,12 @@ pub fn main() void {
     // （問題1）
     // 上の2つの配列を連結してこの配列を設定してください。
     // 結果は: 1 3 3 7 となるはずです
-    const leet = ???;
+    const leet = le ++ et;
 
     // （問題2）
     // 繰り返しを使ってこの配列を設定してください。
     // 結果は: 1 0 0 1 1 0 0 1 1 0 0 1 となるはずです
-    const bit_pattern_unit = [_]u8{ ??? };
+    const bit_pattern_unit = [_]u8{ 1, 0, 0, 1 };
     const bit_pattern: [3 * bit_pattern_unit.len]u8 = @bitCast(@as([3][bit_pattern_unit.len]u8, @splat(bit_pattern_unit)));
 
     // 問題はここまでです。結果を確認しましょう。
