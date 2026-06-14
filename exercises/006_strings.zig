@@ -25,14 +25,14 @@ pub fn main() void {
     // （問題1）
     // 配列の角括弧記法を使って、上の文字列 "stardust" から
     // 文字 'd' を取得してください。
-    const d: u8 = ziggy[???];
+    const d: u8 = ziggy[4];
 
     // （問題2）
     // 配列連結演算子 '++' を使って "Major Tom" を作ってください。
     // （スペースも追加する必要があります！）
     const major = "Major";
     const tom = "Tom";
-    const major_tom = major ??? tom;
+    const major_tom = major ++ " " ++ tom;
 
     // 問題はここまでです。結果を確認しましょう：
     std.debug.print("d={u} {s}\n", .{ d, major_tom });
