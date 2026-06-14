@@ -27,5 +27,5 @@ pub fn main(init: std.process.Init) !void {
     // それをmain()の戻り値として渡せるようにしたいです。
     //
     // これを一つの文で実現できる方法を先ほど学びました。
-    stdout.print("Hello world!\n", .{});
+    try stdout.print("Hello world!\n", .{});
 }
