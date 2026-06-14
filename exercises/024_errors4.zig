@@ -58,7 +58,12 @@ fn fixTooSmall(n: u32) MyNumberError!u32 {
     // TooSmallエラーが発生した場合、10を返すべきです。
     // その他のエラーが発生した場合、そのエラーを返すべきです。
     // それ以外の場合、u32の数値を返します。
-    return detectProblems(n) ???;
+    return detectProblems(n) catch | err | {
+        if (err == MyNumberError.TooSmall) {
+            return 10;
+        }
+        return err;
+    };
 }
 
 fn detectProblems(n: u32) MyNumberError!u32 {
