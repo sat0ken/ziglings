@@ -32,7 +32,7 @@ fn makeNumber() MyErr!u32 {
 
     // "failed"メッセージがmakeNumber()関数がエラーで終了した
     // 場合にのみ出力されるようにしてください：
-    std.debug.print("failed!\n", .{});
+    errdefer std.debug.print("failed!\n", .{});
 
     var num = try getNumber(); // <-- これは失敗するかもしれません！
 
