@@ -23,7 +23,7 @@ pub fn main() void {
     const foo = 42;
 
     // この条件を修正してください：
-    if (foo) {
+    if (foo == 42) {
         // このメッセージを表示したいです！
         std.debug.print("Foo is 42!\n", .{});
     } else {
