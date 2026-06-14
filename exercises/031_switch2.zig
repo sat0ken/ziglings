@@ -30,6 +30,7 @@ pub fn main() void {
             26 => 'Z',
             // 前の演習と同様に'else'節を追加してください。
             // 今回は、感嘆符'!'を返すようにしてください。
+            else => '!',
         };
 
         std.debug.print("{c}", .{real_char});
