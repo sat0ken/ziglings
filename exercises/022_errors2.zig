@@ -19,7 +19,7 @@ const std = @import("std");
 const MyNumberError = error{TooSmall};
 
 pub fn main() void {
-    var my_number: ??? = 5;
+    var my_number: MyNumberError!u8 = 5;
 
     // my_numberは数値またはエラーのどちらかを格納する必要があります。
     // 上で正しい型を設定できますか？
