@@ -26,7 +26,7 @@ fn addFive(n: u32) MyNumberError!u32 {
     // この関数はdetect()から返されるかもしれないエラーを返す必要があります。
     // "catch"ではなく"try"文を使ってください。
     //
-    const x = detect(n);
+    const x = try detect(n);
 
     return x + 5;
 }
