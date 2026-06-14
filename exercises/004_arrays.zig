@@ -27,7 +27,7 @@ pub fn main() void {
     // （問題1）
     // この "const" は後で問題を引き起こします - 何が問題か分かりますか？
     // どう修正すればよいでしょうか？
-    const some_primes = [_]u8{ 1, 3, 5, 7, 11, 13, 17, 19 };
+    var some_primes = [_]u8{ 1, 3, 5, 7, 11, 13, 17, 19 };
 
     // 値は '[]' 記法で設定できます。
     // 例：この行は最初の素数を2に変更します（正しい値です）：
@@ -40,11 +40,11 @@ pub fn main() void {
     // （問題2）
     // この式を完成させる必要があります。上の例を参考にして、
     // "fourth" に some_primes 配列の4番目の要素を設定してください：
-    const fourth = some_primes[???];
+    const fourth = some_primes[3];
 
     // （問題3）
     // len プロパティを使って配列の長さを取得してください：
-    const length = some_primes.???;
+    const length = some_primes.len;
 
     std.debug.print("First: {}, Fourth: {}, Length: {}\n", .{
         first, fourth, length,
