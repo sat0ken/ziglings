@@ -20,6 +20,6 @@ const std = @import("std");
 pub fn main() void {
     // 他は何も変えずに、このコードに'defer'文を追加して
     // "One Two\n"と出力されるようにしてください：
-    std.debug.print("Two\n", .{});
+    defer std.debug.print("Two\n", .{});
     std.debug.print("One ", .{});
 }
