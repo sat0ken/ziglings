@@ -18,7 +18,7 @@ pub fn main() void {
     // ここでは u8 も使えますが、配列インデックスには usize が慣用的な型です。
     //
     // この行には問題がありますが、'usize' は問題ではありません。
-    const x: usize = 1;
+    var x: usize = 1;
 
     // 注意：何も入れずにメモリ（この場合は配列）を宣言したい場合は、
     // 'undefined' に設定できます。この行には問題がありません。
@@ -30,10 +30,10 @@ pub fn main() void {
     lang[0] = letters[x];
 
     x = 3;
-    lang[???] = letters[x];
+    lang[1] = letters[x];
 
-    x = ???;
-    lang[2] = letters[???];
+    x = 5;
+    lang[2] = letters[x];
 
     // もちろん "Program in Zig!" と表示したいです：
     std.debug.print("Program in {s}!\n", .{lang});
