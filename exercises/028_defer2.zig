@@ -19,7 +19,7 @@ pub fn main() void {
 fn printAnimal(animal: u8) void {
     std.debug.print("(", .{});
 
-    std.debug.print(") ", .{}); // <---- どうやって?!
+    defer std.debug.print(") ", .{}); // <---- どうやって?!
 
     if (animal == 'g') {
         std.debug.print("Goat", .{});
@@ -50,9 +50,9 @@ fn calculateTheUltimateQuestionOfLife() u32 {
 
     // 42という答えを得るためにステートメントを並べ替えてみてください
     {
-        defer x = x / 10;
-        defer x = x + 11;
         defer x = x * 2;
+        defer x = x + 11;
+        defer x = x / 10;
     }
 
     return x;
