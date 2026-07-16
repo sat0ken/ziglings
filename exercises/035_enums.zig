@@ -18,7 +18,7 @@
 const std = @import("std");
 
 // enumを完成させてください！
-const Ops = enum { ??? };
+const Ops = enum { inc, pow, dec };
 
 pub fn main() void {
     const operations = [_]Ops{
