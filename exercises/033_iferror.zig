@@ -39,6 +39,7 @@ pub fn main() void {
         } else |err| switch (err) {
             MyNumberError.TooBig => std.debug.print(">4. ", .{}),
             // TooSmallのマッチをここに追加して"<4. "と出力されるようにしてください
+            MyNumberError.TooSmall => std.debug.print("<4. ", .{})
         }
     }
 
