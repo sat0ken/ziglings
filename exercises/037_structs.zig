@@ -39,6 +39,7 @@ const Character = struct {
     role: Role,
     gold: u32,
     experience: u32,
+    health: u8,
 };
 
 pub fn main() void {
@@ -47,6 +48,7 @@ pub fn main() void {
         .role = Role.wizard,
         .gold = 20,
         .experience = 10,
+        .health = 100,
     };
 
     // Glorpは金を手に入れました。
