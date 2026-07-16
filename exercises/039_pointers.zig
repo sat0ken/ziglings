@@ -29,7 +29,7 @@ pub fn main() void {
 
     // num1_pointerを使ってnum2を5にしてください！
     //（上の「チートシート」を参考にしてください。）
-    num2 = ???;
+    num2 = num1_pointer.*;
 
     std.debug.print("num1: {}, num2: {}\n", .{ num1, num2 });
 }
