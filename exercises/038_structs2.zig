@@ -33,6 +33,13 @@ pub fn main() void {
         .experience = 10,
     };
 
+    chars[1] = Character{
+        .role = Role.bard,
+        .gold = 10,
+        .health = 100,
+        .experience = 20,
+    };
+
     // "Zump the Loud"を次のプロパティで追加してください：
     //
     //     role       bard
