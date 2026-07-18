@@ -21,7 +21,7 @@ const std = @import("std");
 
 const Elephant = struct {
     letter: u8,
-    tail: *Elephant = null, // Hmm... tail には何かが必要です...
+    tail: ?*Elephant = null, // Hmm... tail には何かが必要です...
     visited: bool = false,
 };
 
@@ -64,6 +64,6 @@ fn visitElephants(first_elephant: *Elephant) void {
 
         // ヒント：`.?` と似たようなことをしたいのですが、
         // プログラムを終了させる代わりにループを抜け出したいです...
-        e = e.tail ???
+        e = e.tail orelse break;
     }
 }
