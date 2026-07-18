@@ -30,8 +30,8 @@ pub fn main() void {
     var cards = [8]u8{ 'A', '4', 'K', '8', '5', '2', 'Q', 'J' };
 
     // 最初の 4 枚のカードを hand1 に、残りを hand2 に入れてください。
-    const hand1: []u8 = cards[???];
-    const hand2: []u8 = cards[???];
+    const hand1: []u8 = cards[0..4];
+    const hand2: []u8 = cards[4..];
 
     std.debug.print("Hand1: ", .{});
     printHand(hand1);
@@ -41,7 +41,7 @@ pub fn main() void {
 }
 
 // この関数に手を貸してください。u8 スライスの手、です。
-fn printHand(hand: ???) void {
+fn printHand(hand: []u8) void {
     for (hand) |h| {
         std.debug.print("{u} ", .{h});
     }
