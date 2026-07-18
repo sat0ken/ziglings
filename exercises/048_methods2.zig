@@ -54,7 +54,7 @@ fn visitElephants(first_elephant: *Elephant) void {
 
         // 次の象を取得するか停止します：
         // ここではどのメソッドを使えばよいでしょうか？
-        e = if (e.hasTail()) e.??? else break;
+        e = if (e.hasTail()) e.getTail() else break;
     }
 }
 
