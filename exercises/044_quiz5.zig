@@ -19,12 +19,14 @@ const Elephant = struct {
 pub fn main() void {
     var elephantA = Elephant{ .letter = 'A' };
     // （ここに Elephant B を追加してください！）
+    var elephantB = Elephant{ .letter = 'B' };
     var elephantC = Elephant{ .letter = 'C' };
 
     // 象たちをリンクして、それぞれのしっぽが次の象を「指す」ようにします。
     // A->B->C->A... という円を作ります。
     elephantA.tail = &elephantB;
     // （ここで Elephant B のしっぽを Elephant C にリンクしてください！）
+    elephantB.tail = &elephantC;
     elephantC.tail = &elephantA;
 
     visitElephants(&elephantA);
