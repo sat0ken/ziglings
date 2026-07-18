@@ -86,7 +86,7 @@ pub fn main() void {
         for (&aliens) |*alien| {
 
             // *** ここでヒートレイでエイリアンをやっつけましょう！ ***
-            ???.zap(???);
+            heat_ray.zap(alien);
 
             // エイリアンの体力がまだ 0 以上なら、まだ生きています。
             if (alien.health > 0) aliens_alive += 1;
