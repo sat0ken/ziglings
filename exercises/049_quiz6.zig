@@ -26,8 +26,13 @@ const Elephant = struct {
 
     // 象の幹メソッドをここに書きましょう！
     // ---------------------------------------------------
+    pub fn getTrunk(self: *Elephant) *Elephant {
+        return self.trunk.?;
+    }
 
-    ???
+    pub fn hasTrunk(self: *Elephant) bool {
+        return (self.trunk != null);
+    }
 
     // ---------------------------------------------------
 
