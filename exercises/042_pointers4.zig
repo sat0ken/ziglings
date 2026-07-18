@@ -34,5 +34,5 @@ pub fn main() void {
 
 // この関数は u8 値への参照を受け取り、その値を 5 に設定するべきです。
 fn makeFive(x: *u8) void {
-    ??? = 5; // fix me!
+    x.* = 5; // fix me!
 }
