@@ -30,7 +30,7 @@ pub fn main() void {
 
     // ポインタ "p" を定義してください。foo または bar のどちらも指すことができ、
     // かつ指している値を変更できるようにしてください！
-    ??? p: ??? = undefined;
+    var p: *u8 = undefined;
 
     p = &foo;
     p.* += 1;
