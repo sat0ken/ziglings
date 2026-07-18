@@ -65,7 +65,7 @@ pub fn main() void {
 
     // 修正してください！
     // Glorp を printCharacter() に渡してください：
-    printCharacter(???);
+    printCharacter(&glorp);
 }
 
 // この関数のパラメータ "c" は Character 構造体へのポインタです。
