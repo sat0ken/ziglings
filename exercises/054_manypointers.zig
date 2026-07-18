@@ -32,7 +32,7 @@ pub fn main() void {
     // 文字列として扱えます。（ヒント：長さは知っています！）
     //
     // 以下の print 文が表示できるように、この行を修正してください：
-    const zen12_string: []const u8 = zen_manyptr;
+    const zen12_string: []const u8 = zen_manyptr[0..21];
 
     // 真実の瞬間！
     std.debug.print("{s}\n", .{zen12_string});
