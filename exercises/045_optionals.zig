@@ -27,7 +27,7 @@ pub fn main() void {
 
     // result を「脅して」、answer が deepThought() からの整数値か
     // 数値 42 になるようにしてください：
-    const answer: u8 = result;
+    const answer: u8 = result orelse 42;
 
     std.debug.print("The Ultimate Answer: {}.\n", .{answer});
 }
