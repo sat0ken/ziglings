@@ -80,7 +80,7 @@ pub fn main() void {
     // std.debug.print 関数を "print" という const に割り当てて、
     // この新しい名前を後で使えるようにしましょう！
 
-    const print = ???;
+    const print = std.debug.print;
 
     // では、Zig での値の代入とポインタについて見てみましょう。
     //
@@ -152,13 +152,13 @@ pub fn main() void {
     print("XP before:{}, ", .{glorp.experience});
 
     // 修正箇所 1/2 はここ：
-    levelUp(glorp, reward_xp);
+    levelUp(&glorp, reward_xp);
 
     print("after:{}.\n", .{glorp.experience});
 }
 
 // 修正箇所 2/2 はここ：
-fn levelUp(character_access: Character, xp: u32) void {
+fn levelUp(character_access: *Character, xp: u32) void {
     character_access.experience += xp;
 }
 
