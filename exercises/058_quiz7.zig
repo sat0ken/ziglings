@@ -185,8 +185,8 @@ const TripItem = union(enum) {
             // おっと！隠者は switch 文でユニオン値をキャプチャする方法を
             // 忘れてしまいました。print 文が動作するように
             // 各値を 'p' としてキャプチャしてください！
-            .place => print("{s}", .{p.name}),
-            .path => print("--{}->", .{p.dist}),
+            .place => |p|print("{s}", .{p.name}),
+            .path => |p|print("--{}->", .{p.dist}),
         }
     }
 };
@@ -244,7 +244,7 @@ const HermitsNotebook = struct {
             // 返す必要があります。if 文は逆参照と optional 値の
             // 「アンラップ」がどのように見えるかについてヒントを提供します。
             // "&" 演算子でアドレスを返すことを覚えておいてください。
-            if (place == entry.*.?.place) return entry;
+            if (place == entry.*.?.place) return &entry.*.?;
             // 答えはこの長さにしてください：__________;
         }
         return null;
@@ -290,7 +290,7 @@ const HermitsNotebook = struct {
     // そのポインタやスライスを返したら、どうなると思いますか？
     //
     // 隠者はこの関数の戻り値で何かを忘れているようです。それは何でしょうか？
-    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) void {
+    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) TripError!void {
         // 目的地のエントリから始めます。
         const destination_entry = self.getEntry(dest);
 
