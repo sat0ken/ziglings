@@ -20,9 +20,9 @@ const print = @import("std").debug.print;
 
 pub fn main() void {
     const zig = [_]u8{
-        0o131, // 8 進数
-        0b1101000, // 2 進数
-        0x66, // 16 進数
+        'Z', // 8 進数
+        'i', // 2 進数
+        'g', // 16 進数
     };
 
     print("{s} is cool.\n", .{zig});
