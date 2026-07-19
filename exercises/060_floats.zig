@@ -47,14 +47,14 @@ pub fn main() void {
     //
     // この重量をポンドから、1 ポンド = 0.453592 kg の換算で
     // メートル法の単位に変換します。
-    const shuttle_weight: f16 = 0.453592 * 4480e3;
+    const shuttle_weight: f128 = 0.453592 * 4480e3;
 
     // デフォルトでは、浮動小数点値は標準的な 10 進数表記でフォーマットされます。
     // '{d}' と '{d:.3}' で 10 進数フォーマットがどのように機能するか、
     // または '{e}' と '{e:.3}' で科学的表記法を試してみてください。
     // 注意：シャトルの重量は非常に大きな数なので、科学的表記法の方が
     // 適切かもしれません。
-    print("Shuttle liftoff weight: {d:.0} metric tons\n", .{shuttle_weight / 1e3});
+    print("Shuttle liftoff weight: {e:.3} metric tons\n", .{shuttle_weight / 1e3});
 }
 
 // 浮動小数点についてさらに：
