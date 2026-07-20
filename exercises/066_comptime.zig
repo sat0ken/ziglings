@@ -61,8 +61,8 @@ pub fn main() void {
     // comptime数値は選択した実行時型に強制変換されます
     // （収まる場合！）。このため、例えば32ビットなどの
     // サイズを指定する必要があります。
-    var var_int = 12345;
-    var var_float = 987.654;
+    comptime var var_int: u32 = 12345;
+    comptime var var_float: f32 = 987.654;
 
     // 実行中のコンパイルされたプログラムで "var_int" と
     // "var_float" のために確保された領域に保存されている
