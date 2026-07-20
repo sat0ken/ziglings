@@ -67,7 +67,7 @@ const print = @import("std").debug.print;
 pub fn main() void {
     var letter: u8 = 'A';
 
-    const my_letter:   ???   = &letter;
+    const my_letter:   ?*[1]u8   = &letter;
     //               ^^^^^^^
     //           ここに型を入れてください。
     // &letter（これは *u8 です）から強制変換できる必要があります。
