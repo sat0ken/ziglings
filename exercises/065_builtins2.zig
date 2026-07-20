@@ -57,7 +57,7 @@ pub fn main() void {
     // undefinedのままにしておくことはできません。
     // ここで設定してください：
     narcissus.me = &narcissus;
-    narcissus.??? = ???;
+    narcissus.myself = &narcissus;
 
     // 3つの別々の参照（たまたますべて同じオブジェクトです）から
     // 「ピア型」を決定します。
@@ -68,7 +68,7 @@ pub fn main() void {
     // ありません。（上記参照。）
     //
     // この修正は非常に微妙ですが、大きな違いをもたらします！
-    const Type2 = narcissus.fetchTheMostBeautifulType();
+    const Type2 = Narcissus.fetchTheMostBeautifulType();
 
     // Narcissusについての気の利いた文を出力します。
     print("A {s} loves all {s}es. ", .{
@@ -100,16 +100,16 @@ pub fn main() void {
     // フィールドが 'void' 型の場合（まったくスペースを
     // 取らないゼロビット型！）はフィールド名を出力しないよう
     // これらの 'if' 文を完成させてください：
-    if (field_???[???] != void) {
-        print(" {s}", .{field_???[???]});
+    if (field_types[0] != void) {
+        print(" {s}", .{field_names[0]});
     }
 
-    if (field_???[???] != void) {
-        print(" {s}", .{field_???[???]});
+    if (field_types[1] != void) {
+        print(" {s}", .{field_names[1]});
     }
 
-    if (field_???[???] != void) {
-        print(" {s}", .{field_???[???]});
+    if (field_types[2] != void) {
+        print(" {s}", .{field_names[2]});
     }
 
     // 上のコードの繰り返しを見てください！嫌ですね、
