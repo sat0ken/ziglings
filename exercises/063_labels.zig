@@ -124,8 +124,8 @@ pub fn main() void {
         // 食材がすべて望まれていたということです。
         //
         // このFoodをループから返してください。
-        break;
-    };
+        break :food_loop food;
+    } else menu[0];
     // ^ おっと！要求された食材が見つからない場合の
     // デフォルトのFoodとしてMac & Cheeseを返すのを忘れました。
 
