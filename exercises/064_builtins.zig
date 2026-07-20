@@ -65,7 +65,7 @@ pub fn main() void {
     // aに5を加算する際にオーバーフローがまったくなかった場合、
     // 'my_result'はどの値になるでしょうか？
     // 答えを 'expected_result' に書き込んでください。
-    const expected_result: u8 = ???;
+    const expected_result: u8 = 18;
     print(". Without overflow: {b:0>8}. ", .{expected_result});
 
     print("Furthermore, ", .{});
@@ -80,6 +80,6 @@ pub fn main() void {
     // u8整数のビットを反転させる試みを修正できるか
     // 見てみましょう。
     const input: u8 = 0b11110000;
-    const tupni: u8 = @bitReverse(input, tupni);
+    const tupni: u8 = @bitReverse(input);
     print("{b:0>8} backwards is {b:0>8}.\n", .{ input, tupni });
 }
